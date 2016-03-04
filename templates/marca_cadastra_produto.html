@@ -1,0 +1,37 @@
+<html>
+<head>
+    <title>Cadastro de Produto</title>
+</head>
+<body>
+    <h1>{{marca.nome}}</h1>
+
+    {% if produto_cadastrado %}
+    <p>
+        Produto cadastrado com sucesso
+    </p>
+    {% endif %}
+    <div>
+        <a href="/marca/listaprodutos">Lista produtos</a>
+    </div>
+    <form action="" method="post">
+        <div>
+            <label for="id_nome">Nome:</label>
+            <input type="text" id="id_nome" name="nome" required>
+        </div>
+        <div>
+            <label for="id_altura">Altura:</label>
+            <input type="text" id="id_altura" name="altura" required>
+        </div>
+        <div>
+            <label for="id_largura">Largura:</label>
+            <input type="text" id="id_largura" name="largura" required>
+        </div>
+        <div>
+            <label for="id_profundidade">Profundidade:</label>
+            <input type="text" id="id_profundidade" name="profundidade" required>
+        </div>
+        {% csrf_token %}
+        <input type="submit" value="Cadastrar">
+    </form>
+</body>
+</html>

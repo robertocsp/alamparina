@@ -1,0 +1,58 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+    <title>Produtos</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "alamparina/css/bootstrap.min.css" %}" rel="stylesheet">
+
+    <!-- Bootstrap core JS -->
+    <link href="{% static "alamparina/js/bootstrap.min.js" %}" rel="stylesheet">
+
+    <!-- JQuery -->
+    <link href="{% static "alamparina/js/jquery-1.12.1.min.js" %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+  <!--  <link href="{% static "alamparina/css/signin.css" %}" rel="stylesheet"> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <h1>Produtos da {{marca.nome}}</h1>
+    <a href="/marca/cadastra-produto">cadastrar novo produto</a>
+    <div class="container-fluid">
+      <div>
+        <div class="row">
+          <div class="col-sm-3">Nome</div>
+          <div class="col-sm-3">Largura</div>
+          <div class="col-sm-3">Altura</div>
+          <div class="col-sm-3">Profundidade</div>
+        </div>
+        {% for produto in produto_list %}
+          <div class="row">
+            <div class="col-sm-3">{{ produto.nome }}</div>
+            <div class="col-sm-3">{{ produto.largura }}</div>
+            <div class="col-sm-3">{{ produto.altura }}</div>
+            <div class="col-sm-3">{{ produto.profundidade }}</div>
+          </div>
+        {% endfor %}
+
+      </div>
+    </div> <!-- /container -->
+
+  </body>
+</html>
