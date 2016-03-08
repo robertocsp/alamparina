@@ -92,6 +92,6 @@ STATIC_ROOT = ''
 
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = ('/home/ubuntu/DjangoProjects/virtual_alamparina/alamparina/templates',)
+TEMPLATE_DIRS = ('/home/ubuntu/DjangoProjects/virtual_alamparina/alamparina/alamparina/templates',)
 
 LOGIN_URL ='/conta/login/'
