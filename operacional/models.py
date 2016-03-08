@@ -32,8 +32,8 @@ class Checkin(models.Model):
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
 
 class Expedicao(models.Model):
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     quantidade = models.IntegerField(blank=False)
 
 
