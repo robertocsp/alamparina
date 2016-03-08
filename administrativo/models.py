@@ -37,7 +37,7 @@ class TipoEspaco(models.Model):
 class Espaco(models.Model):
     identificador = models.CharField(max_length=20)
     tipo = models.ForeignKey(TipoEspaco)
-    loja = models.ForeignKey(Loja)
+    loja = models.ForeignKey(Loja, blank=True, null=True)
 
     def __unicode__(self):
         return u'%s %s' % (self.identificador, self.tipo)
@@ -56,3 +56,6 @@ class Alocacao(models.Model):
     marca = models.ForeignKey(Marca)
     espaco = models.ManyToManyField(Espaco)
     periodo = models.ManyToManyField(Periodo)
+
+    def __unicode__(self):
+        return self.marca.nome

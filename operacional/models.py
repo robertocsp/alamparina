@@ -13,3 +13,29 @@ class Produto(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+class Checkin(models.Model):
+    TIPO = (
+        ("chin","CheckIn"),
+        ("chout","CheckOut"),
+    )
+    tipo = models.CharField(max_length=10, choices=TIPO, default="chin")
+
+    STATUS = (
+        ("enviado","Enviado"),
+        ("emanalise", "Emanalise"),
+        ("confirmado","Confirmado"),
+    )
+    status = models.CharField(max_length=10, choices=STATUS, default="enviado")
+    produto = models.ManyToManyField(Produto, through='Expedicao')
+    dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
+    hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
+
+class Expedicao(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE)
+    quantidade = models.IntegerField(blank=False)
+
+
+
+
