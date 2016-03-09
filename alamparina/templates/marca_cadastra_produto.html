@@ -1,8 +1,3 @@
-<html>
-<head>
-    <title>Cadastro de Produto</title>
-</head>
-<body>
     <h1>{{marca.nome}}</h1>
 
     {% if produto_cadastrado %}
@@ -33,5 +28,3 @@
         {% csrf_token %}
         <input type="submit" value="Cadastrar">
     </form>
-</body>
-</html>

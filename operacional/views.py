@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from operacional.forms import LoginForm, ProdutoForm
 from django import forms
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -31,13 +32,14 @@ def login_marca(request):
         form = LoginForm()
         return render(request, 'login_marca.html', {'form': form, 'error': False})
 
-
+@login_required
 def lista_produtos(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     #produto_list = Produto.objects.filter(marca__id=marca.id)
     produto_list = marca.produto_set.all()
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
+@login_required
 def cadastra_produto(request,template_name ):
     marca = Marca.objects.get(id=request.session['marca_id'])
     produto_cadastado = False

@@ -97,13 +97,13 @@ STATIC_ROOT = ''
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = ''
+MEDIA_ROOT = BASE_DIR+'/media'
 
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 TEMPLATE_DIRS = (BASE_DIR,'templates')
 
-LOGIN_URL ='/conta/login/'
+LOGIN_URL ='/marca/login/'
 
 try:
   from settings_local import *
