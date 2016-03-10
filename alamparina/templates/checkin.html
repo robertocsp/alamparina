@@ -1,0 +1,19 @@
+<h1>{{marca|capfirst}}</h1>
+<form method="post">
+    <label>Dia agendamento</label><input type="text" name="dia_agendamento" required>
+    <label>Hora agendamento</label><input type="text" name="hora_agendamento" required>
+    <div>
+        <label>Produtos</label>
+        <select name="produtos">
+            {% for produto in produto_list %}
+            <option value="{{produto.id}}">{{produto.nome}}</option>
+            {% endfor %}
+        </select>
+        <label>Quantidade</label><input type="text" name="qtde_produto" required>
+    </div>
+    {% csrf_token %}
+</form>
+<div>
+    <p>Produtos no ckeckin:</p>
+
+</div>

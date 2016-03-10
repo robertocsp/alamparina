@@ -22,20 +22,26 @@ class Checkin(models.Model):
     tipo = models.CharField(max_length=10, choices=TIPO, default="chin")
 
     STATUS = (
-        ("enviado","Enviado"),
+        ("enviado", "Enviado"),
         ("emanalise", "Emanalise"),
-        ("confirmado","Confirmado"),
+        ("confirmado", "Confirmado"),
     )
     status = models.CharField(max_length=10, choices=STATUS, default="enviado")
-    produto = models.ManyToManyField(Produto, through='Expedicao')
+    marca = models.ForeignKey(Marca, blank=True, null=True)
+    #produto = models.ManyToManyField(Produto, through='Expedicao')
     dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
 
 class Expedicao(models.Model):
-    checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE)
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    quantidade = models.IntegerField(blank=False)
+    checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE, null=False)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, null=False)
+    quantidade = models.IntegerField(blank=True, null=True)
+    STATUS = (
+        ("ok", "ProdutoOK"),
+        ("avariado", "ProdutoAvariado"),
+        ("ausente", "Ausente")
+    )
+    status = models.CharField(max_length=10, choices=STATUS, default="ok")
 
-
-
-
+    class Meta:
+        unique_together = ('checkin', 'produto')

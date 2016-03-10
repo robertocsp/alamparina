@@ -53,6 +53,7 @@ class Periodo(models.Model):
 
 class Alocacao(models.Model):
     data_alocacao = models.DateField()
+    identificador = models.CharField(max_length=20, blank=True)
     marca = models.ForeignKey(Marca)
     espaco = models.ManyToManyField(Espaco)
     periodo = models.ManyToManyField(Periodo)

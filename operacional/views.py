@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from operacional.forms import LoginForm, ProdutoForm
 from django import forms
 from django.contrib.auth.decorators import login_required
+from operacional.models import Checkin
 
 # Create your views here.
 
@@ -14,6 +15,8 @@ def login_marca(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             username = request.POST['username']
+            #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
+            #username = request.POST.get('username','')
             senha = request.POST['senha']
             user = authenticate(username=username, password=senha)
             if user != None:
@@ -55,3 +58,16 @@ def cadastra_produto(request,template_name ):
     else:
         form = ProdutoForm()
         return render(request,template_name,{'form':form,'marca':marca, 'produto_cadastrado':produto_cadastado})
+
+@login_required
+def realiza_checkin(request):
+    checkin = Checkin()
+    checkin.tipo = 'chin'
+    checkin.marca = Marca.objects.get(id=request.session['marca_id'])
+    checkin.status = 'enviado'
+    produto_list = checkin.marca.produto_set.all()
+    if request.method == 'POST':
+        checkin.dia_agendamento = request.POST['dia_agendamento']
+        checkin.hora_agendamento = request.POST['hora_agendamento']
+
+    return render(request,'checkin.html', {'marca': checkin.marca, 'produto_list':produto_list})
