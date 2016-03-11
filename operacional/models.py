@@ -9,7 +9,7 @@ class Produto(models.Model):
     largura = models.IntegerField()
     altura = models.IntegerField()
     profundidade = models.IntegerField()
-    marca = models.ForeignKey(Marca)
+    marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
 
     def __unicode__(self):
         return self.nome
