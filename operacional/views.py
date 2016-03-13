@@ -7,6 +7,8 @@ from operacional.forms import LoginForm, ProdutoForm
 from django import forms
 from django.contrib.auth.decorators import login_required
 from operacional.models import Checkin
+from django.utils import timezone
+import datetime
 
 # Create your views here.
 
@@ -66,8 +68,13 @@ def realiza_checkin(request):
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
     checkin.status = 'enviado'
     produto_list = checkin.marca.produto_set.all()
+    if request.method == 'GET':
+        checkin.dia_agendamento = timezone.now()
+        checkin.dia_agendamento = timezone.now()
+        checkin.hora_agendamento = timezone.now()
+
     if request.method == 'POST':
         checkin.dia_agendamento = request.POST['dia_agendamento']
         checkin.hora_agendamento = request.POST['hora_agendamento']
 
-    return render(request,'checkin.html', {'marca': checkin.marca, 'produto_list':produto_list})
+    return render(request,'checkin.html', {'marca': checkin.marca, 'produto_list':produto_list, 'checkin':checkin})

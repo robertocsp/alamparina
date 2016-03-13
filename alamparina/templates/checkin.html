@@ -1,7 +1,7 @@
 <h1>{{marca|capfirst}}</h1>
 <form method="post">
-    <label>Dia agendamento</label><input type="text" name="dia_agendamento" required>
-    <label>Hora agendamento</label><input type="text" name="hora_agendamento" required>
+    <label>Dia agendamento</label><input type="text" name="dia_agendamento" value="{{checkin.dia_agendamento|date:"d/m/Y"}} " required>
+    <label>Hora agendamento</label><input type="text" name="hora_agendamento" value="{{checkin.hora_agendamento|date:"h:m"}}" required>
     <div>
         <label>Produtos</label>
         <select name="produtos">
@@ -9,12 +9,12 @@
             <option value="{{produto.id}}">{{produto.nome}}</option>
             {% endfor %}
         </select>
-        <label>Quantidade</label><input type="text" name="qtde_produto" required>
+        <label>Quantidade</label><input type="text" name="qtde_produto" required><input type="submit" value="Adicionar">
     </div>
-    <div><input type="submit" value="Enviar"></div>
     {% csrf_token %}
 </form>
 <div>
     <p>Produtos no ckeckin:</p>
+    <div><span>Produto&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><span>Quantidade</span></div>
 
 </div>
