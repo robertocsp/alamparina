@@ -1,15 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from models import Produto
 from administrativo.models import Marca
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
-from operacional.forms import LoginForm, ProdutoForm
-from django import forms
 from django.contrib.auth.decorators import login_required
-from operacional.models import Checkin
-from django.utils import timezone
-import datetime
-
+from operacional.models import Checkin, Expedicao
+from operacional.forms import *
+from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 # Create your views here.
 
 def login_marca(request):
@@ -45,36 +43,56 @@ def lista_produtos(request):
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
 @login_required
-def cadastra_produto(request,template_name ):
+def cadastra_produto(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    produto_cadastado = False
     if request.method == 'POST':
         form = ProdutoForm(request.POST)
         if form.is_valid():
-            produto = Produto(nome=request.POST['nome'],altura=request.POST['altura'],largura=request.POST['largura'],profundidade=request.POST['profundidade'],marca=marca)
+            produto = form.save(commit=False)
+            produto.marca = marca
             produto.save()
             produto_cadastado = True
-            return render(request,template_name,{'form':form,'marca':marca, 'produto_cadastrado':produto_cadastado})
-        else:
-            raise forms.ValidationError("Algum nome ou id incoerrente com o formulario")
+            return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado':produto_cadastado})
+
     else:
         form = ProdutoForm()
-        return render(request,template_name,{'form':form,'marca':marca, 'produto_cadastrado':produto_cadastado})
+    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
+
+@login_required
+def edita_produto(request,id):
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    produto_cadastado = True
+    produto = get_object_or_404(Produto, id=id)
+    return HttpResponseRedirect(reverse('marca_cadastra_produto'))
+
+@login_required
+def lista_checkin(request):
+    return render(request, 'lista_checkin.html')
 
 @login_required
 def realiza_checkin(request):
     checkin = Checkin()
+    expedicao = Expedicao()
     checkin.tipo = 'chin'
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
     checkin.status = 'enviado'
     produto_list = checkin.marca.produto_set.all()
-    if request.method == 'GET':
-        checkin.dia_agendamento = timezone.now()
-        checkin.dia_agendamento = timezone.now()
-        checkin.hora_agendamento = timezone.now()
+    expedicao_list = None
 
     if request.method == 'POST':
-        checkin.dia_agendamento = request.POST['dia_agendamento']
-        checkin.hora_agendamento = request.POST['hora_agendamento']
+        form = CheckinForm(request.POST)
+        if form.is_valid():
+            form.save(marca)
 
-    return render(request,'checkin.html', {'marca': checkin.marca, 'produto_list':produto_list, 'checkin':checkin})
+    else:
+        form = CheckinForm()
+
+    return render(request,'checkin.html',
+                  {
+                      'marca': checkin.marca,
+                      'produto_list':produto_list,
+                      'checkin':checkin,
+                      'expedicao':expedicao_list,
+                      'form' : form
+                  }
+    )

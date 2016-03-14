@@ -4,11 +4,11 @@ from administrativo.models import Marca
 # Create your models here.
 
 class Produto(models.Model):
-    nome = models.CharField(max_length=100)
-    descricao = models.CharField(max_length=300)
-    largura = models.IntegerField()
-    altura = models.IntegerField()
-    profundidade = models.IntegerField()
+    nome = models.CharField('nome', max_length=100)
+    descricao = models.CharField('descricao', max_length=300)
+    largura = models.IntegerField('largura')
+    altura = models.IntegerField('altura')
+    profundidade = models.IntegerField('profundidade')
     marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
 
     def __unicode__(self):
@@ -31,6 +31,10 @@ class Checkin(models.Model):
     #produto = models.ManyToManyField(Produto, through='Expedicao')
     dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
+    observacao = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return '%s %s' % (self.dia_agendamento, self.hora_agendamento)
 
 class Expedicao(models.Model):
     checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE, null=False)
@@ -42,6 +46,7 @@ class Expedicao(models.Model):
         ("ausente", "Ausente")
     )
     status = models.CharField(max_length=10, choices=STATUS, default="ok")
+    observacao = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('checkin', 'produto')

@@ -8,23 +8,9 @@
     <div>
         <a href="/marca/listaprodutos">Lista produtos</a>
     </div>
+    <div>Teste edicao de produto:{{produto_v.nome}}</div>
     <form action="" method="post">
-        <div>
-            <label for="id_nome">Nome:</label>
-            <input type="text" id="id_nome" name="nome" required>
-        </div>
-        <div>
-            <label for="id_altura">Altura:</label>
-            <input type="text" id="id_altura" name="altura" required>
-        </div>
-        <div>
-            <label for="id_largura">Largura:</label>
-            <input type="text" id="id_largura" name="largura" required>
-        </div>
-        <div>
-            <label for="id_profundidade">Profundidade:</label>
-            <input type="text" id="id_profundidade" name="profundidade" required>
-        </div>
+        {{ form.as_ul }}
         {% csrf_token %}
         <input type="submit" value="Cadastrar">
     </form>
