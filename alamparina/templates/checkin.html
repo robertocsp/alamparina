@@ -1,7 +1,7 @@
 <h1>{{marca|capfirst}}</h1>
 <form method="post">
-    <label>Dia agendamento</label><input type="text" name="dia_agendamento" value="{{checkin.dia_agendamento|date:"d/m/Y"}} " required>
-    <label>Hora agendamento</label><input type="text" name="hora_agendamento" value="{{checkin.hora_agendamento|date:"h:m"}}" required>
+    <label>Dia agendamento</label><input type="text" name="dia_agendamento" value="" required>
+    <label>Hora agendamento</label><input type="text" name="hora_agendamento" value="" required>
     <div>
         <label>Produtos</label>
         <select name="produtos">
@@ -16,5 +16,13 @@
 <div>
     <p>Produtos no ckeckin:</p>
     <div><span>Produto&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><span>Quantidade</span></div>
+    {% if expedicao_list %}
+        {% for expedicao in expedicao_list %}
+            <div><span>{{expedicao.produto.nome}}</span></div>
+        {% endfor %}
+    {% else %}
+        <div><span>Não existem produtos adicionados a este checkin</span></div>
+    {% endif %}
+
 
 </div>
