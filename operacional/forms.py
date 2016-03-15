@@ -9,13 +9,13 @@ class LoginForm(forms.Form):
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
-        fields = ['nome', 'largura', 'altura', 'profundidade']
+        exclude = ['marca','quantidade']
 
 class CheckinForm(forms.Form):
-    dia_agendamento = forms.DateField(label='dia_agendamento', input_formats='d/m/Y')
-    hora_agendamento = forms.TimeField(label='hora_agendamento',input_formats='%H:%M')
-    produtos = forms.ChoiceField(label='produtos')
-    qtde_produto = forms.IntegerField(label='qtde_produto')
+    dia_agendamento = forms.DateField(label='Dia agendamento')
+    hora_agendamento = forms.TimeField(label='Hora agendamento')
+    produtos = forms.ChoiceField(label='Produtos')
+    qtde_produto = forms.IntegerField(label='Quantidade')
 
     def save(self, marca):
         checkin.dia_agendamento = self.cleaned_data.get('dia_agendamento')

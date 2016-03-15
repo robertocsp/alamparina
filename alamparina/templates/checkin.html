@@ -1,24 +1,29 @@
 <h1>{{marca|capfirst}}</h1>
 <form method="post">
-    <label>Dia agendamento</label><input type="text" name="dia_agendamento" value="" required>
-    <label>Hora agendamento</label><input type="text" name="hora_agendamento" value="" required>
+    <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="" required>
+    <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="" required>
     <div>
-        <label>Produtos</label>
-        <select name="produtos">
+        <label for="id_produtos">Produtos</label>
+        <select id="id_produtos" name="produtos">
             {% for produto in produto_list %}
             <option value="{{produto.id}}">{{produto.nome}}</option>
             {% endfor %}
         </select>
-        <label>Quantidade</label><input type="text" name="qtde_produto" required><input type="submit" value="Adicionar">
+        <label for="id_qtde_produto">Quantidade</label><input id="id_qtde_produto" type="text" name="qtde_produto" required>
+        <input type="submit" value="Adicionar">
     </div>
+
     {% csrf_token %}
 </form>
+
+<hr>
 <div>
     <p>Produtos no ckeckin:</p>
-    <div><span>Produto&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span><span>Quantidade</span></div>
     {% if expedicao_list %}
         {% for expedicao in expedicao_list %}
-            <div><span>{{expedicao.produto.nome}}</span></div>
+            <div>{{expedicao.produto.nome}}</div>
+            <div>{{expedicao.quantidade}}</div>
+            <hr>
         {% endfor %}
     {% else %}
         <div><span>Não existem produtos adicionados a este checkin</span></div>

@@ -5,7 +5,7 @@
 
           {% for produto in produto_list %}
           <div class="row">
-              <div class="col-sm-3">Nome: {{ produto.nome }}</div>
+              <div class="col-sm-3">Nome: <a href="/marca/cadastra-produto/{{produto.id}}">{{ produto.nome }}</a></div>
               <div class="col-sm-3">Largura: {{ produto.largura }}</div>
               <div class="col-sm-3">Altura: {{ produto.altura }}</div>
               <div class="col-sm-3">Profundidade: {{ produto.profundidade }}</div>

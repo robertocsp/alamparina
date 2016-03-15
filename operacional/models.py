@@ -10,6 +10,7 @@ class Produto(models.Model):
     altura = models.IntegerField('altura')
     profundidade = models.IntegerField('profundidade')
     marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
+    quantidade = models.IntegerField('quantidade', blank=True, null=True)
 
     def __unicode__(self):
         return self.nome
@@ -22,11 +23,13 @@ class Checkin(models.Model):
     tipo = models.CharField(max_length=10, choices=TIPO, default="chin")
 
     STATUS = (
+        ("emprocessamento", "EmProcessamento"),
         ("enviado", "Enviado"),
-        ("emanalise", "Emanalise"),
+        ("emanalise", "EmAnalise"),
         ("confirmado", "Confirmado"),
     )
-    status = models.CharField(max_length=10, choices=STATUS, default="enviado")
+    status = models.CharField(max_length=20, choices=STATUS, default="emprocessamento")
+
     marca = models.ForeignKey(Marca, blank=True, null=True)
     #produto = models.ManyToManyField(Produto, through='Expedicao')
     dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
@@ -37,16 +40,17 @@ class Checkin(models.Model):
         return '%s %s' % (self.dia_agendamento, self.hora_agendamento)
 
 class Expedicao(models.Model):
-    checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE, null=False)
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, null=False)
+    checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE, null=False)
     quantidade = models.IntegerField(blank=True, null=True)
+
     STATUS = (
         ("ok", "ProdutoOK"),
         ("avariado", "ProdutoAvariado"),
         ("ausente", "Ausente")
     )
-    status = models.CharField(max_length=10, choices=STATUS, default="ok")
+    status = models.CharField(max_length=20, choices=STATUS, default="ok")
     observacao = models.TextField(blank=True)
 
     class Meta:
-        unique_together = ('checkin', 'produto')
+       unique_together = ('checkin', 'produto')

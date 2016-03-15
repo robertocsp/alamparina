@@ -9,7 +9,7 @@
         <a href="/marca/listaprodutos">Lista produtos</a>
     </div>
     <div>Teste edicao de produto:{{produto_v.nome}}</div>
-    <form action="" method="post">
+    <form action="." method="post">
         {{ form.as_ul }}
         {% csrf_token %}
         <input type="submit" value="Cadastrar">

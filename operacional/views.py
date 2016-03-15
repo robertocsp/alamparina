@@ -8,6 +8,7 @@ from operacional.models import Checkin, Expedicao
 from operacional.forms import *
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 # Create your views here.
 
 def login_marca(request):
@@ -60,39 +61,87 @@ def cadastra_produto(request):
 
 @login_required
 def edita_produto(request,id):
-    marca = Marca.objects.get(id=request.session['marca_id'])
-    produto_cadastado = True
     produto = get_object_or_404(Produto, id=id)
-    return HttpResponseRedirect(reverse('marca_cadastra_produto'))
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    if request.method == 'POST':
+        form = ProdutoForm(request.POST, instance=produto)
+        if form.is_valid():
+            produto.save()
+            produto_cadastado = True
+            return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
+
+    else:
+        form = ProdutoForm(instance=produto)
+    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
+    #return HttpResponseRedirect(reverse('marca_cadastra_produto'))
 
 @login_required
 def lista_checkin(request):
     return render(request, 'lista_checkin.html')
 
 @login_required
-def realiza_checkin(request):
+def inicia_checkin(request):
     checkin = Checkin()
     expedicao = Expedicao()
     checkin.tipo = 'chin'
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
-    checkin.status = 'enviado'
+    checkin.status = 'emprocessamento'
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = None
 
     if request.method == 'POST':
         form = CheckinForm(request.POST)
         if form.is_valid():
-            form.save(marca)
-
+            checkin.dia_agendamento = request.POST['dia_agendamento']
+            checkin.hora_agendamento = request.POST['hora_agendamento']
+            produto = Produto.objects.get(id=request.POST['produtos'])
+            expedicao.quantidade = request.POST['qtde_produto']
+            checkin.save()
+            expedicao.produto = produto
+            expedicao.checkin = checkin
+            expedicao.save()
+            return render(request, '/marca/checkin/' + str(checkin.id) + '/',
+                    {
+                          'marca': checkin.marca,
+                          'produto_list':produto_list,
+                          'checkin':checkin,
+                          'expedicao':expedicao_list,
+                          'form' : form
+                    })
     else:
         form = CheckinForm()
+    return render(request,'checkin.html',
+                  {
+                      'marca': checkin.marca,
+                      'produto_list':produto_list,
+                      'checkin':checkin,
+                      'expedicao_list':expedicao_list,
+                      'form' : form
+                  }
+    )
+
+@login_required
+def edita_checkin(request, id):
+    checkin = get_object_or_404(Checkin, id=id)
+    produto_list = checkin.marca.produto_set.all()
+    expedicao_list = Expedicao.objects.filter(checkin=checkin)
+
+    if request.method == 'POST':
+        checkin.dia_agendamento = request.POST['dia_agendamento']
+        checkin.hora_agendamento = request.POST['hora_agendamento']
+        produto = Produto.objects.get(id=request.POST['produtos'])
+        expedicao.quantidade = request.POST['qtde_produto']
+        checkin.save()
+        expedicao.produto = produto
+        expedicao.checkin = checkin
+        expedicao.save()
 
     return render(request,'checkin.html',
                   {
                       'marca': checkin.marca,
                       'produto_list':produto_list,
                       'checkin':checkin,
-                      'expedicao':expedicao_list,
-                      'form' : form
+                      'expedicao_list':expedicao_list,
+                      #'form' : form
                   }
     )
