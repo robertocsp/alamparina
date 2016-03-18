@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from administrativo.models import Marca
+import datetime
 
 # Create your models here.
 
@@ -11,6 +13,7 @@ class Produto(models.Model):
     profundidade = models.IntegerField('profundidade')
     marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
     quantidade = models.IntegerField('quantidade', blank=True, null=True)
+    preco = models.FloatField('preço', blank=True, null=True)
 
     def __unicode__(self):
         return self.nome
@@ -20,7 +23,7 @@ class Checkin(models.Model):
         ("chin","CheckIn"),
         ("chout","CheckOut"),
     )
-    tipo = models.CharField(max_length=10, choices=TIPO, default="chin")
+    tipo = models.CharField(max_length=15, choices=TIPO, default="chin")
 
     STATUS = (
         ("emprocessamento", "EmProcessamento"),
@@ -31,7 +34,7 @@ class Checkin(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default="emprocessamento")
 
     marca = models.ForeignKey(Marca, blank=True, null=True)
-    #produto = models.ManyToManyField(Produto, through='Expedicao')
+    produto = models.ManyToManyField(Produto, through='Expedicao')
     dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
     observacao = models.TextField(blank=True)
@@ -39,17 +42,38 @@ class Checkin(models.Model):
     def __unicode__(self):
         return '%s %s' % (self.dia_agendamento, self.hora_agendamento)
 
+    def status_enviado(self):
+        return "enviado"
+
+    def status_emprocessamento(self):
+        return "emprocessamento"
+
+    def status_emanalise(self):
+        return "emanalise"
+
+    def status_confirmado(self):
+        return "confirmado"
+
+'''
+    def clean(self):
+        if self.dia_agendamento < datetime.datetime(2016, 03, 01):
+            raise ValidationError ('data menor que atual')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(Checkin, self).save(*args, **kwargs)
+'''
 class Expedicao(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, null=False)
     checkin = models.ForeignKey(Checkin, on_delete=models.CASCADE, null=False)
-    quantidade = models.IntegerField(blank=True, null=True)
+    quantidade = models.IntegerField()
 
     STATUS = (
         ("ok", "ProdutoOK"),
         ("avariado", "ProdutoAvariado"),
         ("ausente", "Ausente")
     )
-    status = models.CharField(max_length=20, choices=STATUS, default="ok")
+    status = models.CharField(max_length=20, choices=STATUS, blank=True, null=True)
     observacao = models.TextField(blank=True)
 
     class Meta:
