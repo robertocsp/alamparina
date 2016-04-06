@@ -29,7 +29,7 @@ def login_marca(request):
                 #request.session['marca'] = marcaS
                 request.session['marca_id'] = marca.id
                 # return HttpResponse('usuario logado')
-                return HttpResponseRedirect('/marca/listaprodutos/')
+                return HttpResponseRedirect('/marca/dashboard/')
             else:
                 return render(request, 'login_marca.html', {'form': form, 'error': True})
         else:
@@ -146,3 +146,7 @@ def edita_checkin(request, id):
                       'expedicao_list':expedicao_list,
                   }
     )
+
+@login_required
+def dashboard_marca(request):
+    return render (request,'dashboard_marca.html')
