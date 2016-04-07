@@ -13,6 +13,33 @@ from django.contrib import messages
 # Create your views here.
 import datetime
 
+#a ideia e fazer um login unico verificando se e marca ou operacao
+def login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = request.POST['username']
+            #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
+            #username = request.POST.get('username','')
+            senha = request.POST['senha']
+            user = authenticate(username=username, password=senha)
+            if user != None:
+                login(request, user)
+                marca = Marca.objects.get(user=request.user)
+                if marca != None:
+                    request.session['marca_id'] = marca.id
+                    return HttpResponseRedirect('/marca/dashboard/')
+                else:
+                    return HttpResponse('Este usuario nao e uma marca')
+
+            else:
+                return render(request, 'login_marca.html', {'form': form, 'error': True})
+        else:
+            raise forms.ValidationError("Algum nome ou id incoerrente com o formulario")
+    else:
+        form = LoginForm()
+        return render(request, 'login_marca.html', {'form': form, 'error': False})
+
 def login_marca(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -79,7 +106,9 @@ def edita_produto(request,id):
 
 @login_required
 def lista_checkin(request):
-    return render(request, 'lista_checkin.html')
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    checkin_list = Checkin.objects.filter(marca__id=marca.id)
+    return render(request, 'lista_checkin.html', {'checkin_list': checkin_list, 'marca': marca})
 
 @login_required
 def inicia_checkin(request):
@@ -150,3 +179,9 @@ def edita_checkin(request, id):
 @login_required
 def dashboard_marca(request):
     return render (request,'dashboard_marca.html')
+
+@login_required
+def estoque(request):
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    produto_list = Produto.objects.filter(marca__id=marca.id, em_estoque='sim')
+    return render(request, 'estoque.html', {'produto_list': produto_list, 'marca': marca})
