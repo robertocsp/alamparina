@@ -14,7 +14,7 @@ from django.contrib import messages
 import datetime
 
 #a ideia e fazer um login unico verificando se e marca ou operacao
-def login(request):
+def login_operacional(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -39,31 +39,31 @@ def login(request):
     else:
         form = LoginForm()
         return render(request, 'login_marca.html', {'form': form, 'error': False})
-
-def login_marca(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
-            #username = request.POST.get('username','')
-            senha = request.POST['senha']
-            user = authenticate(username=username, password=senha)
-            if user != None:
-                login(request, user)
-                marca = Marca.objects.get(user=request.user)
-                #marcaS = serializers.serialize("json", [marca])
-                #request.session['marca'] = marcaS
-                request.session['marca_id'] = marca.id
-                # return HttpResponse('usuario logado')
-                return HttpResponseRedirect('/marca/dashboard/')
-            else:
-                return render(request, 'login_marca.html', {'form': form, 'error': True})
-        else:
-            raise forms.ValidationError("Algum nome ou id incoerrente com o formulario")
-    else:
-        form = LoginForm()
-        return render(request, 'login_marca.html', {'form': form, 'error': False})
+#
+# def login_marca(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             username = request.POST['username']
+#             #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
+#             #username = request.POST.get('username','')
+#             senha = request.POST['senha']
+#             user = authenticate(username=username, password=senha)
+#             if user != None:
+#                 login(request, user)
+#                 marca = Marca.objects.get(user=request.user)
+#                 #marcaS = serializers.serialize("json", [marca])
+#                 #request.session['marca'] = marcaS
+#                 request.session['marca_id'] = marca.id
+#                 # return HttpResponse('usuario logado')
+#                 return HttpResponseRedirect('/marca/dashboard/')
+#             else:
+#                 return render(request, 'login_marca.html', {'form': form, 'error': True})
+#         else:
+#             raise forms.ValidationError("Algum nome ou id incoerrente com o formulario")
+#     else:
+#         form = LoginForm()
+#         return render(request, 'login_marca.html', {'form': form, 'error': False})
 
 @login_required
 def lista_produtos(request):

@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     # ...
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuariomarca/$', usuario_marca),
-    url(r'^marca/login/$', login_marca, name='login_marca'),
+    url(r'^marca/login/$', login_operacional, name='login_operacional'),
     url(r'^marca/dashboard/$', dashboard_marca, name='dashboard_marca'),
     url(r'^marca/listaprodutos/$', lista_produtos, name='lista_produtos'),
     url(r'^marca/cadastra-produto/(?P<id>\d+)/$', edita_produto, name='marca_edita_produto'),
