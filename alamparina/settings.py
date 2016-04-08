@@ -103,7 +103,7 @@ MEDIA_URL = '/media/'
 
 TEMPLATE_DIRS = [(os.path.join(BASE_DIR, 'templates'))]
 
-LOGIN_URL ='/marca/login/'
+LOGIN_URL ='/login/'
 
 try:
   from settings_local import *

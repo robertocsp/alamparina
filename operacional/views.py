@@ -25,13 +25,12 @@ def login_operacional(request):
             user = authenticate(username=username, password=senha)
             if user != None:
                 login(request, user)
-                marca = Marca.objects.get(user=request.user)
-                if marca != None:
+                try:
+                    marca = Marca.objects.get(user=request.user)
                     request.session['marca_id'] = marca.id
                     return HttpResponseRedirect('/marca/dashboard/')
-                else:
-                    return HttpResponse('Este usuario nao e uma marca')
-
+                except:
+                    return HttpResponseRedirect('/operacional/dashboard/')
             else:
                 return render(request, 'login_marca.html', {'form': form, 'error': True})
         else:
@@ -185,3 +184,7 @@ def estoque(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     produto_list = Produto.objects.filter(marca__id=marca.id, em_estoque='sim')
     return render(request, 'estoque.html', {'produto_list': produto_list, 'marca': marca})
+
+@login_required
+def dashboard_operacional(request):
+    return render (request, 'dashboard_operacional.html')
