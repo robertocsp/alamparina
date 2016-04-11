@@ -1,9 +1,47 @@
 {% load staticfiles %}
+</div>
+        <!-- /#page-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+	<script type="text/javascript">
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
+		var options = {
+			responsive:true,
+
+		};
+
+		var data = {
+			labels: ["Janeiro / Fevereiro", "Fevereiro / Março", "Março / Abril", "Abril / Maio", "Maio / Junho", "Junho / Julho", "Julho / Agosto", "Agosto / Setembro", "Setembro / Outubro", "Outubro / Novembro", "Novembro / Dezembro", "Dezembro / Janeiro"],
+			datasets: [
+				{
+					label: "Dados primários",
+					fillColor: "rgba(220,220,220,0.2)",
+					strokeColor: "rgba(220,220,220,1)",
+					pointColor: "rgba(220,220,220,1)",
+					pointStrokeColor: "#fff",
+					pointHighlightFill: "#fff",
+					pointHighlightStroke: "rgba(220,220,220,1)",
+					data: [0, 5, 10, 15, 20, 0 , 8 , 8, 5, 4, 12,17]
+				}
+			]
+		};
+
+		window.onload = function(){
+
+			var ctx = document.getElementById("GraficoLine").getContext("2d");
+            ctx.canvas.height = 100;
+			var LineChart = new Chart(ctx).Line(data, options);
+		}
+
+    </script>
+    <!-- jQuery -->
+    <script src="../../static/alamparina/js/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
     <script src="../../static/alamparina/js/bootstrap.min.js"></script>
-    <script src="../../static/alamparina/js/applications.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="../../static/alamparina/js/plugins/morris/raphael.min.js"></script>
+    <script src="../../static/alamparina/js/plugins/morris/morris.min.js"></script>
+    <script src="../../static/alamparina/js/plugins/morris/morris-data.js"></script>
   </body>
 </html>

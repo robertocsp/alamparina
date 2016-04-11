@@ -11,29 +11,18 @@ body{
 	float: right;
 }
 
-/*Tela de login*/
-
-.box-login{
-    width: 300px;
-    margin: 100px auto;
-}
-
-.btn-login, .btn-login:hover, .btn-login:active, .btn-login:focus, .btn-login:visited{
-    background: #c1c1c1;
-    border-color: #c1c1c1;
-}
-
-/*Tela Home Marcas*/
-
 .left-side{
-	width: 40%;
+	width: 50%;
 	background: #ff0;
 	height: 100%;
 }
 
 .right-side{
-	width: 60%;
+	width: 50%;
 	height: 100%;
+	float:left;
+  	padding:0;
+  	position:relative;
 }
 
 .marcas-box{
@@ -43,16 +32,26 @@ body{
 }
 
 .box-item{
-	background: #fff;
-	width: 50%;
-	float: left;
-	height: 33.333333%;
+	cursor:pointer;
+	 float:left;
+	 height: 33.3333%;
+	 overflow:hidden;
+	 position:relative;
+	 width:50%;
+}
+
+.box-item a{
+	display: block;
+	position:relative;
+  	text-align:center;
+  	top:50%;
+  	transform:translateY(-50%);
 }
 
 .box-item .img-bullet{
 	display: block;
 	width: 50px;
-	margin: 84px auto 30px auto;
+	margin: 0 auto;
 }
 
 .box-item .img-bullet span{
@@ -68,3 +67,71 @@ body{
 .box-item  p{
 	margin-top: 20px;
 }
+
+.navbar-brand {
+    padding: 5px 15px;
+}
+
+.logo-marca{
+	border-radius: 25px;
+}
+
+.side-nav {
+    top: 61px;
+}
+
+.dropdown .logo-marca-link{
+	padding: 5px 40px 5px 0px;
+}
+
+.dropdown .logo-marca-link img{
+	margin: 0 10px 0 0;
+}
+
+.logo-link{
+	width: 325px;
+}
+
+.logo-link img{
+	float: left;
+}
+
+.logo-link span{
+	display: block;
+    margin: 16px 0 0 20px;
+}
+
+#wrapper .row .panel-red, #wrapper .row .panel-red > .panel-heading{
+	border-color: #DEE25E;
+	background-color: #DEE25E;
+}
+
+#wrapper .row .panel-red > a, #wrapper .row .panel-red > a:hover{
+	color: #222;
+}
+
+.box {
+	margin: 0px auto;
+	width: 100%;
+}
+
+.box-chart {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.box-chart  canvas{
+	height: 300px;
+}
+
+.text-center{
+	text-align: center;
+}
+    
+.cem{
+	width: 100%;
+}
+
+
+    
+

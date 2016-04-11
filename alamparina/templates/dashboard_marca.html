@@ -1,7 +1,183 @@
-<p>Dashboard marca</p>
-<ul>
-    <li><a href="/marca/listaprodutos">Produtos</a></li>
-    <li><a href="/marca/lista-checkin">Checkin</a></li>
-    <li><a href="/marca/estoque">Meu Estoque</a></li>
-    <li><a href="/marca/financeiro">Controle Financeiro</a></li>
-</ul>
+{% include "includes/header.html" %}
+{% include "includes/main-content.html" %}
+
+<div class="row">
+    <div class="col-lg-2 col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-9 text-center cem">
+                        <div class="huge">320</div>
+                        <div>Total Vendas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-tasks fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">12</div>
+                        <div>Vendas período atual</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-list fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">24</div>
+                        <div>Produtos em estoque</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="panel panel-red">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-credit-card fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">R$ 1.300,00</div>
+                        <div>Receita Período atual</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+ <div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            <small><i class="fa fa-fw fa-bar-chart-o"></i> Vendas por período</small>
+        </h1>
+    </div>
+</div>
+<div class="box">
+    <div class="box-chart">
+        <canvas id="GraficoLine" style="width:100%;"></canvas>
+    </div>
+</div><br /><br />
+<div class="row">
+    <div class="col-lg-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-money fa-fw"></i> Últimas vendas realizadas</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Quantidade</th>
+                                <th>Produto</th>
+                                <th>Data da venda</th>
+                                <th>Valor bruto</th>
+                                <th>Descontos</th>
+                                <th>Valor liquido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>3</td>
+                                <td>Lamparina verde</td>
+                                <td>22/02/2016</td>
+                                <td>$3600,00</td>
+                                <td>$600,00</td>
+                                <td>$3000,00</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Lamparina amarela</td>
+                                <td>17/02/2016</td>
+                                <td>$3500,00</td>
+                                <td>$200,00</td>
+                                <td>$3300,00</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Lamparina azul</td>
+                                <td>14/02/2016</td>
+                                <td>$3500,00</td>
+                                <td>$200,00</td>
+                                <td>$3300,00</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Lamparina cinza</td>
+                                <td>12/02/2016</td>
+                                <td>$200,00</td>
+                                <td>$50,00</td>
+                                <td>$150,00</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Lamparina vermelha</td>
+                                <td>12/02/2016</td>
+                                <td>$3300,00</td>
+                                <td>$200,00</td>
+                                <td>$3100,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-right">
+                    <a href="#">Ver todas as vendas <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-dropbox fa-fw"></i> Produtos</h3>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <a href="#" class="list-group-item">
+                        <span class="badge">15 produtos</span>
+                        <i class="fa fa-fw fa-calendar"></i> Checkin agendado
+                    </a>
+                     <a href="#" class="list-group-item">
+                        <span class="badge">0 produtos</span>
+                        <i class="fa fa-fw fa-calendar"></i> Checkout agendado
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <span class="badge">4 produtos</span>
+                        <i class="fa fa-fw fa-truck"></i> Produtos Devolvidos no período
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <span class="badge">23 minutos atrás</span>
+                        <i class="fa fa-fw fa-check"></i> último produto vendido
+                    </a>
+                    <a href="#" class="list-group-item">
+                        <span class="badge">2 produtos</span>
+                        <i class="fa fa-fw fa-list"></i> Produtos há mais de 6 meses no estoque
+                    </a>
+                </div>
+                <div class="text-right">
+                    <a href="#">Ver Mais <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+</div>
+
+{% include "includes/footer.html" %}
