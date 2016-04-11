@@ -55,8 +55,24 @@ class Alocacao(models.Model):
     data_alocacao = models.DateField()
     identificador = models.CharField(max_length=20, blank=True)
     marca = models.ForeignKey(Marca)
-    espaco = models.ManyToManyField(Espaco)
+    espaco = models.ManyToManyField(Espaco, related_name='alocacao')
     periodo = models.ManyToManyField(Periodo)
 
     def __unicode__(self):
         return self.marca.nome
+
+class Canal(models.Model):
+    nome = models.CharField('Nome', max_length=30)
+    percentual_deflacao = models.FloatField()
+    absoluto_deflacao = models.IntegerField()
+    TIPO = (
+        ("loja","Loja"),
+        ("catalogo","Catalogo"),
+        ("ecommerce", "Ecommerce"),
+    )
+    tipo = models.CharField(max_length=15, choices=TIPO, default="loja")
+
+    loja = models.ForeignKey(Loja, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.nome

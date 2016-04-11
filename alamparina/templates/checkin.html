@@ -1,17 +1,59 @@
 <h1>{{marca|capfirst}}</h1>
-<form method="post">{% csrf_token %}
-
     <p>Status: {{checkin.status}}</p>
-   {% if messages %}
+    {% if messages %}
     <ul>
     {% for message in messages %}
-    <li>{{ message }}</li>
+        <li>{{ message }}</li>
     {% endfor %}
-</ul>
-{% endif %}
-    <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" required>
-    <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" required>
-    {% if checkin.status == checkin.status_emprocessamento %}
+    </ul>
+    {% endif %}
+
+
+
+    <p>Espacos Alocados:</p>
+    <ul>
+    {% for espaco in espaco_list%}
+         <li>{{ espaco.identificador }}</li>
+
+    {% endfor %}
+    </ul>
+<form method="post">{% csrf_token %}
+     {% if checkin.status == checkin.status_emprocessamento %}
+
+        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" required>
+        <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" required>
+            <hr>
+            <hr>
+            <div>
+            <label for="id_canal">Canais</label>
+            <select id="id_canal" name="canais">
+                {% for canal in canal_list %}
+                <option value="{{canal.id}}">{{canal.nome}}</option>
+                {% endfor %}
+            </select>
+        <input type="submit" value="Adicionar" name="adicionar_canal">
+        </div>
+     {% else %}
+        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
+        <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" disabled>
+    {% endif %}
+<hr>
+<div>
+    <p>Canais no checkin:</p>
+    {% if checkin.canal != None%}
+        {% for canal in checkin.canal.all %}
+            <div>{{canal.nome}}</div>
+        {% endfor %}
+    {% else %}
+        <div><span>Não existem canais adicionados a este checkin</span></div>
+    {% endif %}
+
+</div>
+
+<hr>
+<hr>
+{% if checkin.status == checkin.status_emprocessamento %}
+
     <div>
         <label for="id_produtos">Produtos</label>
         <select id="id_produtos" name="produtos">
@@ -19,32 +61,35 @@
             <option value="{{produto.id}}">{{produto.nome}}</option>
             {% endfor %}
         </select>
-        <label for="id_qtde_produto">Quantidade</label><input id="id_qtde_produto" type="text" name="qtde_produto" required>
-        <input type="submit" value="Adicionar" name="adicionar">
+        <label for="id_qtde_produto">Quantidade</label><input id="id_qtde_produto" type="text" name="qtde_produto" >
+        <input type="submit" value="Adicionar" name="adicionar_produto">
     </div>
-    {% endif %}
-
-
-</form>
-
 <hr>
+
+{%endif%}
 <div>
     <p>Produtos no ckeckin:</p>
     {% if expedicao_list %}
         {% for expedicao in expedicao_list %}
             <div>{{expedicao.produto.nome}}</div>
-            <div>{{expedicao.quantidade}}</div>
+            <div>Quantidade: {{expedicao.quantidade}}</div>
+            <div>Preço de venda: {{expedicao.produto.preco_venda}}</div>
+            <div>Preços nos canais:</div>
+            <ul>
+                {% for canal in canal_list %}
+                    <li>{{canal.nome}}</li>
+                {%endfor%}
+            </ul>
             <hr>
         {% endfor %}
     {% else %}
         <div><span>Não existem produtos adicionados a este checkin</span></div>
     {% endif %}
 
-</div>
 
-<div>
-    <form method="post">{% csrf_token %}
+</div>
+<hr><hr>
+    <div>
         <input type="submit" name="finalizar" value="Finalizar Checkin">
-    </form>
-
-</div>
+    </div>
+</form>

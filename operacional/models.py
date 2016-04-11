@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from administrativo.models import Marca
+from administrativo.models import *
 import datetime
 
 # Create your models here.
@@ -15,6 +15,7 @@ class Produto(models.Model):
     quantidade = models.IntegerField('quantidade', blank=True, null=True)
     preco_base = models.FloatField('preço base', blank=True, null=True)
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
+    identificador = models.CharField('identificador', max_length=10, blank=True)
     EM_ESTOQUE = (
         ("sim", "Sim"),
         ("nao", "Nao"),
@@ -45,6 +46,14 @@ class Checkin(models.Model):
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
     observacao = models.TextField(blank=True)
 
+    MOTIVO = (
+        ("creditarestoque", "CreditarEstoque"),
+        ("comprafornecedor", "CompraFornecedor"),
+    )
+    motivo = models.CharField(max_length=20, choices=MOTIVO, default="creditarestoque")
+
+    canal = models.ManyToManyField(Canal)
+
     def __unicode__(self):
         return '%s %s' % (self.dia_agendamento, self.hora_agendamento)
 
@@ -59,6 +68,12 @@ class Checkin(models.Model):
 
     def status_confirmado(self):
         return "confirmado"
+
+    def motivo_creditar_estoque(self):
+        return 'creditarestoque'
+
+    def motivo_compra_fornecedor(self):
+        return 'comprafornecedor'
 
 '''
     def clean(self):

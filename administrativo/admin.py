@@ -1,5 +1,5 @@
 from django.contrib import admin
-from administrativo.models import TipoEspaco,Espaco,Marca,Periodo,Loja,Alocacao
+from administrativo.models import *
 
 # Register your models here.
 
@@ -16,9 +16,13 @@ class PeriodoAdmin(admin.ModelAdmin):
 class MarcaAdmin(admin.ModelAdmin):
     filter_horizontal = ('user',)
 
+class CanalAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'tipo', 'percentual_deflacao', 'absoluto_deflacao')
+
 admin.site.register(TipoEspaco)
 admin.site.register(Espaco)
 admin.site.register(Marca,MarcaAdmin)
 admin.site.register(Periodo,PeriodoAdmin)
 admin.site.register(Loja)
 admin.site.register(Alocacao,AlocacaoAdmin)
+admin.site.register(Canal, CanalAdmin)

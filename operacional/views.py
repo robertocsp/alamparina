@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render, render_to_response
 from models import Produto
-from administrativo.models import Marca
+from administrativo.models import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from operacional.models import Checkin, Expedicao
 from operacional.forms import *
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
@@ -38,31 +37,6 @@ def login_operacional(request):
     else:
         form = LoginForm()
         return render(request, 'login_marca.html', {'form': form, 'error': False})
-#
-# def login_marca(request):
-#     if request.method == 'POST':
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             username = request.POST['username']
-#             #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
-#             #username = request.POST.get('username','')
-#             senha = request.POST['senha']
-#             user = authenticate(username=username, password=senha)
-#             if user != None:
-#                 login(request, user)
-#                 marca = Marca.objects.get(user=request.user)
-#                 #marcaS = serializers.serialize("json", [marca])
-#                 #request.session['marca'] = marcaS
-#                 request.session['marca_id'] = marca.id
-#                 # return HttpResponse('usuario logado')
-#                 return HttpResponseRedirect('/marca/dashboard/')
-#             else:
-#                 return render(request, 'login_marca.html', {'form': form, 'error': True})
-#         else:
-#             raise forms.ValidationError("Algum nome ou id incoerrente com o formulario")
-#     else:
-#         form = LoginForm()
-#         return render(request, 'login_marca.html', {'form': form, 'error': False})
 
 @login_required
 def lista_produtos(request):
@@ -112,46 +86,69 @@ def lista_checkin(request):
 @login_required
 def inicia_checkin(request):
     checkin = Checkin()
-    expedicao = Expedicao()
     checkin.tipo = 'chin'
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
     checkin.status = 'emprocessamento'
+    #Espaco e canal
+    espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca)
+    canal_list = Canal.objects.all()
+
+    #produtos
+    expedicao = Expedicao()
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = None
 
-    if "adicionar" in request.POST:
+    if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        checkin.save()
+        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+
+    elif "adicionar_produto" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
         expedicao.checkin = checkin
         expedicao.save()
-        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id)
-    )
+        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+
     elif "finalizar" in request.POST:
         messages.error(request, 'Não existe nenhum produto inserido')
 
     return render(request,'checkin.html',
                   {
                       'marca': checkin.marca,
-                      'produto_list':produto_list,
                       'checkin':checkin,
-                      'expedicao_list':expedicao_list,
+                      'espaco_list':espaco_list,
+                      'canal_list': canal_list,
+                      'produto_list': produto_list,
+                      'expedicao_list': expedicao_list,
                   }
     )
 
 @login_required
 def edita_checkin(request, id):
     checkin = get_object_or_404(Checkin, id=id)
+    espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca)
+    canal_list = Canal.objects.all()
+
     expedicao = Expedicao()
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
-    if "adicionar" in request.POST:
+    if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        checkin.save()
+
+    elif "adicionar_produto" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         expedicao.produto = produto
@@ -166,12 +163,14 @@ def edita_checkin(request, id):
             checkin.status = checkin.status_enviado()
             checkin.save()
 
-    return render(request,'checkin.html',
+    return render(request, 'checkin.html',
                   {
                       'marca': checkin.marca,
-                      'produto_list':produto_list,
-                      'checkin':checkin,
-                      'expedicao_list':expedicao_list,
+                      'checkin': checkin,
+                      'espaco_list': espaco_list,
+                      'canal_list': canal_list,
+                      'produto_list': produto_list,
+                      'expedicao_list': expedicao_list,
                   }
     )
 
