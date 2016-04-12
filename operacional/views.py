@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render, render_to_response
 from models import Produto
+from models import Canal
 from administrativo.models import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
@@ -112,6 +113,11 @@ def inicia_checkin(request):
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
+
+        #loop de canal, para calcular o preco
+        for canal in canal_list:
+            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
+
         expedicao.checkin = checkin
         expedicao.save()
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
@@ -152,6 +158,11 @@ def edita_checkin(request, id):
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         expedicao.produto = produto
+
+        #loop de canal, para calcular o preco
+        for canal in canal_list:
+            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
+
         expedicao.checkin = checkin
         checkin.save()
         expedicao.save()
