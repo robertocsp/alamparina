@@ -1,1 +1,17 @@
-<h1>Checkin Operacional</h1>
+    <h1>Checkins</h1>
+
+    <div class="container-fluid">
+      <div>
+          {% for checkin in checkin_list %}
+          <div class="row">
+              <div class="col-sm-3">Marca: {{ checkin.marca.nome}}</div>
+              <div class="col-sm-3">Dia Agendamento: <a href="/operacional/checkin/{{checkin.id}}">{{ checkin.dia_agendamento }}</a></div>
+              <div class="col-sm-3">Hora Agendamento: {{ checkin.hora_agendamento }}</div>
+              <div class="col-sm-3">Status: {{ checkin.status}}</div>
+          </div>
+          <hr>
+
+          {% endfor %}
+
+      </div>
+    </div> <!-- /container -->
