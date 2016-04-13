@@ -211,31 +211,20 @@ def edita_checkin_operacional(request, id):
     canal_list = Canal.objects.all()
 
     expedicao = Expedicao()
+    produto = Produto()
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
-    if "adicionar_canal" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
-        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
-        checkin.save()
+    if request.method == 'POST':
+        checkin.status = request.POST['statuscheckin']
+        for expedicao in expedicao_list:
+            expedicao.status = request.POST['status_produto_'+str(expedicao.produto.id)]
+            if checkin.status == 'confirmado' and expedicao.status == 'ok':
+                produto = Produto.objects.get(id=expedicao.produto.id)
+                produto.quantidade += expedicao.quantidade
+                produto.save()
 
-    elif "adicionar_produto" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
-        produto = Produto.objects.get(id=request.POST['produtos'])
-        expedicao.quantidade = request.POST['qtde_produto']
-        expedicao.produto = produto
-        expedicao.checkin = checkin
         checkin.save()
-        expedicao.save()
-
-    elif "finalizar" in request.POST:
-        if expedicao_list == None:
-            messages.error(request, 'Não existe nenhum produto inserido')
-        else:
-            checkin.status = checkin.status_enviado()
-            checkin.save()
 
     return render(request, 'checkin_operacional.html',
                   {
