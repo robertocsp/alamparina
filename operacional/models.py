@@ -16,6 +16,8 @@ class Produto(models.Model):
     preco_base = models.FloatField('preço base', blank=True, null=True)
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
     identificador = models.CharField('identificador', max_length=10, blank=True)
+    espaco = models.ForeignKey(Espaco, blank=True, null=True)
+
     EM_ESTOQUE = (
         ("sim", "Sim"),
         ("nao", "Nao"),

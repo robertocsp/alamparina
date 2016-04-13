@@ -72,7 +72,6 @@ class Canal(models.Model):
     )
     tipo = models.CharField(max_length=15, choices=TIPO, default="loja")
 
-    loja = models.ForeignKey(Loja, blank=True, null=True)
     precificacao = None
     def __unicode__(self):
         return self.nome
