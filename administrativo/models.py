@@ -72,6 +72,5 @@ class Canal(models.Model):
     )
     tipo = models.CharField(max_length=15, choices=TIPO, default="loja")
 
-
     def __unicode__(self):
         return self.nome
