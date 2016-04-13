@@ -1,9 +1,10 @@
-{% include "includes/header.html" %}
-{% include "includes/main-content.html" %}
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %} Dashboard {% endblock %}
 
+{% block conteudo %}
 <div class="row">
     <div class="col-lg-2 col-md-6">
-        <div class="panel panel-primary">teste teste
+        <div class="panel panel-primary">
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-xs-9 text-center cem">
@@ -179,5 +180,34 @@
 </div>
 <!-- /.row -->
 </div>
+<script type="text/javascript">
+    var options = {
+        responsive:true,
 
-{% include "includes/footer.html" %}
+    };
+
+    var data = {
+        labels: ["Janeiro / Fevereiro", "Fevereiro / Março", "Março / Abril", "Abril / Maio", "Maio / Junho", "Junho / Julho", "Julho / Agosto", "Agosto / Setembro", "Setembro / Outubro", "Outubro / Novembro", "Novembro / Dezembro", "Dezembro / Janeiro"],
+        datasets: [
+            {
+                label: "Dados primários",
+                fillColor: "rgba(220,220,220,0.2)",
+                strokeColor: "rgba(220,220,220,1)",
+                pointColor: "rgba(220,220,220,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: [0, 5, 10, 15, 20, 0 , 8 , 8, 5, 4, 12,17]
+            }
+        ]
+    };
+
+    window.onload = function(){
+
+        var ctx = document.getElementById("GraficoLine").getContext("2d");
+        ctx.canvas.height = 100;
+        var LineChart = new Chart(ctx).Line(data, options);
+    }
+
+</script>
+{% endblock %}

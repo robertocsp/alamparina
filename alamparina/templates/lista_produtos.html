@@ -1,18 +1,30 @@
-    <h1>Produtos da {{marca.nome}}</h1>
-    <a href="/marca/cadastra-produto">cadastrar novo produto</a>
-    <div class="container-fluid">
-      <div>
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="fa fa-dropbox"></i> Produtos da {{marca.nome}} {% endblock %}
 
-          {% for produto in produto_list %}
-          <div class="row">
-              <div class="col-sm-3">Nome: <a href="/marca/cadastra-produto/{{produto.id}}">{{ produto.nome }}</a></div>
-              <div class="col-sm-3">Largura: {{ produto.largura }}</div>
-              <div class="col-sm-3">Altura: {{ produto.altura }}</div>
-              <div class="col-sm-3">Profundidade: {{ produto.profundidade }}</div>
-          </div>
-          <hr>
-
-          {% endfor %}
-
-      </div>
-    </div> <!-- /container -->
+{% block conteudo %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><a href="/marca/cadastra-produto"><i class="glyphicon glyphicon-plus"></i> cadastrar novo produto</a></div>
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Largura</th>
+                <th>Altura</th>
+                <th>Profundidade</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for produto in produto_list %}
+                <tr>
+                    <th><strong>{{ produto.nome }}</strong></th>
+                    <td>{{ produto.largura }} cm</td>
+                    <td>{{ produto.altura }} cm</td>
+                    <td>{{ produto.profundidade }} cm</td>
+                    <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-folder-open"></i> Visualizar</a> <br /> <a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}

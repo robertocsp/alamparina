@@ -1,16 +1,21 @@
-    <h1>{{marca.nome}}</h1>
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="fa fa-hand-o-right"></i> {{marca.nome}} {% endblock %}
 
+{% block conteudo %}
+<div class="box-formulario">
+    <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Salvar para gravar seu produto</p>
     {% if produto_cadastrado %}
-    <p>
-        Produto cadastrado com sucesso
-    </p>
+        <div class="alert alert-success" role="alert"><i class="glyphicon glyphicon-exclamation-sign"></i> Produto Salvo com sucesso</div>
     {% endif %}
-    <div>
-        <a href="/marca/listaprodutos">Lista produtos</a>
-    </div>
-    <div>Teste edicao de produto:{{produto_v.nome}}</div>
-    <form action="." method="post">
+    <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
+    <form class="formulario-padrao" action="." method="post">
         {{ form.as_ul }}
         {% csrf_token %}
-        <input type="submit" value="Cadastrar">
+        <label class="button">
+            <i class="glyphicon glyphicon-saved"></i>
+            <input type="submit" class="salvar" value="Salvar" />
+        </label>
     </form>
+    <a href="/marca/listaprodutos"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar para lista de produtos</a>
+</div>
+{% endblock %}

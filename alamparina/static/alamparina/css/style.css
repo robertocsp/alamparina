@@ -132,6 +132,95 @@ body{
 	width: 100%;
 }
 
+#wrapper .table th, #wrapper .table td{
+    padding-top: 26px;
+    text-align: center;
+}
 
-    
+#wrapper .table thead tr:first-child th{
+    padding-top: 10px;
+}
 
+#wrapper .table th:first-child{
+    text-align: left;
+}
+
+#wrapper .table td{
+    text-align: center;
+}
+
+#wrapper .table tr td:last-child{
+    padding-top: 0;
+}
+
+#wrapper .table tr td:last-child a{
+    margin-top: 11px;
+    float: left;
+    text-align: center;
+    width: 100%;
+}
+
+.box-formulario{
+    padding: 30px 0;
+    margin:0 auto;
+    width: 600px;
+}
+
+.box-formulario .formulario-padrao{
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin: 30px 0 20px 0;
+    padding: 0 0 40px 0;
+}
+
+.box-formulario .formulario-padrao li{
+    list-style: none;
+    margin-top: 20px;
+}
+
+.box-formulario .formulario-padrao li label{
+    width: 110px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.box-formulario .formulario-padrao li input[type="text"], .box-formulario .formulario-padrao li input[type="number"]{
+    border: 1px solid rgb(238, 238, 238);
+    color: rgb(102, 102, 102);
+    height: 35px;
+    width: 300px;
+}
+
+.box-formulario .formulario-padrao label.button{
+    position: relative;
+    left: 16px;
+    top: 20px;
+}
+
+.box-formulario .formulario-padrao label.button i{
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    color: #fff;
+}
+
+.salvar{
+    text-transform: uppercase;
+    color: #fff;
+    border: 0;
+    background: #337ab7;
+    padding: 13px 13px 11px 26px;
+    border-radius: 8px;
+}
+
+.salvar:hover{
+    text-decoration: underline;
+}
+
+.seta-voltar{
+    font-size: 32px;
+    line-height: 1px;
+    margin-top: 9px;
+    display: block;
+    float: left;
+}

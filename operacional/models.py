@@ -12,10 +12,12 @@ class Produto(models.Model):
     altura = models.IntegerField('altura')
     profundidade = models.IntegerField('profundidade')
     marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
-    quantidade = models.IntegerField('quantidade', blank=True, null=True)
+    quantidade = models.IntegerField('quantidade', default=0)
     preco_base = models.FloatField('preço base', blank=True, null=True)
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
     identificador = models.CharField('identificador', max_length=10, blank=True)
+    espaco = models.ForeignKey(Espaco, blank=True, null=True)
+
     EM_ESTOQUE = (
         ("sim", "Sim"),
         ("nao", "Nao"),
