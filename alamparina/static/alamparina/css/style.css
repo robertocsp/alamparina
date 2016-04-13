@@ -132,6 +132,32 @@ body{
 	width: 100%;
 }
 
+#wrapper .table th, #wrapper .table td{
+    padding-top: 26px;
+    text-align: center;
+}
 
+#wrapper .table thead tr:first-child th{
+    padding-top: 10px;
+}
+
+#wrapper .table th:first-child{
+    text-align: left;
+}
+
+#wrapper .table td{
+    text-align: center;
+}
+
+#wrapper .table tr td:last-child{
+    padding-top: 0;
+}
+
+#wrapper .table tr td:last-child a{
+    margin-top: 11px;
+    float: left;
+    text-align: center;
+    width: 100%;
+}
     
 

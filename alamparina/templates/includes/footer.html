@@ -1,39 +1,5 @@
 {% load staticfiles %}
-</div>
-        <!-- /#page-wrapper -->
-    </div>
-    <!-- /#wrapper -->
-	<script type="text/javascript">
 
-		var options = {
-			responsive:true,
-
-		};
-
-		var data = {
-			labels: ["Janeiro / Fevereiro", "Fevereiro / Março", "Março / Abril", "Abril / Maio", "Maio / Junho", "Junho / Julho", "Julho / Agosto", "Agosto / Setembro", "Setembro / Outubro", "Outubro / Novembro", "Novembro / Dezembro", "Dezembro / Janeiro"],
-			datasets: [
-				{
-					label: "Dados primários",
-					fillColor: "rgba(220,220,220,0.2)",
-					strokeColor: "rgba(220,220,220,1)",
-					pointColor: "rgba(220,220,220,1)",
-					pointStrokeColor: "#fff",
-					pointHighlightFill: "#fff",
-					pointHighlightStroke: "rgba(220,220,220,1)",
-					data: [0, 5, 10, 15, 20, 0 , 8 , 8, 5, 4, 12,17]
-				}
-			]
-		};
-
-		window.onload = function(){
-
-			var ctx = document.getElementById("GraficoLine").getContext("2d");
-            ctx.canvas.height = 100;
-			var LineChart = new Chart(ctx).Line(data, options);
-		}
-
-    </script>
     <!-- jQuery -->
     <script src="../../static/alamparina/js/jquery.js"></script>
     <!-- Bootstrap Core JavaScript -->
