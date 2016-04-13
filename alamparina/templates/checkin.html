@@ -68,7 +68,7 @@
 
 {%endif%}
 <div>
-    <p>Produtos no ckeckin:</p>
+    <p>Produtos no checkin:</p>
     {% if expedicao_list %}
         {% for expedicao in expedicao_list %}
             <div>{{expedicao.produto.nome}}</div>
@@ -76,8 +76,8 @@
             <div>Preço de venda: {{expedicao.produto.preco_venda}}</div>
             <div>Preços nos canais:</div>
             <ul>
-                {% for canal in canal_list %}
-                    <li>{{canal.nome}}</li>
+                {% for canal in canal_list%}
+                    <li>{{canal.nome}} -  Retorno R${{canal.precificacao}}</li>
                 {%endfor%}
             </ul>
             <hr>

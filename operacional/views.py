@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render, render_to_response
 from models import Produto
+from models import Canal
 from administrativo.models import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
@@ -112,6 +113,11 @@ def inicia_checkin(request):
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
+
+        #loop de canal, para calcular o preco
+        for canal in canal_list:
+            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
+
         expedicao.checkin = checkin
         expedicao.save()
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
@@ -152,6 +158,11 @@ def edita_checkin(request, id):
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         expedicao.produto = produto
+
+        #loop de canal, para calcular o preco
+        for canal in canal_list:
+            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
+
         expedicao.checkin = checkin
         checkin.save()
         expedicao.save()
@@ -187,3 +198,52 @@ def estoque(request):
 @login_required
 def dashboard_operacional(request):
     return render (request, 'dashboard_operacional.html')
+
+@login_required
+def lista_checkin_operacional(request):
+    checkin_list = Checkin.objects.all().exclude(status='emprocessamento')
+    return render(request, 'lista_checkin_operacional.html', {'checkin_list': checkin_list})
+
+@login_required
+def edita_checkin_operacional(request, id):
+    checkin = get_object_or_404(Checkin, id=id)
+    espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca)
+    canal_list = Canal.objects.all()
+
+    expedicao = Expedicao()
+    produto_list = checkin.marca.produto_set.all()
+    expedicao_list = Expedicao.objects.filter(checkin=checkin)
+
+    if "adicionar_canal" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        checkin.save()
+
+    elif "adicionar_produto" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        produto = Produto.objects.get(id=request.POST['produtos'])
+        expedicao.quantidade = request.POST['qtde_produto']
+        expedicao.produto = produto
+        expedicao.checkin = checkin
+        checkin.save()
+        expedicao.save()
+
+    elif "finalizar" in request.POST:
+        if expedicao_list == None:
+            messages.error(request, 'Não existe nenhum produto inserido')
+        else:
+            checkin.status = checkin.status_enviado()
+            checkin.save()
+
+    return render(request, 'checkin_operacional.html',
+                  {
+                      'marca': checkin.marca,
+                      'checkin': checkin,
+                      'espaco_list': espaco_list,
+                      'canal_list': canal_list,
+                      'produto_list': produto_list,
+                      'expedicao_list': expedicao_list,
+                  }
+    )
