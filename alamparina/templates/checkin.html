@@ -1,3 +1,5 @@
+{% load preco_tag%}
+
 <h1>{{marca|capfirst}}</h1>
     <p>Status: {{checkin.status}}</p>
     {% if messages %}
@@ -77,7 +79,7 @@
             <div>Preços nos canais:</div>
             <ul>
                 {% for canal in canal_list%}
-                    <li>{{canal.nome}} -  Retorno R${{canal.precificacao}}</li>
+                    <li>{% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
                 {%endfor%}
             </ul>
             <hr>
