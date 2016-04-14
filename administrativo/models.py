@@ -22,6 +22,7 @@ class Marca(models.Model):
     contato = models.CharField(max_length=100,blank=True)
     logo = models.ImageField(upload_to='/var/www/html/logos',height_field=None,width_field=None,max_length=100,blank=True)
     user = models.ManyToManyField(User,blank=True,null=True,related_name="marca")
+    codigo = models.CharField(max_length=5, blank=True)
 
     def __unicode__(self):
         return self.nome
@@ -40,6 +41,7 @@ class Espaco(models.Model):
     identificador = models.CharField(max_length=20)
     tipo = models.ForeignKey(TipoEspaco)
     loja = models.ForeignKey(Loja, blank=True, null=True)
+    disponivel = models.BooleanField(default=True)
 
     def __unicode__(self):
         return u'%s %s' % (self.identificador, self.tipo)
