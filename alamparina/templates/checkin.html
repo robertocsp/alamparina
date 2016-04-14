@@ -1,5 +1,4 @@
-{% load preco_tag%}
-
+{% load preco_tag %}
 <h1>{{marca|capfirst}}</h1>
     <p>Status: {{checkin.status}}</p>
     {% if messages %}
@@ -18,6 +17,11 @@
          <li>{{ espaco.identificador }}</li>
 
     {% endfor %}
+        <p> Total de Espaço Alocado: {{ cubagem_contratada }} cc</p>
+        <p> Total de Espaço Presente em Estoque: {{ saldo_cubagem_estoque }} cc</p>
+        <p> Total de Espaço Previsto Neste Checkin: {{ volume_checkin }} cc</p>
+        <p> Saldo (incluindo este checkin) == {{ saldo_cubagem }} cc</p>
+
     </ul>
 <form method="post">{% csrf_token %}
      {% if checkin.status == checkin.status_emprocessamento %}

@@ -30,7 +30,7 @@ class TipoEspaco(models.Model):
     profundidade = models.IntegerField()
     tipo = models.CharField(max_length=10)
     preco = models.FloatField()
-
+    volume = None
     def __unicode__(self):
         return self.tipo
 
