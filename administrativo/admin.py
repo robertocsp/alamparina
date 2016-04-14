@@ -4,7 +4,8 @@ from administrativo.models import *
 # Register your models here.
 
 class AlocacaoAdmin(admin.ModelAdmin):
-    list_display = ('marca', 'data_alocacao')
+    list_display = ('marca', 'data_alocacao', 'identificador',)
+    list_filter = ('identificador','marca',)
     search_fields = ('marca__nome',)
 
 class PeriodoAdmin(admin.ModelAdmin):
