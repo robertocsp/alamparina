@@ -84,6 +84,9 @@ def lista_checkin(request):
     checkin_list = Checkin.objects.filter(marca__id=marca.id)
     return render(request, 'lista_checkin.html', {'checkin_list': checkin_list, 'marca': marca})
 
+#variáveis globais
+volume_checkin = 0.0
+gcheckinid = 0
 @login_required
 def inicia_checkin(request):
     checkin = Checkin()
@@ -94,11 +97,27 @@ def inicia_checkin(request):
     espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca)
     canal_list = Canal.objects.all()
 
+    if gcheckinid != 0:
+        global gcheckinid
+        volume_checkin = 0
+
+    #Cubagem_contratada
+    cubagem_contratada = 0
+    for espaco in espaco_list:
+        tipoespaco = TipoEspaco.objects.get(id=espaco.id)
+        tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
+        cubagem_contratada += tipoespaco.volume
+
+    #Saldo da Cubagem em Estoque
+    saldo_cubagem_estoque = 0
+    volumeprodutos_list = Produto.objects.filter(marca__id=checkin.marca.id, em_estoque='sim')
+    for volumeprodutos in volumeprodutos_list:
+        saldo_cubagem_estoque += volumeprodutos.quantidade * volumeprodutos.largura * volumeprodutos.altura * volumeprodutos.profundidade
+
     #produtos
     expedicao = Expedicao()
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = None
-
     if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
@@ -113,17 +132,16 @@ def inicia_checkin(request):
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
-
-        #loop de canal, para calcular o preco
-        for canal in canal_list:
-            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
-
+        global volume_checkin
+        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
         expedicao.checkin = checkin
         expedicao.save()
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
     elif "finalizar" in request.POST:
         messages.error(request, 'Não existe nenhum produto inserido')
+
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque + volume_checkin
 
     return render(request,'checkin.html',
                   {
@@ -133,6 +151,10 @@ def inicia_checkin(request):
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
+                      'cubagem_contratada': cubagem_contratada,
+                      'saldo_cubagem_estoque': saldo_cubagem_estoque,
+                      'volume_checkin': volume_checkin,
+                      'saldo_cubagem': saldo_cubagem,
                   }
     )
 
@@ -146,6 +168,30 @@ def edita_checkin(request, id):
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
+    # Cubagem_contratada
+    cubagem_contratada = 0
+    for espaco in espaco_list:
+        tipoespaco = TipoEspaco.objects.get(id=espaco.id)
+        tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
+        cubagem_contratada += tipoespaco.volume
+
+    # Saldo da Cubagem em Estoque
+    saldo_cubagem_estoque = 0
+    volumeprodutos_list = Produto.objects.filter(marca__id=checkin.marca.id, em_estoque='sim')
+    for volumeprodutos in volumeprodutos_list:
+        saldo_cubagem_estoque += volumeprodutos.quantidade * volumeprodutos.largura * volumeprodutos.altura * volumeprodutos.profundidade
+
+    #quando muda o checkin, preciso zerar a variavel de volume de checkin previsto (volume_checkin)
+    if gcheckinid != id:
+        global gcheckinid
+        gcheckinid = id
+        volume_checkin = 0
+        exp_list = Expedicao.objects.filter(checkin=checkin)
+        for exp in exp_list:
+            prod = Produto.objects.get(id=exp.produto_id)
+            #exp = Expedicao.objects.get(checkin=checkin, produto=prod)
+            volume_checkin += int(exp.quantidade) * prod.altura * prod.largura * prod.profundidade
+
     if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
@@ -158,11 +204,8 @@ def edita_checkin(request, id):
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         expedicao.produto = produto
-
-        #loop de canal, para calcular o preco
-        for canal in canal_list:
-            canal.precificacao = expedicao.produto.preco_venda*(100-canal.percentual_deflacao)/100-canal.absoluto_deflacao
-
+        global volume_checkin
+        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
         expedicao.checkin = checkin
         checkin.save()
         expedicao.save()
@@ -174,6 +217,8 @@ def edita_checkin(request, id):
             checkin.status = checkin.status_enviado()
             checkin.save()
 
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque + volume_checkin
+
     return render(request, 'checkin.html',
                   {
                       'marca': checkin.marca,
@@ -182,6 +227,10 @@ def edita_checkin(request, id):
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
+                      'cubagem_contratada': cubagem_contratada,
+                      'saldo_cubagem_estoque': saldo_cubagem_estoque,
+                      'volume_checkin': volume_checkin,
+                      'saldo_cubagem': saldo_cubagem,
                   }
     )
 
