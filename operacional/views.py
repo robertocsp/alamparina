@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from distutils.command.check import check
+
 from django.shortcuts import render, render_to_response
 from models import Produto
 from models import Canal
@@ -120,12 +122,37 @@ def inicia_checkin(request):
     expedicao_list = None
     if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
         checkin.save()
         checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
+    #nao deve precisar desse elif remover_canal visto que:
+    # sempre que inicia esta vazio. Depois que faz-se a primeira inclusao de canal
+    # ele passa a ir no "edita_checkin"
+    elif "remover_canal" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        checkin.save()
+        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+
+    #acho que nunca passa aqui, ver com o Roberto
     elif "adicionar_produto" in request.POST:
+        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+        checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
+        produto = Produto.objects.get(id=request.POST['produtos'])
+        expedicao.quantidade = request.POST['qtde_produto']
+        checkin.save()
+        expedicao.produto = produto
+        global volume_checkin
+        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
+        expedicao.checkin = checkin
+        expedicao.save()
+        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+
+    #análogo ao remover_canal, ver comentário de lá
+    elif "remover_produto" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento = datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
         produto = Produto.objects.get(id=request.POST['produtos'])
@@ -189,13 +216,17 @@ def edita_checkin(request, id):
         exp_list = Expedicao.objects.filter(checkin=checkin)
         for exp in exp_list:
             prod = Produto.objects.get(id=exp.produto_id)
-            #exp = Expedicao.objects.get(checkin=checkin, produto=prod)
             volume_checkin += int(exp.quantidade) * prod.altura * prod.largura * prod.profundidade
 
     if "adicionar_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.hora_agendamento =datetime.datetime.strptime(request.POST['hora_agendamento'], '%H:%M')
         checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        checkin.save()
+
+
+    elif "remover_canal" in request.POST:
+        checkin.canal.remove(Canal.objects.get(id=request.POST['canais']))
         checkin.save()
 
     elif "adicionar_produto" in request.POST:
@@ -210,6 +241,22 @@ def edita_checkin(request, id):
         checkin.save()
         expedicao.save()
 
+    elif "remover_produto" in request.POST:
+
+        produto = Produto.objects.get(id=request.POST['produtos'])
+        expedicao_remove = Expedicao.objects.filter(checkin=checkin, produto=produto)
+        if expedicao_remove: #ajeitar urgente esse expedicao_remove. Faço FILTER para testar para null, se for not null, faço um get.. :/
+            expedicao_remove = Expedicao.objects.get(checkin=checkin, produto=produto)
+            if expedicao_remove.quantidade > int(request.POST['qtde_produto']):
+                expedicao_remove.quantidade -= int(request.POST['qtde_produto'])
+                #volume_checkin -= int(request.POST['qtde_produto']) * produto.altura * produto.largura * produto.profundidade
+                expedicao_remove.save()
+                checkin.save()
+            elif expedicao_remove.quantidade == int(request.POST['qtde_produto']):
+                #volume_checkin -= int(request.POST['qtde_produto']) * produto.altura * produto.largura * produto.profundidade
+                expedicao_remove.delete()
+                checkin.save()
+
     elif "finalizar" in request.POST:
         if expedicao_list == None:
             messages.error(request, 'Não existe nenhum produto inserido')
@@ -217,7 +264,7 @@ def edita_checkin(request, id):
             checkin.status = checkin.status_enviado()
             checkin.save()
 
-    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque + volume_checkin
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
 
     return render(request, 'checkin.html',
                   {

@@ -19,8 +19,7 @@
     {% endfor %}
         <p> Total de Espaço Alocado: {{ cubagem_contratada }} cc</p>
         <p> Total de Espaço Presente em Estoque: {{ saldo_cubagem_estoque }} cc</p>
-        <p> Total de Espaço Previsto Neste Checkin: {{ volume_checkin }} cc</p>
-        <p> Saldo (incluindo este checkin) == {{ saldo_cubagem }} cc</p>
+        <p> Saldo == {{ saldo_cubagem }} cc</p>
 
     </ul>
 <form method="post">{% csrf_token %}
@@ -38,6 +37,7 @@
                 {% endfor %}
             </select>
         <input type="submit" value="Adicionar" name="adicionar_canal">
+        <input type="submit" value="Remover" name="remover_canal">
         </div>
      {% else %}
         <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
@@ -69,6 +69,7 @@
         </select>
         <label for="id_qtde_produto">Quantidade</label><input id="id_qtde_produto" type="text" name="qtde_produto" >
         <input type="submit" value="Adicionar" name="adicionar_produto">
+        <input type="submit" value="Remover" name="remover_produto">
     </div>
 <hr>
 
