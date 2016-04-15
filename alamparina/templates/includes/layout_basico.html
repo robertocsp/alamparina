@@ -37,4 +37,8 @@
         var randomnb = function(){ return Math.round(Math.random()*300)};
     </script>
   </head>
-  <body>
+  <body class="{% block pagina %}body{% endblock %}">
+
+{% block conteudo %}Conteudo pagina{% endblock %}
+
+{% include "includes/footer.html" %}

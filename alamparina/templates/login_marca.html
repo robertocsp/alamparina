@@ -1,26 +1,40 @@
+{% extends "includes/layout_basico.html" %}
+
 {% load staticfiles %}
 
-{% include "includes/header.html" %}
+{% block pagina %} login {% endblock %}
 
+{% block conteudo %}
+<div class="conteiner-bg-logo">
     <div class="container box-login">
+      <header>
+        <img src="{% static 'alamparina/images/alamparina-login.png'%}" width="" height="" />
+        <p class="text-center text-bold">Bem vindo a Alamparina.</p>
+        <p>Para acessar o sistema, digite seu login e senha abaixo.</p>
+      </header>
       <form class="form-signin" action="" method="post">
         {% if error %}
             <div class="alert alert-danger" role="alert">usu&aacute;rio ou senha incorretos</div>
         {% endif %}
-        <label for="id_username" class="sr-only">Usuario</label>
-        <input type="text" id="id_username" class="form-control" name="username" placeholder="Usuario" required autofocus>
-        <br>
-        <label for="id_senha" class="sr-only">Password</label>
-        <input type="password" id="id_senha" name="senha" class="form-control" placeholder="Senha" required>
+        <label for="id_username" class="sr-only"></label>
+        <input type="text" id="id_username" class="" name="username" placeholder="Login..." required autofocus>
+        <i class="glyphicon glyphicon-user icon-login"></i>
+          <br>
+        <label for="id_senha" class="sr-only"></label>
+        <input type="password" id="id_senha" name="senha" class="" placeholder="Senha..." required>
+        <i class="glyphicon glyphicon-lock icon-login"></i>
         <div class="checkbox">
           <label>
             <input type="checkbox" value="remember-me">Lembrar
           </label>
         </div>
-        {% csrf_token %}<br>
-        <button class="btn btn-lg btn-primary btn-block btn-login" type="submit">Entrar</button>
+        {% csrf_token %}
+        <label class="button">
+            <i class="glyphicon glyphicon-ok"></i>
+            <button class="salvar" type="submit">Entrar</button>
+        </label>
       </form>
 
     </div> <!-- /container -->
-
-{% include "includes/footer.html" %}
+</div>
+{% endblock %}
