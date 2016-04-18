@@ -26,6 +26,7 @@ class Marca(models.Model):
     logo = models.ImageField(upload_to='/var/www/html/logos',height_field=None,width_field=None,max_length=100,blank=True)
     user = models.ManyToManyField(User,blank=True,null=True,related_name="marca")
     codigo = models.CharField(max_length=5, blank=True)
+    sequencial_atual = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.nome

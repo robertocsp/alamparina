@@ -27,8 +27,11 @@ class ExpedicaoAdmin(admin.ModelAdmin):
         return obj.checkin.dia_agendamento
 
 class Estoque_LojaAdmin(admin.ModelAdmin):
-    list_display = ('produto','loja', 'quantidade',)
-    list_filter = ('produto', 'loja',)
+    list_display = ('produto', 'marca', 'loja', 'quantidade',)
+    list_filter = ('produto', 'loja', 'produto__marca__nome')
+
+    def marca(self,obj):
+        return obj.produto.marca
 
 
 admin.site.register(Produto,ProdutoAdmin)

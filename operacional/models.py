@@ -15,7 +15,6 @@ class Produto(models.Model):
     quantidade = models.IntegerField('quantidade', default=0)
     preco_base = models.FloatField('preço base', blank=True, null=True)
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
-    identificador = models.CharField('identificador', max_length=10, blank=True)
     espaco = models.ForeignKey(Espaco, blank=True, null=True)
     loja = models.ManyToManyField(Loja, through='Estoque_Loja')
 

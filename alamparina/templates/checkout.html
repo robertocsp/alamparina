@@ -1,45 +1,80 @@
 <h1>Checkout</h1>
-<form id="form_checkout">
+<form id="form_checkout">{% csrf_token %}
 
-<label for="id_marcas">Marcas</label>
-<select id="id_marcas" name="marca" onchange="seleciona()">
-    <option value="">Selecione uma marca</option>
-    {% for marca in marca_list %}
-    {% if marca_retorno != None and marca_retorno.id == marca.id  %}
-    <option value="{{marca.id}}" selected>{{marca.nome}}</option>
-    {% else %}
-    <option value="{{marca.id}}">{{marca.nome}}</option>
-    {% endif %}
-    {% endfor %}
-</select>
+    <div>
+        <label for="id_marcas">Marcas</label>
+        <select id="id_marcas" name="marca" onchange="seleciona()">
+            <option value="">Selecione uma marca</option>
+            {% for marca in marca_list %}
+            {% if marca_retorno != None and marca_retorno.id == marca.id  %}
+            <option value="{{marca.id}}" selected>{{marca.nome}}</option>
+            {% else %}
+            <option value="{{marca.id}}">{{marca.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
 
-
-    <select id="id_lojas" name="loja" onchange="seleciona()">
-        <option value="">Selecione uma loja</option>
-        {% for loja in loja_list %}
-        {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+    <div>
+        <label for="id_lojas">Lojas</label>
+        <select id="id_lojas" name="loja" onchange="seleciona()">
+            <option value="">Selecione uma loja</option>
+            {% for loja in loja_list %}
+            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
             <option value="{{loja.id}}" selected>{{loja.nome}}</option>
-        {% else %}
-        <option value="{{loja.id}}">{{loja.nome}}</option>
-        {% endif %}
-        {% endfor %}
-    </select>
+            {% else %}
+            <option value="{{loja.id}}">{{loja.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
 
-    <select id="id_produtos" name="produto" onchange="seleciona()">
-        <option value="">Selecione uma produto</option>
-        {% for produto in produto_list %}
-        <option value="{{produto.id}}">{{produto.nome}}</option>
-        {% endfor %}
-    </select>
+    <div>
+        <label for="id_produtos">Produtos</label>
+        <select id="id_produtos" name="produto">
+            <option value="">Selecione uma produto</option>
+            {% for produto in produto_list %}
+            {% if produto_retorno != None and produto_retorno.id == produto.id  %}
+            <option value="{{produto.id}}" selected>{{produto.nome}}</option>
+            {% else %}
+            <option value="{{produto.id}}">{{produto.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+        <div>
+        <label for="id_quantidade">Quantidade</label>
+        <input type="text" id="id_quantidade" name="quantidade">
+    </div>
+    </div>
 
+    <label for="id_motivo">Motivo:</label>
+    <div>
+        <select id="id_motivo" name="motivo">
+            {% for key, value in checkout.MOTIVO %}
+                {% if key != 'venda' %}
+                <option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
 
+    <div>
+        <label for="id_observacao">Observacao</label>
+        <input type="text" id="id_observacao" name="observacao">
+    </div>
 
-
+    <input type="button" onclick="submete_form()" value="Enviar">
 
 </form>
 
 <script>
 function seleciona() {
     document.getElementById("form_checkout").submit();
+}
+
+function submete_form(){
+    form = document.getElementById("form_checkout");
+    form.method = "post";
+    form.submit()
 }
 </script>

@@ -339,29 +339,35 @@ def lista_checkout(request):
     return render(request, 'lista_checkout.html', {'checkout_list': checkout_list})
 
 def checkout(request):
+    checkout = Checkout()
     if request.method=='POST':
-        checkout = Checkout()
         checkout.motivo = request.POST['motivo']
         checkout.observacao = request.POST['observacao']
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
         checkout.loja = Loja.objects.get(id=request.POST['loja'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
-        return HttpResponseRedirect(reverse('list_chechout'))
+        estoque_loja = Estoque_Loja.objects.get(loja=checkout.loja,produto=checkout.produto)
+        estoque_loja.quantidade =- int(request.POST['quantidade'])
+        estoque_loja.save()
+        checkout.save()
+
+        return HttpResponseRedirect(reverse('lista_chechout'))
     else:
         marca_list = Marca.objects.all()
         loja_list = None
         produto_list = None
         marca_retorno = None
         loja_retorno = None
+        produto_retorno = None
+        checkout.motivo = request.GET.get('motivo')
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
         if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
-            marca_retorno = Marca.objects.get(id=request.GET['marca'])
-            loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
             loja_retorno = Loja.objects.get(id=request.GET['loja'])
-            produto_list = marca_retorno.produto_set.all()
-
+            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' and "produto" in request.GET and request.GET['produto'] != '':
+            produto_retorno = Produto.objects.get(id=request.GET['produto'])
 
 
         return render(request,'checkout.html',
@@ -371,6 +377,8 @@ def checkout(request):
                           'produto_list':produto_list,
                           'marca_retorno':marca_retorno,
                           'loja_retorno':loja_retorno,
+                          'produto_retorno':produto_retorno,
+                          'checkout':checkout,
 
                       }
         )
