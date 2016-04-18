@@ -25,6 +25,13 @@
         {% endfor %}
     </select>
 
+    <select id="id_produtos" name="produto" onchange="seleciona()">
+        <option value="">Selecione uma produto</option>
+        {% for produto in produto_list %}
+        <option value="{{produto.id}}">{{produto.nome}}</option>
+        {% endfor %}
+    </select>
+
 
 
 

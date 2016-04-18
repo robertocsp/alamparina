@@ -357,8 +357,11 @@ def checkout(request):
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
         if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
-            produto_list = Produto.objects.all()
-            loja_retorno = Loja.objects.get(id=request.GET['loja']) #aqui ainda preciso filtrar só as lojas em que a marca possui espaço alocado
+            marca_retorno = Marca.objects.get(id=request.GET['marca'])
+            loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
+            loja_retorno = Loja.objects.get(id=request.GET['loja'])
+            produto_list = marca_retorno.produto_set.all()
+
 
 
         return render(request,'checkout.html',

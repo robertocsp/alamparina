@@ -17,6 +17,7 @@ class Produto(models.Model):
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
     identificador = models.CharField('identificador', max_length=10, blank=True)
     espaco = models.ForeignKey(Espaco, blank=True, null=True)
+    loja = models.ManyToManyField(Loja, through='Estoque_Loja')
 
     EM_ESTOQUE = (
         ("sim", "Sim"),
@@ -47,6 +48,7 @@ class Checkin(models.Model):
     dia_agendamento = models.DateField(auto_now=False,auto_now_add=False)
     hora_agendamento = models.TimeField(auto_now=False,auto_now_add=False)
     observacao = models.TextField(blank=True)
+    loja = models.ForeignKey(Loja)
 
     MOTIVO = (
         ("creditarestoque", "CreditarEstoque"),
@@ -101,6 +103,14 @@ class Expedicao(models.Model):
 
     class Meta:
        unique_together = ('checkin', 'produto')
+
+class Estoque_Loja(models.Model):
+    produto = models.ForeignKey(Produto, null=False)
+    loja = models.ForeignKey(Loja, null=False)
+    quantidade = models.IntegerField()
+
+    class Meta:
+       unique_together = ('produto', 'loja')
 
 class Checkout(models.Model):
     MOTIVO = (

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from operacional.models import Produto, Checkin, Expedicao
+from operacional.models import *
 
 # Register your models here.
 
@@ -16,7 +16,7 @@ class CheckinAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'marca', 'status',)
     search_fields = ('marca__nome',)
 
-class ExpedicaoAadmin(admin.ModelAdmin):
+class ExpedicaoAdmin(admin.ModelAdmin):
     list_display = ('produto','tipo_checkinout', 'data_checkinout',)
     list_filter = ('checkin__tipo', 'checkin__dia_agendamento',)
 
@@ -26,9 +26,12 @@ class ExpedicaoAadmin(admin.ModelAdmin):
     def data_checkinout(self,obj):
         return obj.checkin.dia_agendamento
 
-
+class Estoque_LojaAdmin(admin.ModelAdmin):
+    list_display = ('produto','loja', 'quantidade',)
+    list_filter = ('produto', 'loja',)
 
 
 admin.site.register(Produto,ProdutoAdmin)
 admin.site.register(Checkin,CheckinAdmin)
-admin.site.register(Expedicao,ExpedicaoAadmin)
+admin.site.register(Expedicao,ExpedicaoAdmin)
+admin.site.register(Estoque_Loja,Estoque_LojaAdmin)
