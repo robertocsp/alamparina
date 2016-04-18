@@ -106,7 +106,7 @@ def inicia_checkin(request):
     #Cubagem_contratada
     cubagem_contratada = 0
     for espaco in espaco_list:
-        tipoespaco = TipoEspaco.objects.get(id=espaco.id)
+        tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
         tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
         cubagem_contratada += tipoespaco.volume
 
