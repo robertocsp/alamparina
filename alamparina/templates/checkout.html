@@ -1,0 +1,38 @@
+<h1>Checkout</h1>
+<form id="form_checkout">
+
+<label for="id_marcas">Marcas</label>
+<select id="id_marcas" name="marca" onchange="seleciona()">
+    <option value="">Selecione uma marca</option>
+    {% for marca in marca_list %}
+    {% if marca_retorno != None and marca_retorno.id == marca.id  %}
+    <option value="{{marca.id}}" selected>{{marca.nome}}</option>
+    {% else %}
+    <option value="{{marca.id}}">{{marca.nome}}</option>
+    {% endif %}
+    {% endfor %}
+</select>
+
+
+    <select id="id_lojas" name="loja" onchange="seleciona()">
+        <option value="">Selecione uma loja</option>
+        {% for loja in loja_list %}
+        {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+            <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+        {% else %}
+        <option value="{{loja.id}}">{{loja.nome}}</option>
+        {% endif %}
+        {% endfor %}
+    </select>
+
+
+
+
+
+</form>
+
+<script>
+function seleciona() {
+    document.getElementById("form_checkout").submit();
+}
+</script>

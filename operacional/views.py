@@ -332,3 +332,47 @@ def edita_checkin_operacional(request, id):
                       'expedicao_list': expedicao_list,
                   }
     )
+
+@login_required
+def lista_checkout(request):
+    checkout_list = Checkout.objects.all().exclude(motivo='venda')
+    return render(request, 'lista_checkout.html', {'checkout_list': checkout_list})
+
+def checkout(request):
+    if request.method=='POST':
+        checkout = Checkout()
+        checkout.motivo = request.POST['motivo']
+        checkout.observacao = request.POST['observacao']
+        checkout.marca = Marca.objects.get(id=request.POST['marca'])
+        checkout.loja = Loja.objects.get(id=request.POST['loja'])
+        checkout.produto = Produto.objects.get(id=request.POST['produto'])
+        return HttpResponseRedirect(reverse('list_chechout'))
+    else:
+        marca_list = Marca.objects.all()
+        loja_list = None
+        produto_list = None
+        marca_retorno = None
+        loja_retorno = None
+        if "marca" in request.GET and request.GET['marca'] != '':
+            loja_list = Loja.objects.all()
+            marca_retorno = Marca.objects.get(id=request.GET['marca'])
+        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
+            produto_list = Produto.objects.all()
+            loja_retorno = Loja.objects.get(id=request.GET['loja']) #aqui ainda preciso filtrar só as lojas em que a marca possui espaço alocado
+
+
+        return render(request,'checkout.html',
+                      {
+                          'marca_list':marca_list,
+                          'loja_list':loja_list,
+                          'produto_list':produto_list,
+                          'marca_retorno':marca_retorno,
+                          'loja_retorno':loja_retorno,
+
+                      }
+        )
+
+
+
+
+

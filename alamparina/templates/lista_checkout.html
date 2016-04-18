@@ -1,0 +1,17 @@
+    <h1>Checkouts</h1>
+
+    <div class="container-fluid">
+      <div>
+          {% for checkout in checkout_list %}
+          <div class="row">
+              <div class="col-sm-3">Marca: {{ checkout.marca.nome}}</div>
+              <div class="col-sm-3">Dia: {{ checkout.dia }}</div>
+              <div class="col-sm-3">Hora: {{ checkout.hora }}</div>
+              <div class="col-sm-3">Motivo: {{ checkout.motivo}}</div>
+          </div>
+          <hr>
+
+          {% endfor %}
+
+      </div>
+    </div> <!-- /container -->

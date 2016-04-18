@@ -23,5 +23,3 @@ class CheckinForm(forms.Form):
         marca = marca
         #expedicao.checkin = checkin
         #expedicao_list = expedicao.produto_set.all()
-
-

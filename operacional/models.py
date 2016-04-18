@@ -101,3 +101,36 @@ class Expedicao(models.Model):
 
     class Meta:
        unique_together = ('checkin', 'produto')
+
+class Checkout(models.Model):
+    MOTIVO = (
+        ("emprestimo", "Emprestimo"),
+        ("consignacao", "Consignacao"),
+        ("avaria", "Avaria"),
+        ("venda", "Venda"),
+    )
+    motivo = models.CharField(max_length=20, choices=MOTIVO)
+
+    dia = models.DateField(auto_now_add=True)
+    hora = models.TimeField(auto_now_add=True)
+    observacao = models.TextField(blank=True)
+
+    marca = models.ForeignKey(Marca)
+    loja = models.ForeignKey(Loja)
+    produto = models.ForeignKey(Produto)
+    periodo = models.ForeignKey(Periodo, blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s %s %s' % (self.marca, self.motivo, self.dia)
+
+    def motivo_emprestimo(self):
+        return 'emprestimo'
+
+    def motivo_consignacao(self):
+        return 'consignacao'
+
+    def motivo_avaria(self):
+        return 'avaria'
+
+    def motivo_venda(self):
+        return 'venda'
