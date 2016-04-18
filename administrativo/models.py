@@ -14,6 +14,9 @@ class Loja(models.Model):
     def __unicode__(self):
         return self.nome
 
+    def get_lojas_marca(self, marca):
+        return self.objects.filter(espaco__alocacao__marca=marca).distinct()
+
 class Marca(models.Model):
     nome = models.CharField(max_length=50)
     razao_social = models.CharField(max_length=100)
@@ -40,7 +43,7 @@ class TipoEspaco(models.Model):
 class Espaco(models.Model):
     identificador = models.CharField(max_length=20)
     tipo = models.ForeignKey(TipoEspaco)
-    loja = models.ForeignKey(Loja, blank=True, null=True)
+    loja = models.ForeignKey(Loja, blank=True, null=True, related_name='espaco')
     disponivel = models.BooleanField(default=True)
 
     def __unicode__(self):
