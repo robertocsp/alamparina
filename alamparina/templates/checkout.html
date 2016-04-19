@@ -30,6 +30,10 @@
     </div>
 
     <div>
+        {% if error %}
+            <div>Quantidade superior a de estoque ({{estoque_loja.quantidade}})
+            </div>
+        {% endif %}
         <label for="id_produtos">Produtos</label>
         <select id="id_produtos" name="produto">
             <option value="">Selecione uma produto</option>

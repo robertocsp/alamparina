@@ -340,6 +340,16 @@ def lista_checkout(request):
 
 def checkout(request):
     checkout = Checkout()
+    marca_list = Marca.objects.all()
+    loja_list = None
+    produto_list = None
+    marca_retorno = None
+    loja_retorno = None
+    produto_retorno = None
+    checkout.motivo = request.GET.get('motivo')
+    error = False
+    estoque_loja = None
+
     if request.method=='POST':
         checkout.motivo = request.POST['motivo']
         checkout.observacao = request.POST['observacao']
@@ -347,19 +357,23 @@ def checkout(request):
         checkout.loja = Loja.objects.get(id=request.POST['loja'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         estoque_loja = Estoque_Loja.objects.get(loja=checkout.loja,produto=checkout.produto)
-        estoque_loja.quantidade =- int(request.POST['quantidade'])
-        estoque_loja.save()
-        checkout.save()
+        quantidade = int(request.POST['quantidade'])
 
-        return HttpResponseRedirect(reverse('lista_chechout'))
+        if estoque_loja.quantidade < quantidade:
+            marca_retorno = checkout.marca
+            loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
+            loja_retorno = checkout.loja
+            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+            produto_retorno = checkout.produto
+
+            error = True
+
+        else:
+            estoque_loja.quantidade = estoque_loja.quantidade - quantidade
+            estoque_loja.save()
+            checkout.save()
+            return HttpResponseRedirect(reverse('lista_checkout'))
     else:
-        marca_list = Marca.objects.all()
-        loja_list = None
-        produto_list = None
-        marca_retorno = None
-        loja_retorno = None
-        produto_retorno = None
-        checkout.motivo = request.GET.get('motivo')
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
@@ -370,18 +384,19 @@ def checkout(request):
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
 
 
-        return render(request,'checkout.html',
-                      {
-                          'marca_list':marca_list,
-                          'loja_list':loja_list,
-                          'produto_list':produto_list,
-                          'marca_retorno':marca_retorno,
-                          'loja_retorno':loja_retorno,
-                          'produto_retorno':produto_retorno,
-                          'checkout':checkout,
-
-                      }
-        )
+    return render(request,'checkout.html',
+                 {
+                     'marca_list':marca_list,
+                     'loja_list':loja_list,
+                     'produto_list':produto_list,
+                     'marca_retorno':marca_retorno,
+                     'loja_retorno':loja_retorno,
+                     'produto_retorno':produto_retorno,
+                     'checkout':checkout,
+                     'error': error,
+                     'estoque_loja': estoque_loja,
+                  }
+    )
 
 
 
