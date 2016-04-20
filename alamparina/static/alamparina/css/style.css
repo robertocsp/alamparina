@@ -209,6 +209,10 @@ input[type="text"], input[type="number"], select, textarea, input[type="password
     padding-left: 6px;
 }
 
+select{
+    width: 200px;
+}
+
 .box-formulario .formulario-padrao li input[type="text"], .box-formulario .formulario-padrao li input[type="number"]{
     width: 300px;
 }
@@ -334,4 +338,18 @@ label strong{
 
 .coluna-1 .col-md-12{
     margin-bottom: 20px;
+}
+
+.box-formulario .formulario-padrao.checkout li input[type="text"]{
+    width: 200px;
+}
+
+textarea{
+    width: 300px;
+    height: 90px;
+}
+
+label[for="id_observacao"]{
+    top: -68px;
+    position: relative;
 }
