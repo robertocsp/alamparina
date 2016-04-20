@@ -1,16 +1,28 @@
-    <h1>Checkins da {{marca.nome}}</h1>
-    <a href="/marca/checkin">Realizar Checkin</a>
-    <div class="container-fluid">
-      <div>
-          {% for checkin in checkin_list %}
-          <div class="row">
-              <div class="col-sm-3">Dia Agendamento: <a href="/marca/checkin/{{checkin.id}}">{{ checkin.dia_agendamento }}</a></div>
-              <div class="col-sm-3">Hora Agendamento: {{ checkin.hora_agendamento }}</div>
-              <div class="col-sm-3">Status: {{ checkin.status}}</div>
-          </div>
-          <hr>
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="glyphicon glyphicon-calendar"></i> Checkins da {{marca.nome}} {% endblock %}
 
-          {% endfor %}
-
-      </div>
-    </div> <!-- /container -->
+{% block conteudo %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><a href="/marca/checkin"><i class="glyphicon glyphicon-plus"></i> Realizar Novo Checkin</a></div>
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Dia Agendamento</th>
+                <th>Hora Agendamento</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for checkin in checkin_list %}
+                <tr>
+                    <th>{{ checkin.dia_agendamento }}</th>
+                    <td>{{ checkin.hora_agendamento }}</td>
+                    <td>{{ checkin.status}}</td>
+                    <td><a href="/marca/checkin/{{checkin.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}

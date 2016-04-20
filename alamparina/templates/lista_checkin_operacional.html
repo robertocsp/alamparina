@@ -1,17 +1,29 @@
-    <h1>Checkins</h1>
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %} <i class="glyphicon glyphicon-calendar"></i> Checkins {% endblock %}
 
-    <div class="container-fluid">
-      <div>
-          {% for checkin in checkin_list %}
-          <div class="row">
-              <div class="col-sm-3">Marca: {{ checkin.marca.nome}}</div>
-              <div class="col-sm-3">Dia Agendamento: <a href="/operacional/checkin/{{checkin.id}}">{{ checkin.dia_agendamento }}</a></div>
-              <div class="col-sm-3">Hora Agendamento: {{ checkin.hora_agendamento }}</div>
-              <div class="col-sm-3">Status: {{ checkin.status}}</div>
-          </div>
-          <hr>
-
-          {% endfor %}
-
-      </div>
-    </div> <!-- /container -->
+{% block conteudo %}
+    <div class="panel panel-default">
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Dia Agendamento</th>
+                <th>Hora Agendamento</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for checkin in checkin_list %}
+                <tr>
+                    <th>Marca tal (importante colocar o nome da marca)</th>
+                    <td>{{ checkin.dia_agendamento }}</td>
+                    <td>{{ checkin.hora_agendamento }}</td>
+                    <td>{{ checkin.status}}</td>
+                    <td><a href="/operacional/checkin/{{checkin.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}
