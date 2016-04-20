@@ -353,3 +353,13 @@ label[for="id_observacao"]{
     top: -68px;
     position: relative;
 }
+
+.operacional-conf.logo-marca-link{
+    padding: 12px 40px 17px 0;
+}
+
+.operacional-conf.logo-marca-link span{
+    font-size: 27px;
+    left: 0px;
+    top: 9px;
+}

@@ -1,20 +1,29 @@
-    <h1>Produtos da {{marca.nome}}</h1>
-    <div class="container-fluid">
-      <div>
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="fa fa-fw fa-list"></i> Estoque da marca {{marca.nome}}{% endblock %}
 
-          {% for produto in produto_list %}
-          <div class="row">
-              <div class="col-sm-3">Nome: <a href="/marca/cadastra-produto/{{produto.id}}">{{ produto.nome }}</a></div>
-              <div class="col-sm-3">Largura: {{ produto.largura }}</div>
-              <div class="col-sm-3">Altura: {{ produto.altura }}</div>
-              <div class="col-sm-3">Profundidade: {{ produto.profundidade }}</div>
-              <div class="col-sm-3">Quantidade: {{ produto.quantidade }}</div>
-              <div class="col-sm-3">Preco base: {{ produto.preco_base }}</div>
-              <div class="col-sm-3">Preco venda: {{ produto.preco_venda }}</div>
-          </div>
-          <hr>
-
-          {% endfor %}
-
-      </div>
-    </div> <!-- /container -->
+{% block conteudo %}
+   <div class="panel panel-default">
+        <table class="table">
+          <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preco base</th>
+                <th>Preco venda</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for produto in produto_list %}
+                <tr>
+                    <th>{{ produto.nome}}</th>
+                    <td>{{ produto.quantidade }}</td>
+                    <td>{{ produto.preco_base }}</td>
+                    <td>{{ produto.preco_venda }}</td>
+                    <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}
