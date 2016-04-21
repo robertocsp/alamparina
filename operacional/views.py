@@ -340,8 +340,21 @@ def edita_checkin_operacional(request, id):
             expedicao.status = request.POST['status_produto_'+str(expedicao.produto.id)]
             if checkin.status == 'confirmado' and expedicao.status == 'ok':
                 produto = Produto.objects.get(id=expedicao.produto.id)
+                try:
+                    estoque = Estoque.objects.get(produto=produto,loja=checkin.loja)
+                    estoque.quantidade = estoque.quantidade + expedicao.quantidade
+                    estoque.save()
+                except Estoque.DoesNotExist:
+                    estoque = Estoque()
+                    estoque.produto = produto
+                    estoque.loja = checkin.loja
+                    estoque.quantidade = expedicao.quantidade
+                    estoque.save()
+
+
+                #produto.loja.add(checkin.loja(quantidade=expedicao.quantidade)
                 produto.quantidade += expedicao.quantidade
-                produto.save()
+                #produto.save()
 
         checkin.save()
 
