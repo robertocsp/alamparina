@@ -21,10 +21,22 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='Canal',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nome', models.CharField(max_length=30, verbose_name=b'Nome')),
+                ('percentual_deflacao', models.FloatField()),
+                ('absoluto_deflacao', models.IntegerField()),
+                ('acumulativo', models.BooleanField(default=False)),
+                ('tipo', models.CharField(default=b'loja', max_length=15, choices=[(b'loja', b'Loja'), (b'catalogo', b'Catalogo'), (b'ecommerce', b'Ecommerce'), (b'revenda', b'Revenda')])),
+            ],
+        ),
+        migrations.CreateModel(
             name='Espaco',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('identificador', models.CharField(max_length=20)),
+                ('disponivel', models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
@@ -33,6 +45,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=50)),
                 ('endereco', models.CharField(max_length=100)),
+                ('percentual_deflacao', models.FloatField(null=True, blank=True)),
+                ('absoluto_deflacao', models.IntegerField(null=True, blank=True)),
             ],
         ),
         migrations.CreateModel(
@@ -45,6 +59,8 @@ class Migration(migrations.Migration):
                 ('endereco', models.CharField(max_length=100)),
                 ('contato', models.CharField(max_length=100, blank=True)),
                 ('logo', models.ImageField(upload_to=b'/var/www/html/logos', blank=True)),
+                ('codigo', models.CharField(max_length=5, blank=True)),
+                ('sequencial_atual', models.IntegerField(default=0)),
                 ('user', models.ManyToManyField(related_name='marca', null=True, to=settings.AUTH_USER_MODEL, blank=True)),
             ],
         ),
@@ -71,7 +87,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='espaco',
             name='loja',
-            field=models.ForeignKey(blank=True, to='administrativo.Loja', null=True),
+            field=models.ForeignKey(related_name='espaco', blank=True, to='administrativo.Loja', null=True),
         ),
         migrations.AddField(
             model_name='espaco',
@@ -81,7 +97,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alocacao',
             name='espaco',
-            field=models.ManyToManyField(to='administrativo.Espaco'),
+            field=models.ManyToManyField(related_name='alocacao', to='administrativo.Espaco'),
         ),
         migrations.AddField(
             model_name='alocacao',

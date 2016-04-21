@@ -11,10 +11,7 @@
     <form class="formulario-padrao" action="." method="post">
         {{ form.as_ul }}
         {% csrf_token %}
-        <label class="button">
-            <i class="glyphicon glyphicon-saved"></i>
-            <input type="submit" class="salvar" value="Salvar" />
-        </label>
+        <button type="submit" value="Salvar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Salvar</button>
     </form>
     <a href="/marca/listaprodutos"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar para lista de produtos</a>
 </div>

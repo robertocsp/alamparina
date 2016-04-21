@@ -9,7 +9,19 @@
     </ul>
     {% endif %}
 
+<form id="form_checkin" method="post">{% csrf_token %}
 
+    <label for="id_lojas">Lojas</label>
+        <select id="id_lojas" name="loja" onchange="seleciona()">
+            <option value="">Selecione uma loja</option>
+            {% for loja in loja_list %}
+            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+            {% else %}
+                <option value="{{loja.id}}">{{loja.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
 
     <p>Espacos Alocados:</p>
     <ul>
@@ -17,16 +29,15 @@
          <li>{{ espaco.identificador }}</li>
 
     {% endfor %}
-        <p> Total de Espaço Alocado: {{ cubagem_contratada }} cc</p>
-        <p> Total de Espaço Presente em Estoque: {{ saldo_cubagem_estoque }} cc</p>
-        <p> Saldo == {{ saldo_cubagem }} cc</p>
+        <p> Total de Espaço Alocado para a Loja: {{ cubagem_contratada }} cc</p>
+        <p> Total de Espaço Utilizado na Loja: {{ saldo_cubagem_estoque }} cc</p>
+        <p> Saldo para esta Loja == {{ saldo_cubagem }} cc</p>
 
     </ul>
-<form method="post">{% csrf_token %}
+
      {% if checkin.status == checkin.status_emprocessamento %}
 
-        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" required>
-        <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" required>
+        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
             <hr>
             <hr>
             <div>
@@ -40,8 +51,7 @@
         <input type="submit" value="Remover" name="remover_canal">
         </div>
      {% else %}
-        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
-        <label for="id_hora_agendamento">Hora agendamento</label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" disabled>
+        <label for="id_dia_agendamento">Dia agendamento </label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
     {% endif %}
 <hr>
 <div>
@@ -83,9 +93,13 @@
             <div>Preço de venda: {{expedicao.produto.preco_venda}}</div>
             <div>Preços nos canais:</div>
             <ul>
-                {% for canal in canal_list%}
-                    <li>{% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
-                {%endfor%}
+                {% if loja_retorno %}
+
+                        {% for canal in canal_list%}
+                        <li>{% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao canal.acumulativo loja_retorno.percentual_deflacao loja_retorno.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
+                        {%endfor%}
+
+                {% endif %}
             </ul>
             <hr>
         {% endfor %}
@@ -100,3 +114,9 @@
         <input type="submit" name="finalizar" value="Finalizar Checkin">
     </div>
 </form>
+
+<script>
+function seleciona() {
+    document.getElementById("form_checkin").submit();
+}
+</script>

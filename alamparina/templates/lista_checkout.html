@@ -1,17 +1,27 @@
-    <h1>Checkouts</h1>
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %} <i class="glyphicon glyphicon-calendar"></i> Lista Checkouts {% endblock %}
 
-    <div class="container-fluid">
-      <div>
-          {% for checkout in checkout_list %}
-          <div class="row">
-              <div class="col-sm-3">Marca: {{ checkout.marca.nome}}</div>
-              <div class="col-sm-3">Dia: {{ checkout.dia }}</div>
-              <div class="col-sm-3">Hora: {{ checkout.hora }}</div>
-              <div class="col-sm-3">Motivo: {{ checkout.motivo}}</div>
-          </div>
-          <hr>
-
-          {% endfor %}
-
-      </div>
-    </div> <!-- /container -->
+{% block conteudo %}
+   <div class="panel panel-default">
+        <table class="table">
+          <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Dia</th>
+                <th>Hora</th>
+                <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for checkout in checkout_list %}
+                <tr>
+                    <th>{{ checkout.marca.nome}}</th>
+                    <td>{{ checkout.dia }}</td>
+                    <td>{{ checkout.hora }}</td>
+                    <td>{{ checkout.motivo}}</td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}

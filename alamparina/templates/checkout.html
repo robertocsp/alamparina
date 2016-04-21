@@ -1,75 +1,82 @@
-<h1>Checkout</h1>
-<form id="form_checkout">{% csrf_token %}
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %}<i class="fa fa-hand-o-right"></i> Checkout {% endblock %}
 
-    <div>
-        <label for="id_marcas">Marcas</label>
-        <select id="id_marcas" name="marca" onchange="form.submit()">
-            <option value="">Selecione uma marca</option>
-            {% for marca in marca_list %}
-            {% if marca_retorno != None and marca_retorno.id == marca.id  %}
-            <option value="{{marca.id}}" selected>{{marca.nome}}</option>
-            {% else %}
-            <option value="{{marca.id}}">{{marca.nome}}</option>
-            {% endif %}
-            {% endfor %}
-        </select>
-    </div>
-
-    <div>
-        <label for="id_lojas">Lojas</label>
-        <select id="id_lojas" name="loja" onchange="form.submit()">
-            <option value="">Selecione uma loja</option>
-            {% for loja in loja_list %}
-            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-            <option value="{{loja.id}}" selected>{{loja.nome}}</option>
-            {% else %}
-            <option value="{{loja.id}}">{{loja.nome}}</option>
-            {% endif %}
-            {% endfor %}
-        </select>
-    </div>
-
-    <div>
-        {% if error %}
-            <div>Quantidade superior a de estoque ({{estoque_loja.quantidade}})
-            </div>
-        {% endif %}
-        <label for="id_produtos">Produtos</label>
-        <select id="id_produtos" name="produto">
-            <option value="">Selecione uma produto</option>
-            {% for produto in produto_list %}
-            {% if produto_retorno != None and produto_retorno.id == produto.id  %}
-            <option value="{{produto.id}}" selected>{{produto.nome}}</option>
-            {% else %}
-            <option value="{{produto.id}}">{{produto.nome}}</option>
-            {% endif %}
-            {% endfor %}
-        </select>
-        <div>
-        <label for="id_quantidade">Quantidade</label>
-        <input type="text" id="id_quantidade" name="quantidade">
-    </div>
-    </div>
-
-    <label for="id_motivo">Motivo:</label>
-    <div>
-        <select id="id_motivo" name="motivo">
-            {% for key, value in checkout.MOTIVO %}
-                {% if key != 'venda' %}
-                <option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>
+{% block conteudo %}
+<div class="box-formulario">
+    <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Efetuar Checkout para efetuar o checkout.</p>
+    <form class="formulario-padrao checkout" id="form_checkout">{% csrf_token %}
+        <ul>
+        <li>
+            <label for="id_marcas">Marcas: </label>
+            <select id="id_marcas" name="marca" onchange="form.submit()">
+                <option value="">Selecione uma marca</option>
+                {% for marca in marca_list %}
+                {% if marca_retorno != None and marca_retorno.id == marca.id  %}
+                <option value="{{marca.id}}" selected>{{marca.nome}}</option>
+                {% else %}
+                <option value="{{marca.id}}">{{marca.nome}}</option>
                 {% endif %}
-            {% endfor %}
-        </select>
-    </div>
+                {% endfor %}
+            </select>
+        </li>
+        <li>
+            <label for="id_lojas">Lojas: </label>
+            <select id="id_lojas" name="loja" onchange="form.submit()">
+                <option value="">Selecione uma loja</option>
+                {% for loja in loja_list %}
+                {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+                {% else %}
+                <option value="{{loja.id}}">{{loja.nome}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+            {% if error %}
+                <div class="alert alert-error">
+                    <strong>Quantidade superior a de estoque ({{estoque.quantidade}})</strong>
+                </div>
+            {% endif %}
+        </li>
+        <li>
+            <label for="id_produtos">Produtos: </label>
+            <select id="id_produtos" name="produto">
+                <option value="">Selecione uma produto</option>
+                {% for produto in produto_list %}
+                {% if produto_retorno != None and produto_retorno.id == produto.id  %}
+                <option value="{{produto.id}}" selected>{{produto.nome}}</option>
+                {% else %}
+                <option value="{{produto.id}}">{{produto.nome}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </li>
+        <li>
+            <label for="id_quantidade">Quantidade: </label>
+            <input type="text" id="id_quantidade" name="quantidade">
+        </li>
+        <li>
+            <label for="id_motivo">Motivo:</label>
 
-    <div>
-        <label for="id_observacao">Observacao</label>
-        <input type="text" id="id_observacao" name="observacao">
-    </div>
+            <select id="id_motivo" name="motivo">
+                {% for key, value in checkout.MOTIVO %}
+                    {% if key != 'venda' %}
+                    <option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </li>
 
-    <input type="button" onclick="submete_form()" value="Enviar">
-
-</form>
+        <li>
+            <label for="id_observacao">Observacao: </label>
+            <textarea type="text" id="id_observacao" name="observacao"></textarea>
+        </li>
+        <li>
+            <button type="button" onclick="submete_form()" value="Enviar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Efetuar Checkout</button>
+        </li>
+        </ul>
+    </form>
+    <a href="javascript:history.back();"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar</a>
+</div>
 
 <script>
 function submete_form(){
@@ -78,3 +85,4 @@ function submete_form(){
     form.submit()
 }
 </script>
+{% endblock %}

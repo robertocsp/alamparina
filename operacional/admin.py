@@ -26,7 +26,7 @@ class ExpedicaoAdmin(admin.ModelAdmin):
     def data_checkinout(self,obj):
         return obj.checkin.dia_agendamento
 
-class Estoque_LojaAdmin(admin.ModelAdmin):
+class EstoqueAdmin(admin.ModelAdmin):
     list_display = ('produto', 'marca', 'loja', 'quantidade',)
     list_filter = ('produto', 'loja', 'produto__marca__nome')
 
@@ -34,7 +34,8 @@ class Estoque_LojaAdmin(admin.ModelAdmin):
         return obj.produto.marca
 
 
+
 admin.site.register(Produto,ProdutoAdmin)
 admin.site.register(Checkin,CheckinAdmin)
 admin.site.register(Expedicao,ExpedicaoAdmin)
-admin.site.register(Estoque_Loja,Estoque_LojaAdmin)
+admin.site.register(Estoque,EstoqueAdmin)
