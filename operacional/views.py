@@ -220,7 +220,7 @@ def edita_checkin(request, id):
 
     espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca, loja_id=checkin.loja_id).distinct()
     produto_list = checkin.marca.produto_set.all()
-    # Cubagem_contratada
+    #Cubagem_contratada
     for espaco in espaco_list:
         tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
         tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
