@@ -397,8 +397,3 @@ def checkout(request):
                      'estoque_loja': estoque_loja,
                   }
     )
-
-
-
-
-
