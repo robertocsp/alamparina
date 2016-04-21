@@ -3,6 +3,7 @@
 
 {% block conteudo %}
 
+<form method="post">
 <ul method="post">{% csrf_token %}
     <label class="h4" for="id_status_checkin">Status do checkin:</label>
     <select id="id_status_checkin" name="statuscheckin" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}> >
@@ -83,7 +84,7 @@
     </div>
     <div>
         {%ifnotequal checkin.status 'confirmado' %}
-            <button type="submit" name="atualizxar" value="Atualizar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Atualizar</button>
+            <button type="submit" name="atualizar" value="Atualizar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Atualizar</button>
         {%endifnotequal%}
     </div>
 </form>

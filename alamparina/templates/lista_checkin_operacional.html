@@ -8,7 +8,6 @@
             <tr>
                 <th>Marca</th>
                 <th>Dia Agendamento</th>
-                <th>Hora Agendamento</th>
                 <th>Status</th>
                 <th></th>
             </tr>
@@ -16,9 +15,8 @@
           <tbody>
              {% for checkin in checkin_list %}
                 <tr>
-                    <th>Marca tal (importante colocar o nome da marca)</th>
+                    <th>{{ checkin.marca }}</th>
                     <td>{{ checkin.dia_agendamento }}</td>
-                    <td>{{ checkin.hora_agendamento }}</td>
                     <td>{{ checkin.status}}</td>
                     <td><a href="/operacional/checkin/{{checkin.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
                 </tr>
