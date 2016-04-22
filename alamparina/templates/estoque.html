@@ -26,13 +26,15 @@
             </tr>
           </thead>
           <tbody>
-             {% for estoque in estoque_list %}
-                <tr>
-                    <th>{{ estoque.produto.nome}}</th>
-                    <td>{{ estoque.produto.quantidade }}</td>
-                    <td>{{ estoque.produto.preco_venda }}</td>
-                </tr>
-             {% endfor %}
+            {% if estoque_list != None %}
+                {% for estoque in estoque_list %}
+                    <tr>
+                        <th>{{ estoque.produto.nome}}</th>
+                        <td>{{ estoque.produto.quantidade }}</td>
+                        <td>{{ estoque.produto.preco_venda }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
           </tbody>
       </table>
     </div>

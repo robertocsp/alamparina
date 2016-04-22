@@ -434,6 +434,7 @@ def estoque(request):
     loja_list = Loja.objects.filter(espaco__alocacao__marca=marca).distinct()
     estoque = None
     loja_retorno = None
+    estoque_list = None
 
     if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
         estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
