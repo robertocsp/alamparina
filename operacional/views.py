@@ -309,12 +309,6 @@ def dashboard_marca(request):
     return render (request,'dashboard_marca.html')
 
 @login_required
-def estoque(request):
-    marca = Marca.objects.get(id=request.session['marca_id'])
-    produto_list = Produto.objects.filter(marca__id=marca.id, em_estoque='sim')
-    return render(request, 'estoque.html', {'produto_list': produto_list, 'marca': marca})
-
-@login_required
 def dashboard_operacional(request):
     return render (request, 'dashboard_operacional.html')
 
@@ -436,13 +430,22 @@ def checkout(request):
 
 @login_required
 def estoque(request):
-    loja_list = Loja.objects.filter(espaco__alocacao__marca=checkin.marca).distinct()
-    if request.method == 'GET':
-        estoque = Estoque.objects.filter(loja_id=request.GET['loja'])
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    loja_list = Loja.objects.filter(espaco__alocacao__marca=marca).distinct()
+    estoque = None
+    loja_retorno = None
 
-    return render(request, 'checkout.html',
-                {
-                    'loja_list': loja_list,
-                    'estoque': estoque,
-                }
+    if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
+        estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
+        loja_retorno = request.GET['loja']
+
+    return render(request, 'estoque.html',
+                  {
+                      'marca': marca,
+                      'loja_list': loja_list,
+                      'estoque_list': estoque_list,
+                      'loja_retorno':loja_retorno,
+                  }
     )
+
+

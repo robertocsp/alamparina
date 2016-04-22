@@ -2,25 +2,35 @@
 {% block tituloPagina %} <i class="fa fa-fw fa-list"></i> Estoque da marca {{marca.nome}}{% endblock %}
 
 {% block conteudo %}
-   <div class="panel panel-default">
+<h1>{{marca|capfirst}}</h1>
+    <form method="GET">
+        <label for="id_lojas">Lojas</label>
+        <select id="id_lojas" name="loja" onchange="form.submit()">
+            <option value="">Selecione uma loja</option>
+            {% for loja in loja_list %}
+            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+            {% else %}
+                <option value="{{loja.id}}">{{loja.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </form>
+    <div class="panel panel-default">
         <table class="table">
           <thead>
             <tr>
                 <th>Nome</th>
                 <th>Quantidade</th>
-                <th>Preco base</th>
                 <th>Preco venda</th>
-                <th></th>
             </tr>
           </thead>
           <tbody>
-             {% for produto in produto_list %}
+             {% for estoque in estoque_list %}
                 <tr>
-                    <th>{{ produto.nome}}</th>
-                    <td>{{ produto.quantidade }}</td>
-                    <td>{{ produto.preco_base }}</td>
-                    <td>{{ produto.preco_venda }}</td>
-                    <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                    <th>{{ estoque.produto.nome}}</th>
+                    <td>{{ estoque.produto.quantidade }}</td>
+                    <td>{{ estoque.produto.preco_venda }}</td>
                 </tr>
              {% endfor %}
           </tbody>
