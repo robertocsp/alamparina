@@ -123,8 +123,12 @@ def inicia_checkin(request):
         # Saldo da Cubagem em Estoque
         estoque_list = Estoque.objects.filter(loja_id=request.POST['loja'])
         for estoque in estoque_list:
-            volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
-            saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
+            #urgente. rfh. Mesma questao do get e filter. Get vazio da exceçao.
+            #se for maior que 1, nao consigo manipular fora de um "for"
+            volumeproduto = Produto.objects.filter(id=estoque.produto_id, em_estoque='sim')
+            if len(volumeproduto) != 0:
+                volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
+                saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
 
         # produtos
         expedicao = Expedicao()
@@ -228,8 +232,12 @@ def edita_checkin(request, id):
     # Saldo da Cubagem em Estoque
     estoque_list = Estoque.objects.filter(loja_id=checkin.loja_id)
     for estoque in estoque_list:
-        volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
-        saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
+        # urgente. rfh. Mesma questao do get e filter. Get vazio da exceçao.
+        # se for maior que 1, nao consigo manipular fora de um "for"
+        volumeproduto = Produto.objects.filter(id=estoque.produto_id, em_estoque='sim')
+        if len(volumeproduto) != 0:
+            volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
+            saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
 
     #quando muda o checkin, preciso zerar a variavel de volume de checkin previsto (volume_checkin)
     if gcheckinid != id:
