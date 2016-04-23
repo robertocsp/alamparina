@@ -44,7 +44,32 @@ ul li{
     color: #4CAE4C;
 }
 
+.text-azul{
+    color: #337AB7;
+}
+
+::-webkit-input-placeholder {
+   color: #666;
+}
+
+:-moz-placeholder {
+   color: #666;
+}
+
+::-moz-placeholder {
+   color: #666;
+}
+
+:-ms-input-placeholder {
+   color: #666;
+}
+
 /*fim geral*/
+
+#wrapper .navbar-inverse {
+    background-color: #000;
+    border-color: #000;
+}
 
 /*Produtos*/
 .marcas-box{
@@ -363,3 +388,54 @@ label[for="id_observacao"]{
     left: 0px;
     top: 9px;
 }
+
+/*Checkin*/
+
+.box-info-checkin{
+    width: 400px;
+    padding: 20px;
+    background: #fff;
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    -webkit-box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
+    -moz-box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
+    box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
+}
+
+.box-info-checkin .h3{
+    font-weight: bold;
+    margin: 0 0 22px 0;
+    color: #D9534F;
+}
+
+.box-info-checkin ul li.loja-lista{
+    margin: 13px 0 25px 0;
+    font-weight: bold;
+    font-size: 18px;
+    border-bottom: 1px solid #c1c1c1;
+}
+
+.lista-canais{
+    margin: 10px 0 0 20px;
+}
+
+ul.box-produtos-checkin{
+    width: 345px;
+    margin: 20px 0px 20px 20px;
+    padding: 20px 0 0px 0px;
+    border-top: 1px solid rgb(204, 204, 204);
+}
+
+ul.box-produtos-checkin:last-child{
+    border: 0;
+}
+
+ul.box-produtos-checkin li{
+    margin: 0 0 10px 15px;
+}
+
+ul.box-produtos-checkin li ul{
+    margin: 10px 0 0 5px;
+}
+

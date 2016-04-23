@@ -8,9 +8,9 @@
           <thead>
             <tr>
                 <th>Nome</th>
-                <th>Largura</th>
-                <th>Altura</th>
-                <th>Profundidade</th>
+                <th>Canal</th>
+                <th>Em estoque</th>
+                <th>Quantidade no estoque</th>
                 <th></th>
             </tr>
           </thead>
@@ -18,9 +18,9 @@
              {% for produto in produto_list %}
                 <tr>
                     <th><strong>{{ produto.nome }}</strong></th>
-                    <td>{{ produto.largura }} cm</td>
-                    <td>{{ produto.altura }} cm</td>
-                    <td>{{ produto.profundidade }} cm</td>
+                    <th>Loja Botafogo</th>
+                    <td>{{ produto.em_estoque }}</td>
+                    <td>{{ produto.quantidade }}</td>
                     <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
                 </tr>
              {% endfor %}

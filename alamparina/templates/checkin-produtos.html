@@ -1,5 +1,7 @@
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="glyphicon glyphicon-calendar"></i> Checkin {{marca|capfirst}}{% endblock %}
 
-<h1>{{marca|capfirst}}</h1>
+{% block conteudo %}
 <form method="post">{% csrf_token %}
 
     <p>Status: {{checkin.status}}</p>
@@ -49,3 +51,4 @@
     </form>
 
 </div>
+{% endblock %}

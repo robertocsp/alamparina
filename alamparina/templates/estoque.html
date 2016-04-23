@@ -2,9 +2,8 @@
 {% block tituloPagina %} <i class="fa fa-fw fa-list"></i> Estoque da marca {{marca.nome}}{% endblock %}
 
 {% block conteudo %}
-<h1>{{marca|capfirst}}</h1>
-    <form method="GET">
-        <label for="id_lojas">Lojas</label>
+    <br><br>
+    <form method="GET" class="formulario-padrao">
         <select id="id_lojas" name="loja" onchange="form.submit()">
             <option value="">Selecione uma loja</option>
             {% for loja in loja_list %}
@@ -15,27 +14,29 @@
             {% endif %}
             {% endfor %}
         </select>
-    </form>
-    <div class="panel panel-default">
-        <table class="table">
-          <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Quantidade</th>
-                <th>Preco venda</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if estoque_list != None %}
-                {% for estoque in estoque_list %}
-                    <tr>
-                        <th>{{ estoque.produto.nome}}</th>
-                        <td>{{ estoque.produto.quantidade }}</td>
-                        <td>{{ estoque.produto.preco_venda }}</td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-          </tbody>
-      </table>
-    </div>
+    </form><br>
+    {% if estoque_list != None %}
+        <div class="panel panel-default">
+            <table class="table">
+              <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Quantidade</th>
+                    <th>Preco venda</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                    {% for estoque in estoque_list %}
+                        <tr>
+                            <th>{{ estoque.produto.nome}}</th>
+                            <td>{{ estoque.produto.quantidade }}</td>
+                            <td>{{ estoque.produto.preco_venda }}</td>
+                        </tr>
+                    {% endfor %}
+
+              </tbody>
+          </table>
+        </div>
+    {% endif %}
 {% endblock %}

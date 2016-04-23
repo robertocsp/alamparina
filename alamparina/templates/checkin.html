@@ -1,6 +1,10 @@
-{% load preco_tag %}
-<h1>{{marca|capfirst}}</h1>
-    <p>Status: {{checkin.status}}</p>
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="glyphicon glyphicon-calendar"></i> Checkin {{marca|capfirst}} {% endblock %}
+
+{% block conteudo %}
+<div>
+    {% load preco_tag %}
+    <p><label>Status deste checkin:</label> {{checkin.status}}</p>
     {% if messages %}
     <ul>
     {% for message in messages %}
@@ -8,111 +12,125 @@
     {% endfor %}
     </ul>
     {% endif %}
-
+</div>
+<hr>
 <form id="form_checkin" method="post">{% csrf_token %}
+    <div class="box-info-checkin">
+        <center><label class="h3"><i class="fa fa-pie-chart"></i> Espacos Alocados</label></center>
+        <ul>
+        {% for espaco in espaco_list%}
+             <li class="loja-lista"><label><i class="glyphicon glyphicon-map-marker"></i> {{ espaco.identificador }}</label></li>
 
-    <label for="id_lojas">Lojas</label>
-        <select id="id_lojas" name="loja" onchange="seleciona()">
-            <option value="">Selecione uma loja</option>
-            {% for loja in loja_list %}
+        {% endfor %}
+            <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
+            <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+            <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
+
+        </ul>
+    </div>
+    <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
+    <select id="id_lojas" name="loja" onchange="seleciona()">
+        <option value="">Selecione uma loja</option>
+        {% for loja in loja_list %}
             {% if loja_retorno != None and loja_retorno.id == loja.id  %}
                 <option value="{{loja.id}}" selected>{{loja.nome}}</option>
             {% else %}
                 <option value="{{loja.id}}">{{loja.nome}}</option>
             {% endif %}
+        {% endfor %}
+    </select><br><br>
+     {% if checkin.status == checkin.status_emprocessamento %}
+        <label for="id_dia_agendamento"><i class="glyphicon glyphicon-calendar"></i></label>
+        <input placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
+         <br><br>
+        <label for="id_canal"><i class="glyphicon glyphicon-ok-sign"></i></label>
+        <select id="id_canal" name="canais">
+            <option>Canais...</option>
+            {% for canal in canal_list %}
+            <option value="{{canal.id}}">{{canal.nome}}</option>
             {% endfor %}
         </select>
-
-    <p>Espacos Alocados:</p>
-    <ul>
-    {% for espaco in espaco_list%}
-         <li>{{ espaco.identificador }}</li>
-
-    {% endfor %}
-        <p> Total de Espaço Alocado para a Loja: {{ cubagem_contratada }} cc</p>
-        <p> Total de Espaço Utilizado na Loja: {{ saldo_cubagem_estoque }} cc</p>
-        <p> Saldo para esta Loja == {{ saldo_cubagem }} cc</p>
-
-    </ul>
-
-     {% if checkin.status == checkin.status_emprocessamento %}
-
-        <label for="id_dia_agendamento">Dia agendamento</label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
-            <hr>
-            <hr>
-            <div>
-            <label for="id_canal">Canais</label>
-            <select id="id_canal" name="canais">
-                {% for canal in canal_list %}
-                <option value="{{canal.id}}">{{canal.nome}}</option>
-                {% endfor %}
-            </select>
-        <input type="submit" value="Adicionar" name="adicionar_canal">
-        <input type="submit" value="Remover" name="remover_canal">
-        </div>
+        <button type="submit" value="Adicionar" name="adicionar_canal" class="btn btn-success">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+        </button>
+        <button type="submit" value="Remover" name="remover_canal" class="btn btn-danger">
+            <span class="glyphicon glyphicon-minus-sign"></span>
+        </button>
      {% else %}
-        <label for="id_dia_agendamento">Dia agendamento </label><input id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
+        <label for="id_dia_agendamento"><i class="fa fa-calendar-check-o></i></label>
+        <input placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
     {% endif %}
+    <br><br>
 <hr>
-<div>
-    <p>Canais no checkin:</p>
+    <label><i class="glyphicon glyphicon-ok-sign"></i> Canais no checkin:</label>
     {% if checkin.canal != None%}
-        {% for canal in checkin.canal.all %}
-            <div>{{canal.nome}}</div>
-        {% endfor %}
+        <ul class="lista-canais">
+            {% for canal in checkin.canal.all %}
+                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {{canal.nome}}</li>
+            {% endfor %}
+        </ul><hr>
     {% else %}
-        <div><span>Não existem canais adicionados a este checkin</span></div>
+       <div class="alert alert-warning">
+            <strong>Não existem canais adicionados a este checkin</strong>
+        </div><hr>
     {% endif %}
 
-</div>
-
-<hr>
-<hr>
 {% if checkin.status == checkin.status_emprocessamento %}
 
     <div>
-        <label for="id_produtos">Produtos</label>
+        <label for="id_produtos"></label>
         <select id="id_produtos" name="produtos">
+            <option>Produtos...</option>
             {% for produto in produto_list %}
             <option value="{{produto.id}}">{{produto.nome}}</option>
             {% endfor %}
         </select>
-        <label for="id_qtde_produto">Quantidade</label><input id="id_qtde_produto" type="text" name="qtde_produto" >
-        <input type="submit" value="Adicionar" name="adicionar_produto">
-        <input type="submit" value="Remover" name="remover_produto">
+        <label for="id_qtde_produto"></label>
+        <input placeholder="Quantidade..." id="id_qtde_produto" type="text" name="qtde_produto" >
+        <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+        </button>
+        <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
+            <span class="glyphicon glyphicon-minus-sign"></span>
+        </button>
     </div>
 <hr>
 
 {%endif%}
-<div>
-    <p>Produtos no checkin:</p>
+    <label><i class="fa fa-dropbox"></i> Produtos no checkin:</label>
     {% if expedicao_list %}
         {% for expedicao in expedicao_list %}
-            <div>{{expedicao.produto.nome}}</div>
-            <div>Quantidade: {{expedicao.quantidade}}</div>
-            <div>Preço de venda: {{expedicao.produto.preco_venda}}</div>
-            <div>Preços nos canais:</div>
-            <ul>
-                {% if loja_retorno %}
+            <ul class="box-produtos-checkin">
+                <label><i class="fa fa-dropbox"></i> Produto escolhido: {{expedicao.produto.nome}}</label>
+                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Quantidade: {{expedicao.quantidade}}</li>
+                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Preço de venda: {{expedicao.produto.preco_venda}}</li>
+                <li class="text-verde"><i class="glyphicon glyphicon-usd"></i> <strong>Preços nos canais:</strong></li>
+                <li>
+                    <ul>
+                        {% if loja_retorno %}
 
-                        {% for canal in canal_list%}
-                        <li>{% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao canal.acumulativo loja_retorno.percentual_deflacao loja_retorno.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
-                        {%endfor%}
+                                {% for canal in canal_list%}
+                                <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao canal.acumulativo loja_retorno.percentual_deflacao loja_retorno.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
+                                {%endfor%}
 
-                {% endif %}
+                        {% endif %}
+                    </ul>
+                </li>
             </ul>
-            <hr>
         {% endfor %}
+        <hr>
     {% else %}
-        <div><span>Não existem produtos adicionados a este checkin</span></div>
+        <div class="alert alert-warning">
+            <strong>Não existem produtos adicionados a este checkin</strong>
+        </div><hr>
     {% endif %}
 
 
 </div>
-<hr><hr>
-    <div>
-        <input type="submit" name="finalizar" value="Finalizar Checkin">
-    </div>
+
+    <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
+        <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+    </button>
 </form>
 
 <script>
@@ -120,3 +138,4 @@ function seleciona() {
     document.getElementById("form_checkin").submit();
 }
 </script>
+{% endblock %}
