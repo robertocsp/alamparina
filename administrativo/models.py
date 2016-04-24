@@ -9,7 +9,9 @@ class Loja(models.Model):
     nome = models.CharField(max_length=50)
     endereco = models.CharField(max_length=100)
     percentual_deflacao = models.FloatField(blank=True, null=True)
-    absoluto_deflacao = models.IntegerField(blank=True,null=True)
+    custo_embalagem = models.IntegerField(blank=True,null=True)
+    custo_entrega = models.IntegerField(blank=True,null=True)
+
 
     def __unicode__(self):
         return self.nome
@@ -72,7 +74,8 @@ class Alocacao(models.Model):
 class Canal(models.Model):
     nome = models.CharField('Nome', max_length=30)
     percentual_deflacao = models.FloatField()
-    absoluto_deflacao = models.IntegerField()
+    custo_embalagem = models.IntegerField()
+    custo_entrega = models.IntegerField()
     acumulativo = models.BooleanField(default=False)
 
     TIPO = (

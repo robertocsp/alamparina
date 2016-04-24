@@ -3,7 +3,7 @@
 
 {% block conteudo %}
 <div>
-    {% load preco_tag %}
+    {% load custom_tags %}
     <p><label>Status deste checkin:</label> {{checkin.status}}</p>
     {% if messages %}
     <ul>
@@ -110,7 +110,7 @@
                         {% if loja_retorno %}
 
                                 {% for canal in canal_list%}
-                                <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getpreco expedicao.produto.preco_venda canal.percentual_deflacao canal.absoluto_deflacao canal.acumulativo loja_retorno.percentual_deflacao loja_retorno.absoluto_deflacao %}{{canal.nome}} -  Retorno R${{precocalculado}}</li>
+                                <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal loja_retorno %}{{canal.nome}} -  Retorno R${{precoestimado}}</li>
                                 {%endfor%}
 
                         {% endif %}

@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 # Create your views here.
+from alamparina.library import memoriacalculo
 import datetime
 
 #a ideia e fazer um login unico verificando se e marca ou operacao
@@ -86,16 +87,20 @@ def lista_checkin(request):
     checkin_list = Checkin.objects.filter(marca__id=marca.id)
     return render(request, 'lista_checkin.html', {'checkin_list': checkin_list, 'marca': marca})
 
-#variáveis globais
-volume_checkin = 0.0
-gcheckinid = 0
+
+#funções inicia_checkin e edita_checkin
+def adicionar_canal(lcheckin, lrequest):
+    lcheckin.dia_agendamento = datetime.datetime.strptime(lrequest.POST['dia_agendamento'], '%d/%m/%Y')
+    lcheckin.save()
+    lcheckin.canal.add(Canal.objects.get(id=lrequest.POST['canais']))
+
+#pendente analisar adicionar_produto e remover_produto
 @login_required
 def inicia_checkin(request):
     checkin = Checkin()
     checkin.tipo = 'chin'
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
     checkin.status = 'emprocessamento'
-    # obtenho lojas
     cubagem_contratada = 0
     saldo_cubagem_estoque = 0
     expedicao_list = None
@@ -104,88 +109,52 @@ def inicia_checkin(request):
     if len(request.POST) == 0 or request.POST['loja'] == '':
         espaco_list = None
         canal_list = None
-        volumeprodutos_list = None
         produto_list = None
         loja_retorno = None
     else:
-        #Espaco e canal
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         checkin.loja_id = request.POST['loja']
-        #espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca)
-        #Espaco: filtrar por marca e por loja
         espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca, loja_id=request.POST['loja']).distinct()
         canal_list = Canal.objects.all()
-        # Cubagem_contratada
-        for espaco in espaco_list:
-            tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
-            tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
-            cubagem_contratada += tipoespaco.volume
-        # Saldo da Cubagem em Estoque
-        estoque_list = Estoque.objects.filter(loja_id=request.POST['loja'])
-        for estoque in estoque_list:
-            #urgente. rfh. Mesma questao do get e filter. Get vazio da exceçao.
-            #se for maior que 1, nao consigo manipular fora de um "for"
-            volumeproduto = Produto.objects.filter(id=estoque.produto_id, em_estoque='sim')
-            if len(volumeproduto) != 0:
-                volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
-                saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
-
-        # produtos
+        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, loja_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(checkin.marca, loja_retorno)
         expedicao = Expedicao()
         produto_list = checkin.marca.produto_set.all()
 
-    global volume_checkin
-    global gcheckinid
-    if gcheckinid != 0:
-        volume_checkin = 0
-
     if "adicionar_canal" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        checkin.save()
-        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
+        adicionar_canal(checkin, request)
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
-    #nao deve precisar desse elif remover_canal visto que:
-    # sempre que inicia esta vazio. Depois que faz-se a primeira inclusao de canal
-    # ele passa a ir no "edita_checkin"
     elif "remover_canal" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         checkin.save()
         checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
-    #acho que nunca passa aqui, ver com o Roberto
     elif "adicionar_produto" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
-        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
         expedicao.checkin = checkin
         expedicao.save()
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
-    #análogo ao remover_canal, ver comentário de lá
     elif "remover_produto" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         checkin.save()
         expedicao.produto = produto
-        global volume_checkin
-        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
         expedicao.checkin = checkin
         expedicao.save()
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
-    #elif "filtrar_lojas" in request.POST:
-        #return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
-
     elif "finalizar" in request.POST:
         messages.error(request, 'Não existe nenhum produto inserido')
 
-    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque + volume_checkin
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
 
     return render(request,'checkin.html',
                   {
@@ -197,7 +166,6 @@ def inicia_checkin(request):
                       'expedicao_list': expedicao_list,
                       'cubagem_contratada': cubagem_contratada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
-                      'volume_checkin': volume_checkin,
                       'saldo_cubagem': saldo_cubagem,
                       'loja_list': loja_list,
                       'loja_retorno': loja_retorno,
@@ -219,41 +187,14 @@ def edita_checkin(request, id):
     loja_list = Loja.objects.filter(espaco__alocacao__marca=checkin.marca).distinct()
     canal_list = Canal.objects.all()
 
-    cubagem_contratada = 0
-    saldo_cubagem_estoque = 0
+    cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, loja_retorno)
+    saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(checkin.marca, loja_retorno)
 
     espaco_list = Espaco.objects.filter(alocacao__marca=checkin.marca, loja_id=checkin.loja_id).distinct()
     produto_list = checkin.marca.produto_set.all()
-    #Cubagem_contratada
-    for espaco in espaco_list:
-        tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
-        tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
-        cubagem_contratada += tipoespaco.volume
-    # Saldo da Cubagem em Estoque
-    estoque_list = Estoque.objects.filter(loja_id=checkin.loja_id)
-    for estoque in estoque_list:
-        # urgente. rfh. Mesma questao do get e filter. Get vazio da exceçao.
-        # se for maior que 1, nao consigo manipular fora de um "for"
-        volumeproduto = Produto.objects.filter(id=estoque.produto_id, em_estoque='sim')
-        if len(volumeproduto) != 0:
-            volumeproduto = Produto.objects.get(id=estoque.produto_id, em_estoque='sim')
-            saldo_cubagem_estoque += estoque.quantidade * volumeproduto.largura * volumeproduto.altura * volumeproduto.profundidade
-
-    #quando muda o checkin, preciso zerar a variavel de volume de checkin previsto (volume_checkin)
-    if gcheckinid != id:
-        global gcheckinid
-        gcheckinid = id
-        volume_checkin = 0
-        exp_list = Expedicao.objects.filter(checkin=checkin)
-        for exp in exp_list:
-            prod = Produto.objects.get(id=exp.produto_id)
-            volume_checkin += int(exp.quantidade) * prod.altura * prod.largura * prod.profundidade
 
     if "adicionar_canal" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        checkin.canal.add(Canal.objects.get(id=request.POST['canais']))
-        checkin.save()
-
+        adicionar_canal(checkin, request)
 
     elif "remover_canal" in request.POST:
         checkin.canal.remove(Canal.objects.get(id=request.POST['canais']))
@@ -264,8 +205,6 @@ def edita_checkin(request, id):
         produto = Produto.objects.get(id=request.POST['produtos'])
         expedicao.quantidade = request.POST['qtde_produto']
         expedicao.produto = produto
-        global volume_checkin
-        volume_checkin += int(expedicao.quantidade) * produto.altura * produto.largura * produto.profundidade
         expedicao.checkin = checkin
         checkin.save()
         expedicao.save()
@@ -278,11 +217,9 @@ def edita_checkin(request, id):
             expedicao_remove = Expedicao.objects.get(checkin=checkin, produto=produto)
             if expedicao_remove.quantidade > int(request.POST['qtde_produto']):
                 expedicao_remove.quantidade -= int(request.POST['qtde_produto'])
-                #volume_checkin -= int(request.POST['qtde_produto']) * produto.altura * produto.largura * produto.profundidade
                 expedicao_remove.save()
                 checkin.save()
             elif expedicao_remove.quantidade == int(request.POST['qtde_produto']):
-                #volume_checkin -= int(request.POST['qtde_produto']) * produto.altura * produto.largura * produto.profundidade
                 expedicao_remove.delete()
                 checkin.save()
 
@@ -305,7 +242,6 @@ def edita_checkin(request, id):
                       'expedicao_list': expedicao_list,
                       'cubagem_contratada': cubagem_contratada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
-                      'volume_checkin': volume_checkin,
                       'saldo_cubagem': saldo_cubagem,
                       'loja_list': loja_list,
                       'loja_retorno': loja_retorno,

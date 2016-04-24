@@ -28,7 +28,7 @@ class MarcaAdmin(admin.ModelAdmin):
     list_display = ('nome', 'contato')
 
 class CanalAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'tipo', 'percentual_deflacao', 'absoluto_deflacao')
+    list_display = ('nome', 'tipo', 'percentual_deflacao', 'custo_embalagem', 'custo_entrega')
 
 class EspacoAdmin(admin.ModelAdmin):
     list_display = ('identificador', 'tipo', 'loja', 'disponivel')
