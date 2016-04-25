@@ -4,6 +4,9 @@
 {% block conteudo %}
     <br><br>
     <form method="GET" class="formulario-padrao">
+        <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
+        <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+        <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
         <select id="id_lojas" name="loja" onchange="form.submit()">
             <option value="">Selecione uma loja</option>
             {% for loja in loja_list %}

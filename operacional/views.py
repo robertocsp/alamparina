@@ -379,17 +379,26 @@ def estoque(request):
     estoque = None
     loja_retorno = None
     estoque_list = None
+    cubagem_contratada = 0
+    saldo_cubagem_estoque = 0
 
     if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
         estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
-        loja_retorno = request.GET['loja']
+        loja_retorno = Loja.objects.get(id=request.GET['loja'])
+        cubagem_contratada = memoriacalculo.CubagemContratada(marca, loja_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(marca, loja_retorno)
+
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
 
     return render(request, 'estoque.html',
                   {
                       'marca': marca,
                       'loja_list': loja_list,
                       'estoque_list': estoque_list,
-                      'loja_retorno':loja_retorno,
+                      'loja_retorno': loja_retorno,
+                      'cubagem_contratada': cubagem_contratada,
+                      'saldo_cubagem_estoque': saldo_cubagem_estoque,
+                      'saldo_cubagem': saldo_cubagem,
                   }
     )
 
