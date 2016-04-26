@@ -57,7 +57,12 @@ def cadastra_produto(request):
         if form.is_valid():
             produto = form.save(commit=False)
             produto.marca = marca
+            #jogar pra dentro do models
+            #mas vou precisar salvar marca
+            produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
             produto.save()
+            marca.sequencial_atual = int(marca.sequencial_atual) + 1
+            marca.save()
             produto_cadastado = True
             return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado':produto_cadastado})
 
@@ -72,7 +77,12 @@ def edita_produto(request,id):
     if request.method == 'POST':
         form = ProdutoForm(request.POST, instance=produto)
         if form.is_valid():
+            #jogar pra dentro do models
+            #mas vou precisar salvar marca
+            produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
             produto.save()
+            marca.sequencial_atual = int(marca.sequencial_atual) + 1
+            marca.save()
             produto_cadastado = True
             return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
 
@@ -403,3 +413,67 @@ def estoque(request):
     )
 
 
+def realizar_venda(request):
+    checkout = Checkout()
+    marca_list = Marca.objects.all()
+    loja_list = None
+    produto_list = None
+    marca_retorno = None
+    loja_retorno = None
+    produto_retorno = None
+    dtrealizado_retorno = None
+    #checkout.motivo = request.GET.get('motivo')
+    checkout.motivo = 'venda'
+    error = False
+    estoque = None
+
+    if request.method=='POST':
+        checkout.observacao = request.POST['observacao']
+        checkout.marca = Marca.objects.get(id=request.POST['marca'])
+        checkout.loja = Loja.objects.get(id=request.POST['loja'])
+        checkout.produto = Produto.objects.get(id=request.POST['produto'])
+        checkout.dtrealizado = request.POST['dtrealizado']
+        estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
+        quantidade = int(request.POST['quantidade'])
+
+        if estoque.quantidade < quantidade:
+            marca_retorno = checkout.marca
+            loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
+            loja_retorno = checkout.loja
+            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+            produto_retorno = checkout.produto
+
+            error = True
+
+        else:
+            estoque.quantidade = estoque.quantidade - quantidade
+            estoque.save()
+            checkout.save()
+            return HttpResponseRedirect(reverse('lista_checkout'))
+    else:
+        if "dtrealizado" in request.GET:
+            dtrealizado_retorno = request.GET['dtrealizado']
+        if "marca" in request.GET and request.GET['marca'] != '':
+            marca_retorno = Marca.objects.get(id=request.GET['marca'])
+            loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
+        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
+            loja_retorno = Loja.objects.get(id=request.GET['loja'])
+            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' and "produto" in request.GET and request.GET['produto'] != '':
+            produto_retorno = Produto.objects.get(id=request.GET['produto'])
+
+
+    return render(request,'realizar_venda.html',
+                 {
+                     'marca_list':marca_list,
+                     'loja_list':loja_list,
+                     'produto_list':produto_list,
+                     'marca_retorno':marca_retorno,
+                     'loja_retorno':loja_retorno,
+                     'produto_retorno':produto_retorno,
+                     'dtrealizado_retorno':dtrealizado_retorno,
+                     'checkout': checkout,
+                     'error': error,
+                     'estoque': estoque,
+                  }
+    )
