@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 # Create your views here.
-from alamparina.library.memoriacalculo import *
+from alamparina.library import memoriacalculo
 import datetime
 
 #a ideia e fazer um login unico verificando se e marca ou operacao
