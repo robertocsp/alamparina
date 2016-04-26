@@ -4,9 +4,6 @@
 {% block conteudo %}
     <br><br>
     <form method="GET" class="formulario-padrao">
-        <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
-        <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
-        <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
         <select id="id_lojas" name="loja" onchange="form.submit()">
             <option value="">Selecione uma loja</option>
             {% for loja in loja_list %}
@@ -17,7 +14,15 @@
             {% endif %}
             {% endfor %}
         </select>
-    </form><br>
+        <div class="box-info-checkin">
+            <center><label class="h3"><i class="fa fa-pie-chart"></i> Espa&ccedil;o Alocado</label></center>
+            <ul>
+                <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
+                <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+                <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
+            </ul>
+        </div>
+    </form><br><br><br>
     {% if estoque_list != None %}
         <div class="panel panel-default">
             <table class="table">
@@ -25,7 +30,7 @@
                 <tr>
                     <th>Nome</th>
                     <th>Quantidade</th>
-                    <th>Preco venda</th>
+                    <th>Pre&ccedil;o venda</th>
                 </tr>
               </thead>
               <tbody>

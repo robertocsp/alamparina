@@ -23,7 +23,9 @@
             <input id="id_preco_venda" name="preco_venda" step="any" type="number" /></li>
 
         {% csrf_token %}
-        <button type="submit" value="Salvar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Salvar</button>
+        <button type="submit" value="Salvar" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span> Salvar
+        </button>
     </form>
     <a href="/marca/listaprodutos"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar para lista de produtos</a>
 </div>

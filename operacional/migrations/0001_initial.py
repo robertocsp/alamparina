@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('administrativo', '0001_initial'),
+        ('administrativo', '0002_auto_20160425_1934'),
     ]
 
     operations = [
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('tipo', models.CharField(default=b'chin', max_length=15, choices=[(b'chin', b'CheckIn'), (b'chout', b'CheckOut')])),
                 ('status', models.CharField(default=b'emprocessamento', max_length=20, choices=[(b'emprocessamento', b'EmProcessamento'), (b'enviado', b'Enviado'), (b'emanalise', b'EmAnalise'), (b'confirmado', b'Confirmado')])),
                 ('dia_agendamento', models.DateField()),
-                ('hora_agendamento', models.TimeField()),
+                ('hora_agendamento', models.TimeField(null=True)),
                 ('observacao', models.TextField(blank=True)),
                 ('motivo', models.CharField(default=b'creditarestoque', max_length=20, choices=[(b'creditarestoque', b'CreditarEstoque'), (b'comprafornecedor', b'CompraFornecedor')])),
                 ('canal', models.ManyToManyField(to='administrativo.Canal')),
@@ -34,13 +34,14 @@ class Migration(migrations.Migration):
                 ('dia', models.DateField(auto_now_add=True)),
                 ('hora', models.TimeField(auto_now_add=True)),
                 ('observacao', models.TextField(blank=True)),
+                ('dtrealizado', models.DateField(null=True, blank=True)),
                 ('loja', models.ForeignKey(to='administrativo.Loja')),
                 ('marca', models.ForeignKey(to='administrativo.Marca')),
                 ('periodo', models.ForeignKey(blank=True, to='administrativo.Periodo', null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Estoque_Loja',
+            name='Estoque',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('quantidade', models.IntegerField()),
@@ -62,6 +63,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=100, verbose_name=b'nome')),
+                ('codigo', models.CharField(max_length=20, verbose_name=b'codigo', blank=True)),
                 ('descricao', models.CharField(max_length=300, verbose_name=b'descricao')),
                 ('largura', models.IntegerField(verbose_name=b'largura')),
                 ('altura', models.IntegerField(verbose_name=b'altura')),
@@ -71,7 +73,7 @@ class Migration(migrations.Migration):
                 ('preco_venda', models.FloatField(null=True, verbose_name=b'pre\xc3\xa7o venda', blank=True)),
                 ('em_estoque', models.CharField(default=b'nao', max_length=5, choices=[(b'sim', b'Sim'), (b'nao', b'Nao')])),
                 ('espaco', models.ForeignKey(blank=True, to='administrativo.Espaco', null=True)),
-                ('loja', models.ManyToManyField(to='administrativo.Loja', through='operacional.Estoque_Loja')),
+                ('loja', models.ManyToManyField(to='administrativo.Loja', through='operacional.Estoque')),
                 ('marca', models.ForeignKey(to='administrativo.Marca')),
             ],
         ),
@@ -81,7 +83,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(to='operacional.Produto'),
         ),
         migrations.AddField(
-            model_name='estoque_loja',
+            model_name='estoque',
             name='produto',
             field=models.ForeignKey(to='operacional.Produto'),
         ),
@@ -100,7 +102,7 @@ class Migration(migrations.Migration):
             unique_together=set([('checkin', 'produto')]),
         ),
         migrations.AlterUniqueTogether(
-            name='estoque_loja',
+            name='estoque',
             unique_together=set([('produto', 'loja')]),
         ),
     ]

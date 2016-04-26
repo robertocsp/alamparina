@@ -439,3 +439,17 @@ ul.box-produtos-checkin li ul{
     margin: 10px 0 0 5px;
 }
 
+.cubo-pie{
+    display: block;
+    float: left;
+    width: 30px;
+    height: 30px;
+    text-indent: -999em;
+    background: #F0AD4E;
+    margin: -4px 10px 0 0;
+}
+
+.cubo-pie.disponivel{
+    background: #337AB7;
+}
+
