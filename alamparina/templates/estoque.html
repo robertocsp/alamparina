@@ -34,7 +34,7 @@
                         <tr>
                             <th>{{ estoque.produto.nome}}</th>
                             <td>{{ estoque.quantidade }}</td>
-                            <td>{{ estoque.produto.preco_venda }}</td>
+                            <td>{{ estoque.produto.preco_venda|floatformat:2 }}</td>
                         </tr>
                     {% endfor %}
 
