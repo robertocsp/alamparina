@@ -242,6 +242,15 @@ select{
     width: 300px;
 }
 
+
+.box-formulario .formulario-padrao li input[type="number"].numero{
+    width: 65px;
+}
+
+.box-formulario .formulario-padrao li input[type="number"].numeroD{
+    width: 80px;
+}
+
 .formulario-padrao button{
     margin: 40px 0 0 40px;
 }
@@ -374,7 +383,7 @@ textarea{
     height: 90px;
 }
 
-label[for="id_observacao"]{
+label[for="id_observacao"], label[for="id_descricao"]{
     top: -68px;
     position: relative;
 }
