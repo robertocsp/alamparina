@@ -431,7 +431,7 @@ def realizar_venda(request):
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
         checkout.loja = Loja.objects.get(id=request.POST['loja'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
-        checkout.dtrealizado = request.POST['dtrealizado']
+        checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
 
