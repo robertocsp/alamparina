@@ -288,10 +288,8 @@ def edita_checkin_operacional(request, id):
                     estoque.loja = checkin.loja
                     estoque.quantidade = expedicao.quantidade
                     estoque.save()
-
-
                 #produto.loja.add(checkin.loja(quantidade=expedicao.quantidade)
-                produto.quantidade += expedicao.quantidade
+                #produto.quantidade += expedicao.quantidade
                 #produto.save()
 
         checkin.save()
