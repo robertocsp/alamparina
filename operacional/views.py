@@ -186,6 +186,7 @@ def inicia_checkin(request):
 def edita_checkin(request, id):
     checkin = get_object_or_404(Checkin, id=id)
     expedicao = Expedicao()
+
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         checkin.loja_id = request.POST['loja']
@@ -339,9 +340,9 @@ def checkout(request):
         checkout.loja = Loja.objects.get(id=request.POST['loja'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
-        quantidade = int(request.POST['quantidade'])
+        checkout.quantidade = int(request.POST['quantidade'])
 
-        if estoque.quantidade < quantidade:
+        if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
             loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
             loja_retorno = checkout.loja
@@ -351,7 +352,7 @@ def checkout(request):
             error = True
 
         else:
-            estoque.quantidade = estoque.quantidade - quantidade
+            estoque.quantidade = estoque.quantidade - checkout.quantidade
             estoque.save()
             checkout.save()
             return HttpResponseRedirect(reverse('lista_checkout'))
@@ -432,9 +433,9 @@ def realizar_venda(request):
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         checkout.dtrealizado = request.POST['dtrealizado']
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
-        quantidade = int(request.POST['quantidade'])
+        checkout.quantidade = int(request.POST['quantidade'])
 
-        if estoque.quantidade < quantidade:
+        if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
             loja_list = Loja.objects.filter(espaco__alocacao__marca=marca_retorno).distinct()
             loja_retorno = checkout.loja
@@ -444,10 +445,10 @@ def realizar_venda(request):
             error = True
 
         else:
-            estoque.quantidade = estoque.quantidade - quantidade
+            estoque.quantidade = estoque.quantidade - checkout.quantidade
             estoque.save()
             checkout.save()
-            return HttpResponseRedirect(reverse('lista_checkout'))
+            return HttpResponseRedirect(reverse('realizar_venda'))
     else:
         if "dtrealizado" in request.GET:
             dtrealizado_retorno = request.GET['dtrealizado']

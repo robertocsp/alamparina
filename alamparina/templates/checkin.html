@@ -29,11 +29,15 @@
         </ul>
     </div>
     <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
-    <select id="id_lojas" name="loja" onchange="seleciona()">
+    {% if checkin.status == checkin.status_enviado %}
+        <select id="id_lojas" name="loja" onchange="seleciona()" disabled>
+    {% else %}
+        <select id="id_lojas" name="loja" onchange="seleciona()">
+    {% endif %}
         <option value="">Selecione uma loja</option>
         {% for loja in loja_list %}
             {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+                <option value="{{loja.id}}" selected >{{loja.nome}}</option>
             {% else %}
                 <option value="{{loja.id}}">{{loja.nome}}</option>
             {% endif %}
@@ -59,7 +63,7 @@
      {% else %}
         <label for="id_dia_agendamento"><i class="fa fa-calendar-check-o></i></label>
         <input placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
-    {% endif %}
+     {% endif %}
     <br><br>
 <hr>
     <label><i class="glyphicon glyphicon-ok-sign"></i> Canais no checkin:</label>

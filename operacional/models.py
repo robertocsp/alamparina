@@ -130,6 +130,7 @@ class Checkout(models.Model):
     produto = models.ForeignKey(Produto)
     periodo = models.ForeignKey(Periodo, blank=True, null=True)
     dtrealizado = models.DateField(blank=True, null=True)
+    quantidade = models.IntegerField()
     def __unicode__(self):
         return '%s %s %s' % (self.marca, self.motivo, self.dia)
 
