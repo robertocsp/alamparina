@@ -7,6 +7,7 @@ import datetime
 
 class Produto(models.Model):
     nome = models.CharField('nome', max_length=100)
+    codigo = models.CharField('codigo', blank=True, max_length=20)
     descricao = models.CharField('descricao', max_length=300)
     largura = models.IntegerField('largura')
     altura = models.IntegerField('altura')
@@ -128,7 +129,7 @@ class Checkout(models.Model):
     loja = models.ForeignKey(Loja)
     produto = models.ForeignKey(Produto)
     periodo = models.ForeignKey(Periodo, blank=True, null=True)
-
+    dtrealizado = models.DateField(blank=True)
     def __unicode__(self):
         return '%s %s %s' % (self.marca, self.motivo, self.dia)
 

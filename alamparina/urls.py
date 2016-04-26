@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^marca/estoque/$', estoque, name='estoque'),
     url(r'^operacional/lista-checkout/$', lista_checkout, name='lista_checkout'),
     url(r'^operacional/checkout/$', checkout, name='checkout'),
+    url(r'^operacional/realizar-venda/$', realizar_venda, name='realizar_venda'),
     #url(r'^marca/listaprodutos2/$', ProdutoList.as_view(template_name="lista_produtos-old.html")),
 
     # ...

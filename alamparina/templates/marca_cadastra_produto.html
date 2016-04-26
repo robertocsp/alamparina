@@ -9,7 +9,19 @@
     {% endif %}
     <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
     <form class="formulario-padrao" action="." method="post">
-        {{ form.as_ul }}
+        <li><label for="id_nome">Nome:</label>
+            <input id="id_nome" maxlength="100" name="nome" type="text" /></li>
+        <li><label for="id_descricao">Descricao:</label>
+            <input id="id_descricao" maxlength="300" name="descricao" type="text" /></li>
+        <li><label for="id_largura">Largura:</label>
+            <input id="id_largura" name="largura" type="number" /></li>
+        <li><label for="id_altura">Altura:</label>
+            <input id="id_altura" name="altura" type="number" /></li>
+        <li><label for="id_profundidade">Profundidade:</label>
+            <input id="id_profundidade" name="profundidade" type="number" /></li>
+        <li><label for="id_preco_venda">Preço venda:</label>
+            <input id="id_preco_venda" name="preco_venda" step="any" type="number" /></li>
+
         {% csrf_token %}
         <button type="submit" value="Salvar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Salvar</button>
     </form>
