@@ -25,6 +25,11 @@ class PeriodoAdmin(admin.ModelAdmin):
         return ("%s" % (obj.ate - obj.de))
 
 class MarcaAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('nome', 'razao_social', 'cnpj_cpf', 'endereco', 'contato', 'logo', 'user', 'codigo')
+        }),
+    )
     list_display = ('nome', 'contato')
 
 class CanalAdmin(admin.ModelAdmin):
