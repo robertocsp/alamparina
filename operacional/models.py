@@ -145,3 +145,12 @@ class Checkout(models.Model):
 
     def motivo_venda(self):
         return 'venda'
+
+
+class Recomendacao(models.Model):
+    nome = models.CharField('nome', max_length=100, null=False)
+    email = models.CharField('email', max_length=30, blank=True)
+    website = models.CharField('website', max_length=30, blank=True)
+    telefone = models.CharField('telefone', max_length=20, blank=True)
+    comentario = models.CharField('comentario', max_length=200, blank=True)
+    indica = models.CharField('indica', max_length=50, blank=True)

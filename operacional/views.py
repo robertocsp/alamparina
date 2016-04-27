@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from distutils.command.check import check
-
-from django.shortcuts import render, render_to_response
-from models import Produto
-from models import Canal
-from administrativo.models import *
-from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from operacional.forms import *
-from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
-from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render, render_to_response
+
+from administrativo.models import *
+from models import Canal
+from models import Produto
+from models import Recomendacao
+from operacional.forms import *
+
 # Create your views here.
 from alamparina.library import memoriacalculo
 import datetime
@@ -476,3 +478,23 @@ def realizar_venda(request):
                      'estoque': estoque,
                   }
     )
+
+@login_required
+def recomendar_marca(request):
+
+    if request.method == 'POST':
+        form = RecomendacaoForm(request.POST)
+        if form.is_valid():
+            marca = Marca.objects.get(user=request.user)
+            recomendacao = form.save()
+            recomendacao.indica = marca.nome
+            recomendacao.save()
+            marca_recomendada = True
+            return HttpResponseRedirect(reverse('recomendar_marca'), {
+                'marca_recomendada': marca_recomendada
+            })
+        else:
+            raise forms.ValidationError("Ha campos obrigatrios nao preenchidos")
+    else:
+        form = RecomendacaoForm()
+    return render(request, 'recomendar_marca.html', {'form': form, 'error': False})

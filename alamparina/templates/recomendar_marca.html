@@ -1,0 +1,44 @@
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="fa fa-fw fa-link"></i> Recomendar marca {{marca.nome}}{% endblock %}
+
+{% block conteudo %}
+
+<div class="box-formulario">
+    {% if marca_recomendada %}
+        <div class="alert alert-success" role="alert">
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <i class="glyphicon glyphicon-exclamation-sign"></i> Recomenda&ccedil;&atilde;o enviada com sucesso.
+        </div>
+    {% endif %}
+    <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Enviar para indicar uma marca</p>
+    <form class="formulario-padrao" action="." method="post">
+        <li>
+            <label for="id_nome">Nome:</label>
+            <input id="id_nome" required maxlength="100" name="nome" type="text">
+        </li>
+        <li>
+            <label for="id_email">Email:</label>
+            <input id="id_email" maxlength="30" name="email" type="text">
+        </li>
+        <li>
+            <label for="id_website">Website:</label>
+            <input id="id_website" maxlength="30" name="website" type="text">
+        </li>
+        <li>
+            <label for="id_telefone">Telefone:</label>
+            <input id="id_telefone" maxlength="20" name="telefone" type="text">
+        </li>
+        <li>
+            <label for="id_comentario">Comentarios / Outras informa&ccedil;&otilde;es:</label>
+            <textarea id="id_comentario" maxlength="200" name="comentario"></textarea>
+        </li>
+
+        {% csrf_token %}
+        <button type="submit" value="Salvar" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span> Enviar
+        </button>
+    </form>
+    <a href="/marca/listaprodutos"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar</a>
+</div>
+
+{% endblock %}

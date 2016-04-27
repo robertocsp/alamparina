@@ -383,8 +383,13 @@ textarea{
     height: 90px;
 }
 
-label[for="id_observacao"], label[for="id_descricao"]{
+label[for="id_observacao"]{
     top: -68px;
+    position: relative;
+}
+
+label[for="id_comentario"]{
+    top: -16px;
     position: relative;
 }
 

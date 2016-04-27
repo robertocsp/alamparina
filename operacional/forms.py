@@ -23,3 +23,8 @@ class CheckinForm(forms.Form):
         marca = marca
         #expedicao.checkin = checkin
         #expedicao_list = expedicao.produto_set.all()
+
+class RecomendacaoForm(forms.ModelForm):
+    class Meta:
+        model = Recomendacao
+        exclude = ['indica']
