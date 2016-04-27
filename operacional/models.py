@@ -8,7 +8,7 @@ import datetime
 class Produto(models.Model):
     nome = models.CharField('nome', max_length=100)
     codigo = models.CharField('codigo', blank=True, max_length=20)
-    descricao = models.CharField('descricao', max_length=300)
+    descricao = models.CharField('Descricao', max_length=300)
     largura = models.IntegerField('largura')
     altura = models.IntegerField('altura')
     profundidade = models.IntegerField('profundidade')

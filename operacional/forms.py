@@ -9,7 +9,10 @@ class LoginForm(forms.Form):
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
-        exclude = ['marca','quantidade','preco_base','em_estoque', 'loja', 'espaco']
+        exclude = ['marca','codigo','quantidade','preco_base','em_estoque', 'loja', 'espaco']
+        widgets = {
+            'descricao': forms.Textarea
+        }
 
 class CheckinForm(forms.Form):
     dia_agendamento = forms.DateField(label='Dia agendamento')
@@ -28,3 +31,6 @@ class RecomendacaoForm(forms.ModelForm):
     class Meta:
         model = Recomendacao
         exclude = ['indica']
+        widgets = {
+            'comentario' : forms.Textarea
+        }

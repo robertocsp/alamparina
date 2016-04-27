@@ -242,6 +242,10 @@ select{
     width: 300px;
 }
 
+.box-formulario .formulario-padrao.produto li:nth-child(2){
+    display: none;
+}
+
 
 .box-formulario .formulario-padrao li input[type="number"].numero{
     width: 65px;
@@ -383,7 +387,7 @@ textarea{
     height: 90px;
 }
 
-label[for="id_observacao"]{
+label[for="id_observacao"], label[for="id_descricao"]{
     top: -68px;
     position: relative;
 }

@@ -8,19 +8,29 @@
         <div class="alert alert-success" role="alert"><i class="glyphicon glyphicon-exclamation-sign"></i> Produto Salvo com sucesso</div>
     {% endif %}
     <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
-    <form class="formulario-padrao" action="." method="post">
+    <form class="formulario-padrao produto" action="." method="post">
         <li><label for="id_nome">Nome:</label>
-            <input id="id_nome" maxlength="100" name="nome" type="text" /></li>
-        <li><label for="id_descricao">Descricao:</label>
-            <textarea id="id_descricao" maxlength="300" name="descricao" type="text"></textarea></li>
+            <input id="id_nome" maxlength="100" name="nome" type="text" />
+        </li>
+        <li><label for="id_codigo">codigo:</label>
+            <input id="id_codigo" name="codigo" type="number" />
+        </li>
+        <li><label for="id_descricao">Descri&ccedil;&atilde;o:</label>
+            <textarea id="id_descricao" maxlength="300" name="descricao" type="text"></textarea>
+        </li>
         <li><label for="id_largura">Largura:</label>
-            <input id="id_largura" name="largura" type="number" class="numero" /> cm</li>
+            <input id="id_largura" name="largura" type="number" class="numero" /> cm
+        </li>
         <li><label for="id_altura">Altura:</label>
-            <input id="id_altura" name="altura" type="number" class="numero" /> cm</li>
+            <input id="id_altura" name="altura" type="number" class="numero" /> cm
+        </li>
         <li><label for="id_profundidade">Profundidade:</label>
-            <input id="id_profundidade" name="profundidade" type="number" class="numero" /> cm</li>
-        <li><label for="id_preco_venda">Preço venda:</label>
-            R$ <input id="id_preco_venda" name="preco_venda" step="any" type="number" class="numeroD"/></li>
+            <input id="id_profundidade" name="profundidade" type="number" class="numero" /> cm
+        </li>
+        <li>
+            <label for="id_preco_venda">Preço venda:</label>
+            R$ <input id="id_preco_venda" name="preco_venda" step="any" type="number" class="numeroD"/>
+        </li>
 
         {% csrf_token %}
         <button type="submit" value="Salvar" class="btn btn-primary">

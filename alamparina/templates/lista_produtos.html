@@ -21,7 +21,7 @@
                     <th><strong>{{ produto.nome }}</strong></th>
                     <td>{{produto.codigo}}</td>
                     <td>Loja Botafogo</td>
-                    <td>{{ produto.preco_venda|floatformat:2 }}</td>
+                    <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
                     <td>{{ produto.quantidade }}</td>
                     <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
                 </tr>
