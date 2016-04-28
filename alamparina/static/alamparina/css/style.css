@@ -506,6 +506,12 @@ ul.box-produtos-checkin li ul{
     margin-top: 10px;
 }
 
+.flex-container .flex-item .bullet label{
+    display: block;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
 .principal-operacional .row.first{
     display: none;
 }

@@ -1,0 +1,33 @@
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %} <i class="fa fa-dropbox"></i> Produtos {% endblock %}
+
+{% block Produtos %}active{% endblock %}
+
+{% block conteudo %}
+<br><br>
+    <div class="panel panel-default">
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Codigo</th>
+                <th>Marca</th>
+                <th>Pre&ccedil;o</th>
+                <th>Quantidade no estoque</th>
+                <th></th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for produto in produto_list %}
+                <tr>
+                    <th><strong>{{ produto.nome }}</strong></th>
+                    <td>{{produto.codigo}}</td>
+                    <td>{{produto.marca.nome}}</td>
+                    <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
+                    <td>{{ produto.quantidade }}</td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+{% endblock %}

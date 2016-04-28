@@ -52,6 +52,16 @@ def lista_produtos(request):
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
 @login_required
+def lista_produtos_operacional(request):
+    marca = Marca.objects.get()
+    produto_list = marca.produto_set.all()
+
+    return render(request, 'lista_produtos_operacional.html', {
+        'produto_list': produto_list,
+        'marca': marca,
+    })
+
+@login_required
 def cadastra_produto(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     if request.method == 'POST':

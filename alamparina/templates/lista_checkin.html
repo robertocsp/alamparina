@@ -10,7 +10,6 @@
           <thead>
             <tr>
                 <th>Dia Agendamento</th>
-                <th>Hora Agendamento</th>
                 <th>Status</th>
                 <th></th>
             </tr>
@@ -19,7 +18,6 @@
              {% for checkin in checkin_list %}
                 <tr>
                     <th>{{ checkin.dia_agendamento }}</th>
-                    <td>{{ checkin.hora_agendamento }}</td>
                     <td>{{ checkin.status}}</td>
                     <td><a href="/marca/checkin/{{checkin.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
                 </tr>
