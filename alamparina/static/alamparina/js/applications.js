@@ -22,4 +22,3 @@ $.datepicker.setDefaults($.datepicker.regional['pt-BR']);
 $("#id_dia_agendamento, #id_dtrealizado").datepicker({
     dateFormat: "dd/mm/yy"
 });
-

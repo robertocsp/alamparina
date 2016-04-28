@@ -8,16 +8,12 @@ from django.core import serializers
 class Loja(models.Model):
     nome = models.CharField(max_length=50)
     endereco = models.CharField(max_length=100)
-    percentual_deflacao = models.FloatField(blank=True, null=True)
-    custo_embalagem = models.IntegerField(blank=True,null=True)
-    custo_entrega = models.IntegerField(blank=True,null=True)
-
 
     def __unicode__(self):
         return self.nome
 
     def get_lojas_marca(self, marca):
-        return self.objects.filter(espaco__alocacao__marca=marca).distinct()
+        return self.objects.filter(espaco__contrato__marca=marca).distinct()
 
 class Marca(models.Model):
     nome = models.CharField(max_length=50)
@@ -61,14 +57,24 @@ class Periodo(models.Model):
     def __unicode__(self):
         return self.nome
 
-class Alocacao(models.Model):
-    data_alocacao = models.DateField()
+class Contrato(models.Model):
+    no_contrato = models.CharField('no_contrato', max_length=30)
+    data_contrato = models.DateField()
+    valor = models.FloatField(blank=True, null=True)
     identificador = models.CharField(max_length=20, blank=True)
     marca = models.ForeignKey(Marca)
-    espaco = models.ManyToManyField(Espaco, related_name='alocacao')
+    espaco = models.ManyToManyField(Espaco, related_name='contrato')
     periodo = models.ManyToManyField(Periodo)
+    percentual_deflacao = models.FloatField(blank=True, null=True)
+    custo_embalagem = models.IntegerField(blank=True, null=True)
+    custo_entrega = models.IntegerField(blank=True, null=True)
+    observacao = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
+        return u'%s %s %s' % (self.marca, self.periodo, self.espaco)
+
+
+def __unicode__(self):
         return self.marca.nome
 
 class Canal(models.Model):

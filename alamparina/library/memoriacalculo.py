@@ -4,7 +4,7 @@ from administrativo.models import TipoEspaco, Espaco
 # Saldo da Cubagem:
 def CubagemContratada(marca, loja):
     cubagem_contratada = 0
-    espaco_list = Espaco.objects.filter(alocacao__marca=marca, loja=loja).distinct()
+    espaco_list = Espaco.objects.filter(contrato__marca=marca, loja=loja).distinct()
     for espaco in espaco_list:
         tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
         tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
@@ -34,9 +34,9 @@ def SaldoCubagemEstoqueLoja(marca, loja):
                     saldo_cubagem_estoque_loja += estoque.quantidade * produto.largura * produto.altura * produto.profundidade
     return saldo_cubagem_estoque_loja
 
-def PrecoEstimado(produto, canal, loja):
+def PrecoEstimado(produto, canal, contrato):
     if canal.acumulativo == 0:
         preco_estimado = (produto.preco_venda*(100 - canal.percentual_deflacao)/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0))
     else:
-        preco_estimado = produto.preco_venda*(100 - float(canal.percentual_deflacao or 0) - float(loja.percentual_deflacao or 0))/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0) - int(loja.custo_embalagem or 0) - int(loja.custo_entrega or 0)
+        preco_estimado = produto.preco_venda*(100 - float(canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0) - int(contrato.custo_embalagem or 0) - int(contrato.custo_entrega or 0)
     return preco_estimado
