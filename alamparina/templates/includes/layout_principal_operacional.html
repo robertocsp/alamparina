@@ -32,36 +32,36 @@
             <!-- Menu Principal -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                     <li class="active">
-                        <a href="/operacional/dashboard/"><i class="fa fa-line-chart"></i> Dashboard</a>
+                     <li class="{% block Dashboard %}{% endblock %}">
+                        <a href="/operacional/dashboard/"><i class="fa fa-line-chart"></i> Principal</a>
                     </li>
-                    <li>
+                    <li class="{% block Produtos %}{% endblock %}">
                         <a href="/operacional/listaprodutos"><i class="fa fa-dropbox"></i> Produtos</a>
                     </li>
-                    <li>
+                    <li class="{% block Checkin %}{% endblock %}">
                         <a href="/operacional/lista-checkin"><i class="fa fa-calendar"></i> Checkin</a>
                     </li>
-                    <li>
+                    <li class="{% block Checkout %}{% endblock %}">
                         <a href="/operacional/lista-checkout"><i class="fa fa-calendar"></i> Checkout</a>
                     </li>
-                    <li>
+                    <li class="{% block Estoque %}{% endblock %}">
                         <a href="/operacional/estoque"><i class="fa fa-fw fa-list"></i> Estoque</a>
                     </li>
-                    <li>
+                    <li class="{% block Vendas %}{% endblock %}">
                         <a href="/operacional/vendas"><i class="fa fa-fw fa-bar-chart-o"></i> Acompanhar Vendas</a>
                     </li>
-                    <li>
+                    <li class="{% block Financeiro %}{% endblock %}">
                         <a href="/operacional/financeiro"><i class="fa fa-fw fa-credit-card"></i> Financeiro</a>
                     </li>
                 </ul>
             </div>
             <!-- Fim menu principal -->
         </nav>
-        <div id="page-wrapper">
+        <div id="page-wrapper" class="{% block classPage %}{% endblock %}">
             <div class="container-fluid">
 
                 <!-- Titulo -->
-                <div class="row">
+                <div class="row first">
                     <div class="col-lg-12">
                         <h1 class="page-header">
                             {% block tituloPagina %}<i class="fa fa-dashboard"></i> Alamparina {% endblock %}

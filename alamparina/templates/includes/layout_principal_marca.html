@@ -32,25 +32,25 @@
             <!-- Menu Principal -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
-                     <li class="active">
+                    <li class="{% block Dashboard %}{% endblock %}">
                         <a href="/marca/dashboard/"><i class="fa fa-line-chart"></i> Dashboard</a>
                     </li>
-                    <li>
+                    <li class="{% block Produtos %}{% endblock %}">
                         <a href="/marca/listaprodutos"><i class="fa fa-dropbox"></i> Produtos</a>
                     </li>
-                    <li>
+                    <li class="{% block Checkin %}{% endblock %}">
                         <a href="/marca/lista-checkin"><i class="fa fa-calendar"></i> Checkin</a>
                     </li>
-                    <li>
+                    <li class="{% block Estoque %}{% endblock %}">
                         <a href="/marca/estoque"><i class="fa fa-fw fa-list"></i> Estoque</a>
                     </li>
-                    <li>
+                    <li class="{% block Vendas %}{% endblock %}">
                         <a href="bootstrap-elements.html"><i class="fa fa-fw fa-bar-chart-o"></i> Acompanhar Vendas</a>
                     </li>
-                    <li>
+                    <li class="{% block Financeiro %}{% endblock %}">
                         <a href="/marca/financeiro"><i class="fa fa-fw fa-credit-card"></i> Financeiro</a>
                     </li>
-                    <li>
+                    <li class="{% block Recomendar %}{% endblock %}">
                         <a href="/marca/recomendar-marca/"><i class="fa fa-fw fa-link"></i> Recomendar Marca</a>
                     </li>
                 </ul>
