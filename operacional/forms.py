@@ -30,7 +30,7 @@ class CheckinForm(forms.Form):
 class RecomendacaoForm(forms.ModelForm):
     class Meta:
         model = Recomendacao
-        exclude = ['indica']
+        exclude = ['marca']
         widgets = {
             'comentario' : forms.Textarea
         }
