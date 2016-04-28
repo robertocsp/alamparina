@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('administrativo', '0002_auto_20160425_1934'),
+        ('administrativo', '__first__'),
     ]
 
     operations = [
@@ -35,6 +35,7 @@ class Migration(migrations.Migration):
                 ('hora', models.TimeField(auto_now_add=True)),
                 ('observacao', models.TextField(blank=True)),
                 ('dtrealizado', models.DateField(null=True, blank=True)),
+                ('quantidade', models.IntegerField()),
                 ('loja', models.ForeignKey(to='administrativo.Loja')),
                 ('marca', models.ForeignKey(to='administrativo.Marca')),
                 ('periodo', models.ForeignKey(blank=True, to='administrativo.Periodo', null=True)),
@@ -64,7 +65,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=100, verbose_name=b'nome')),
                 ('codigo', models.CharField(max_length=20, verbose_name=b'codigo', blank=True)),
-                ('descricao', models.CharField(max_length=300, verbose_name=b'descricao')),
+                ('descricao', models.CharField(max_length=300, verbose_name=b'Descricao')),
                 ('largura', models.IntegerField(verbose_name=b'largura')),
                 ('altura', models.IntegerField(verbose_name=b'altura')),
                 ('profundidade', models.IntegerField(verbose_name=b'profundidade')),
@@ -75,6 +76,18 @@ class Migration(migrations.Migration):
                 ('espaco', models.ForeignKey(blank=True, to='administrativo.Espaco', null=True)),
                 ('loja', models.ManyToManyField(to='administrativo.Loja', through='operacional.Estoque')),
                 ('marca', models.ForeignKey(to='administrativo.Marca')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Recomendacao',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nome', models.CharField(max_length=100, verbose_name=b'nome')),
+                ('email', models.CharField(max_length=30, verbose_name=b'email', blank=True)),
+                ('website', models.CharField(max_length=30, verbose_name=b'website', blank=True)),
+                ('telefone', models.CharField(max_length=20, verbose_name=b'telefone', blank=True)),
+                ('comentario', models.CharField(max_length=200, verbose_name=b'comentario', blank=True)),
+                ('marca_indicou', models.ForeignKey(to='administrativo.Marca')),
             ],
         ),
         migrations.AddField(

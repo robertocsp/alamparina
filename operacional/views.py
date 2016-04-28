@@ -492,7 +492,7 @@ def recomendar_marca(request):
         if form.is_valid():
             marca = Marca.objects.get(user=request.user)
             recomendacao = form.save()
-            recomendacao.indica = marca.nome
+            recomendacao.marca = marca
             recomendacao.save()
             marca_recomendada = True
             return HttpResponseRedirect(reverse('recomendar_marca'), {
