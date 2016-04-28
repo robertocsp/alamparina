@@ -3,13 +3,14 @@ from administrativo.models import *
 
 # Register your models here.
 
-class AlocacaoAdmin(admin.ModelAdmin):
+class ContratoAdmin(admin.ModelAdmin):
+
     fieldsets = (
         (None, {
-            'fields': ('data_alocacao', 'identificador', 'marca', 'espaco', 'periodo')
+            'fields': ('data_contrato', 'no_contrato', 'identificador', 'valor', 'percentual_deflacao', 'custo_embalagem', 'custo_entrega', 'marca', 'espaco', 'periodo', 'observacao',)
         }),
     )
-    list_display = ('marca', 'data_alocacao', 'identificador',)
+    list_display = ('marca', 'no_contrato', 'data_contrato', 'identificador', 'percentual_deflacao', 'custo_embalagem', 'custo_entrega',)
     list_filter = ('identificador','marca',)
     search_fields = ('marca__nome',)
 
@@ -44,5 +45,5 @@ admin.site.register(Espaco, EspacoAdmin)
 admin.site.register(Marca,MarcaAdmin)
 admin.site.register(Periodo,PeriodoAdmin)
 admin.site.register(Loja)
-admin.site.register(Alocacao,AlocacaoAdmin)
+admin.site.register(Contrato, ContratoAdmin)
 admin.site.register(Canal, CanalAdmin)

@@ -2,5 +2,50 @@
 {% block tituloPagina %}<i class="fa fa-fw fa-bar-chart-o"></i> Acompanhar Vendas {% endblock %}
 
 {% block conteudo %}
+<form id="form_marca_acompanhar_venda" method="post">{% csrf_token %}
+    <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
+        <select id="id_lojas" name="loja" onchange="seleciona()">
+        <option value="">Selecione uma loja</option>
+        {% for loja in loja_list %}
+            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                <option value="{{loja.id}}" selected >{{loja.nome}}</option>
+            {% else %}
+                <option value="{{loja.id}}">{{loja.nome}}</option>
+            {% endif %}
+        {% endfor %}
+        </select><br><br>
 
+    <label for="id_espacos"><i class="glyphicon glyphicon-map-marker"></i></label>
+        <select id="id_espacos" name="espaco" onchange="seleciona()">
+        <option value="">Selecione um espaço</option>
+        {% for espaco in espaco_list %}
+            {% if espaco_retorno != None and espaco_retorno.id == espaco.id  %}
+                 <option value="{{espaco.id}}" selected >{{espaco.identificador}}</option>
+            {% else %}
+                 <option value="{{espaco.id}}" >{{espaco.identificador}}</option>
+            {% endif %}
+        {% endfor %}
+        </select><br><br>
+
+    <label for="id_periodos"><i class="glyphicon glyphicon-map-marker"></i></label>
+        <select id="id_periodos" name="periodo" onchange="seleciona()">
+        <option value="">Selecione o periodo</option>
+        {% for periodo in periodo_list %}
+            {% if periodo_retorno != None and periodo_retorno.id == periodo.id  %}
+                 <option value="{{periodo.id}}" selected >{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
+            {% else %}
+                 <option value="{{periodo.id}}">{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
+            {% endif %}
+        {% endfor %}
+        </select><br><br>
+
+
+
+</form>
+
+<script>
+function seleciona() {
+    document.getElementById("form_marca_acompanhar_venda").submit();
+}
+</script>
 {% endblock %}
