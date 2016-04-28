@@ -434,6 +434,27 @@ def estoque(request):
                   }
     )
 
+@login_required
+def estoque_operacional(request):
+    marca = Marca.objects.get.all()
+    loja_list = Loja.objects.filter(espaco__contrato__marca=marca).distinct()
+    estoque = None
+    loja_retorno = None
+    estoque_list = None
+
+    if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
+        estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
+        loja_retorno = Loja.objects.get(id=request.GET['loja'])
+
+    return render(request, 'estoque_operacional.html',
+                  {
+                      'marca': marca,
+                      'loja_list': loja_list,
+                      'estoque_list': estoque_list,
+                      'loja_retorno': loja_retorno,
+                  }
+    )
+
 
 def realizar_venda(request):
     checkout = Checkout()

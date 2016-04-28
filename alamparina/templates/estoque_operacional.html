@@ -1,0 +1,44 @@
+{% extends "includes/layout_principal_operacional.html" %}
+{% block tituloPagina %} <i class="fa fa-fw fa-list"></i> Estoque {% endblock %}
+
+{% block Estoque %}active{% endblock %}
+
+{% block conteudo %}
+    <br><br>
+    <form method="GET" class="formulario-padrao">
+        <select id="id_lojas" name="loja" onchange="form.submit()">
+            <option value="">Selecione uma loja</option>
+            {% for loja in loja_list %}
+            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+            {% else %}
+                <option value="{{loja.id}}">{{loja.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </form><br><br>
+    {% if estoque_list != None %}
+        <div class="panel panel-default">
+            <table class="table">
+              <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Quantidade</th>
+                    <th>Pre&ccedil;o venda</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                    {% for estoque in estoque_list %}
+                        <tr>
+                            <th>{{ estoque.produto.nome}}</th>
+                            <td>{{ estoque.em_estoque }}</td>
+                            <td>{{ estoque.produto.preco_venda|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+
+              </tbody>
+          </table>
+        </div>
+    {% endif %}
+{% endblock %}
