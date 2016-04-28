@@ -33,9 +33,16 @@ class EstoqueAdmin(admin.ModelAdmin):
     def marca(self,obj):
         return obj.produto.marca
 
+class CheckoutAdmin(admin.ModelAdmin):
+    list_display = ('marca', 'dia', 'motivo', 'loja')
+    list_filter = ('marca', 'motivo', 'loja')
+    date_hierarchy = 'dia'
+    ordering = ('dia',)
+
 
 
 admin.site.register(Produto,ProdutoAdmin)
 admin.site.register(Checkin,CheckinAdmin)
 admin.site.register(Expedicao,ExpedicaoAdmin)
 admin.site.register(Estoque,EstoqueAdmin)
+admin.site.register(Checkout, CheckoutAdmin)
