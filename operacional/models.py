@@ -128,6 +128,7 @@ class Checkout(models.Model):
     marca = models.ForeignKey(Marca)
     loja = models.ForeignKey(Loja)
     produto = models.ForeignKey(Produto)
+    canal = models.ForeignKey(Canal, blank=True, null=True)
     periodo = models.ForeignKey(Periodo, blank=True, null=True)
     dtrealizado = models.DateField(blank=True, null=True)
     quantidade = models.IntegerField()

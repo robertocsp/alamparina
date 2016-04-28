@@ -49,6 +49,24 @@
             {% endif %}
         </li>
         <li>
+            <label for="id_canais">Canais: </label>
+            <select id="id_canais" name="canal" onchange="form.submit()">
+                <option value="">Selecione um canal</option>
+                {% for canal in canal_list %}
+                {% if canal_retorno != None and canal_retorno.id == canal.id  %}
+                <option value="{{canal.id}}" selected>{{canal.nome}}</option>
+                {% else %}
+                <option value="{{canal.id}}">{{canal.nome}}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+            {% if error %}
+                <div class="alert alert-error">
+                    <strong>Erro no canal</strong>
+                </div>
+            {% endif %}
+        </li>
+        <li>
             <label for="id_produtos">Produtos: </label>
             <select id="id_produtos" name="produto">
                 <option value="">Selecione uma produto</option>

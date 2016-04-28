@@ -428,12 +428,14 @@ def estoque(request):
 def realizar_venda(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()
+    canal_list = Canal.objects.all()
     loja_list = None
     produto_list = None
     marca_retorno = None
     loja_retorno = None
     produto_retorno = None
     dtrealizado_retorno = None
+    canal_retorno = None
     #checkout.motivo = request.GET.get('motivo')
     checkout.motivo = 'venda'
     error = False
@@ -445,6 +447,7 @@ def realizar_venda(request):
         checkout.loja = Loja.objects.get(id=request.POST['loja'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        checkout.canal = Canal.objects.get(id=request.POST['canal'])
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
 
@@ -454,7 +457,7 @@ def realizar_venda(request):
             loja_retorno = checkout.loja
             produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
             produto_retorno = checkout.produto
-
+            canal_retorno = checkout.canal
             error = True
 
         else:
@@ -465,6 +468,8 @@ def realizar_venda(request):
     else:
         if "dtrealizado" in request.GET:
             dtrealizado_retorno = request.GET['dtrealizado']
+        if "canal" in request.GET:
+            canal_retorno = Canal.objects.get(id=request.GET['canal'])
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
@@ -487,6 +492,8 @@ def realizar_venda(request):
                      'checkout': checkout,
                      'error': error,
                      'estoque': estoque,
+                     'canal_list': canal_list,
+                     'canal_retorno': canal_retorno,
                   }
     )
 
@@ -521,6 +528,7 @@ def acompanhar_venda(request):
     periodo_list = None
     espaco_retorno = None
     periodo_retorno = None
+    venda_list = None
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         if "espaco" in request.POST and request.POST['espaco'] != '':
@@ -531,6 +539,8 @@ def acompanhar_venda(request):
         espaco_list = Espaco.objects.filter(contrato__marca=marca, loja=loja_retorno).distinct()
         # periodo
         periodo_list = Periodo.objects.all()
+        # venda (groupby produto, sum(qtd))
+        venda_list = Checkout.objects.filter()
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
@@ -541,5 +551,6 @@ def acompanhar_venda(request):
                       'periodo_list': periodo_list,
                       'espaco_retorno': espaco_retorno,
                       'periodo_retorno': periodo_retorno,
+                      'venda_list': venda_list,
                   }
     )
