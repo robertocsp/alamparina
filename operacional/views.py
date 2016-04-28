@@ -117,7 +117,7 @@ def inicia_checkin(request):
     saldo_cubagem_estoque = 0
     expedicao_list = None
     contrato_list = None
-    saldo = 0
+    contrato = None
     loja_list = Loja.objects.filter(espaco__contrato__marca=checkin.marca).distinct()
     if len(request.POST) == 0 or request.POST['loja'] == '':
         espaco_list = None
@@ -134,8 +134,8 @@ def inicia_checkin(request):
         expedicao = Expedicao()
         produto_list = checkin.marca.produto_set.all()
         contrato_list = Contrato.objects.filter(marca=checkin.marca, espaco__loja=loja_retorno)
-        for contrato in contrato_list:
-            saldo += contrato.valor
+        if contrato_list.count() != 0:
+            contrato = contrato_list[0]
 
     if "adicionar_canal" in request.POST:
         adicionar_canal(checkin, request)
@@ -185,7 +185,7 @@ def inicia_checkin(request):
                       'saldo_cubagem': saldo_cubagem,
                       'loja_list': loja_list,
                       'loja_retorno': loja_retorno,
-                      'contrato_list': contrato_list,
+                      'contrato': contrato,
                   }
     )
 
@@ -204,6 +204,11 @@ def edita_checkin(request, id):
 
     loja_list = Loja.objects.filter(espaco__contrato__marca=checkin.marca).distinct()
     canal_list = Canal.objects.all()
+    contrato_list = Contrato.objects.filter(marca=checkin.marca, espaco__loja=loja_retorno)
+    if contrato_list.count() != 0:
+      contrato = contrato_list[0]
+    else:
+      contrato = None
 
     cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, loja_retorno)
     saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(checkin.marca, loja_retorno)
@@ -263,6 +268,7 @@ def edita_checkin(request, id):
                       'saldo_cubagem': saldo_cubagem,
                       'loja_list': loja_list,
                       'loja_retorno': loja_retorno,
+                      'contrato': contrato,
                   }
     )
 

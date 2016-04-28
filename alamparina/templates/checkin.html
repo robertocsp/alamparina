@@ -114,11 +114,11 @@
                 <li>
                     <ul>
                         {% if loja_retorno %}
-
-                                {% for canal in canal_list%}
-                                <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal loja_retorno %}{{canal.nome}} -  Retorno R${{precoestimado}}</li>
-                                {%endfor%}
-
+                            {% for canal in canal_list%}
+                                {% if contrato %}
+                                    <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} -  Retorno R${{precoestimado}}</li>
+                                {% endif %}
+                            {%endfor%}
                         {% endif %}
                     </ul>
                 </li>
