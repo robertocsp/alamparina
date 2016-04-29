@@ -39,17 +39,15 @@
             <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total a receber para o período: R$ {{total_a_receber}}</li>
 <br><br>
         Lista de Venda Diaria
-
             <br>
         {% for v in venda_grafico %}
-            {{v}}
+            {{v.0}} | {{v.1}} | {{v.2}} | {{v.3}} <br>
         {% endfor %}
 <br><br>
         Lista de produtos
             <br>
-
         {% for vp in venda_produto %}
-            {{vp}}
+            {{vp.0}} | {{vp.1}} | {{vp.2}} | {{vp.3}} | {{vp.4}} <br>
         {% endfor %}
 
 </form>
