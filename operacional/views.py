@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from distutils.command.check import check
+
+from celery.task.base import periodic_task
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -7,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response
+from django.utils import *
 
 from administrativo.models import *
 from models import Canal
@@ -500,7 +503,7 @@ def realizar_venda(request):
     else:
         if "dtrealizado" in request.GET:
             dtrealizado_retorno = request.GET['dtrealizado']
-        if "canal" in request.GET:
+        if "canal" in request.GET and request.GET['canal'] != '':
             canal_retorno = Canal.objects.get(id=request.GET['canal'])
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
@@ -553,36 +556,45 @@ def recomendar_marca(request):
 @login_required
 def acompanhar_venda(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    #loja
     loja_list = Loja.objects.filter(espaco__contrato__marca=marca).distinct()
     loja_retorno = None
-    espaco_list = None
     periodo_list = None
-    espaco_retorno = None
     periodo_retorno = None
     venda_list = None
+    contrato = None
+    data_ultima_venda = datetime.date(2000,01,01)
+    total_pecas_vendidas = 0
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
-        if "espaco" in request.POST and request.POST['espaco'] != '':
-            espaco_retorno = Espaco.objects.get(id=request.POST['espaco'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
             periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
-        # espaco
-        espaco_list = Espaco.objects.filter(contrato__marca=marca, loja=loja_retorno).distinct()
         # periodo
         periodo_list = Periodo.objects.all()
         # venda (groupby produto, sum(qtd))
-        venda_list = Checkout.objects.filter()
+        if periodo_retorno != None:
+            contrato_list = Contrato.objects.filter(marca=marca, espaco__loja=loja_retorno)
+            if contrato_list.count() != 0:
+                contrato = contrato_list[0]
+            else:
+                contrato = None
+            venda_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+            if venda_list.count() != 0:
+                data_ultima_venda = datetime.date(2000,01,01)
+                for venda in venda_list:
+                    if venda.dtrealizado > data_ultima_venda:
+                        data_ultima_venda = venda.dtrealizado
+                total_pecas_vendidas += venda.quantidade
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
                       'marca': marca,
                       'loja_list': loja_list,
                       'loja_retorno': loja_retorno,
-                      'espaco_list': espaco_list,
                       'periodo_list': periodo_list,
-                      'espaco_retorno': espaco_retorno,
                       'periodo_retorno': periodo_retorno,
                       'venda_list': venda_list,
+                      'total_pecas_vendidas': total_pecas_vendidas,
+                      'data_ultima_venda': data_ultima_venda,
+                      'contrato': contrato,
                   }
     )

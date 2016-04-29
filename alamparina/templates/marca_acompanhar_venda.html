@@ -17,18 +17,6 @@
         {% endfor %}
         </select><br><br>
 
-    <label for="id_espacos"><i class="glyphicon glyphicon-map-marker"></i></label>
-        <select id="id_espacos" name="espaco" onchange="seleciona()">
-        <option value="">Selecione um espaço</option>
-        {% for espaco in espaco_list %}
-            {% if espaco_retorno != None and espaco_retorno.id == espaco.id  %}
-                 <option value="{{espaco.id}}" selected >{{espaco.identificador}}</option>
-            {% else %}
-                 <option value="{{espaco.id}}" >{{espaco.identificador}}</option>
-            {% endif %}
-        {% endfor %}
-        </select><br><br>
-
     <label for="id_periodos"><i class="glyphicon glyphicon-map-marker"></i></label>
         <select id="id_periodos" name="periodo" onchange="seleciona()">
         <option value="">Selecione o periodo</option>
@@ -41,6 +29,12 @@
         {% endfor %}
         </select><br><br>
 
+    <label><i class="fa fa-dropbox"></i> Resumo:</label>
+        <ul class="box-produtos-checkin">
+
+            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Número do contrato: {{contrato.no_contrato}}</li>
+            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Data da última venda: {{data_ultima_venda}}</li>
+            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total de peças vendidas: {{total_pecas_vendidas}}</li>
 
 
 </form>
