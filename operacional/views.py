@@ -593,7 +593,7 @@ def acompanhar_venda(request):
             codigo = ''
             vendaproduto_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
             #vou precisar limpar
-            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
+            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count()+1)]
             venda_produto[0][0] = 'Codigo'
             venda_produto[0][1] = 'Produto'
             venda_produto[0][2] = 'Preco'
@@ -616,17 +616,22 @@ def acompanhar_venda(request):
                     venda_produto[k][2] += float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
                     venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(vendaproduto.quantidade or 0)
                     venda_produto[k][4] += vendaproduto.quantidade
+
+            for vp in venda_produto:
+                if vp[0] == 0:
+                    venda_produto.remove(vp)
+
             #vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
-            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
+            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 2)]
             venda_grafico[0][0] = 'Data'
             venda_grafico[0][1] = 'PrecoVenda'
             venda_grafico[0][2] = 'OperacoesVenda'
             venda_grafico[0][3] = 'Quantidade'
             j = 1
+
             inicio = periodo_retorno.de
-            while inicio < periodo_retorno.ate:
-                inicio += datetime.timedelta(days=1)
+            while inicio <= periodo_retorno.ate:
                 vendadiaria_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
                 k = 1
@@ -636,6 +641,7 @@ def acompanhar_venda(request):
                     venda_grafico[j][3] += float(vendadiaria.quantidade or 0)
                     k = k + 1
                 j = j + 1
+                inicio += datetime.timedelta(days=1)
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
