@@ -483,6 +483,7 @@ def realizar_venda(request):
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
         checkout.canal = Canal.objects.get(id=request.POST['canal'])
+        checkout.preco_venda = checkout.produto.preco_venda
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
 
@@ -564,6 +565,7 @@ def acompanhar_venda(request):
     contrato = None
     data_ultima_venda = datetime.date(2000,01,01)
     total_pecas_vendidas = 0
+    total_vendas = 0.0
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
@@ -583,7 +585,9 @@ def acompanhar_venda(request):
                 for venda in venda_list:
                     if venda.dtrealizado > data_ultima_venda:
                         data_ultima_venda = venda.dtrealizado
-                total_pecas_vendidas += venda.quantidade
+                    total_pecas_vendidas += venda.quantidade
+                    total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
+
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
@@ -596,5 +600,6 @@ def acompanhar_venda(request):
                       'total_pecas_vendidas': total_pecas_vendidas,
                       'data_ultima_venda': data_ultima_venda,
                       'contrato': contrato,
+                      'total_vendas': total_vendas,
                   }
     )
