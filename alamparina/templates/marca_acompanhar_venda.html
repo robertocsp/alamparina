@@ -37,10 +37,21 @@
             <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total de peças vendidas: {{total_pecas_vendidas}}</li>
             <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Valor vendido para o período: R$ {{total_vendas}}</li>
             <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total a receber para o período: R$ {{total_a_receber}}</li>
+<br><br>
+        Lista de Venda Diaria
+
+            <br>
         {% for v in venda_grafico %}
             {{v}}
         {% endfor %}
- 
+<br><br>
+        Lista de produtos
+            <br>
+
+        {% for vp in venda_produto %}
+            {{vp}}
+        {% endfor %}
+
 </form>
 
 <script>

@@ -566,6 +566,7 @@ def acompanhar_venda(request):
     total_vendas = 0.0
     total_a_receber = 0.0
     venda_grafico = [[]]
+    venda_produto = [[]]
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
@@ -588,7 +589,34 @@ def acompanhar_venda(request):
                     total_pecas_vendidas += venda.quantidade
                     total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
                     total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
-                    # vendadiaria
+            #vendaPorProduto
+            codigo = ''
+            vendaproduto_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            #vou precisar limpar
+            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
+            venda_produto[0][0] = 'Codigo'
+            venda_produto[0][1] = 'Produto'
+            venda_produto[0][2] = 'Preco'
+            venda_produto[0][3] = 'AReceber'
+            venda_produto[0][4] = 'Quantidade'
+            j = 1
+            for vendaproduto in vendaproduto_list:
+                if codigo != vendaproduto.produto.codigo:
+                    #zero as variaveis
+                    venda_produto[j][0] = vendaproduto.produto.codigo
+                    venda_produto[j][1] = vendaproduto.produto.nome
+                    venda_produto[j][2] = float(vendaproduto.preco_venda or 0)*float(vendaproduto.quantidade or 0)
+                    venda_produto[j][3] = float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0)*float(vendaproduto.quantidade or 0)
+                    venda_produto[j][4] = vendaproduto.quantidade
+                    j = j + 1
+                    k = j - 1
+                    codigo = vendaproduto.produto.codigo
+                else:
+                    #vou somando
+                    venda_produto[k][2] += float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[k][4] += vendaproduto.quantidade
+            #vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
             venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
             venda_grafico[0][0] = 'Data'
@@ -623,5 +651,6 @@ def acompanhar_venda(request):
                       'total_vendas': total_vendas,
                       'total_a_receber': total_a_receber,
                       'venda_grafico': venda_grafico,
+                      'venda_produto': venda_produto,
                   }
     )
