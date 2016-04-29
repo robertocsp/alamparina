@@ -40,3 +40,10 @@ def PrecoEstimado(produto, canal, contrato):
     else:
         preco_estimado = produto.preco_venda*(100 - float(canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0) - int(contrato.custo_embalagem or 0) - int(contrato.custo_entrega or 0)
     return preco_estimado
+
+def PrecoReceber(checkout, contrato):
+    if checkout.canal.acumulativo == 0:
+        preco_receber = (float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0))/100 - int(checkout.canal.custo_embalagem or 0) - int(checkout.canal.custo_entrega or 0))
+    else:
+        preco_receber = float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - int(checkout.canal.custo_embalagem or 0) - int(checkout.canal.custo_entrega or 0) - int(contrato.custo_embalagem or 0) - int(contrato.custo_entrega or 0)
+    return preco_receber

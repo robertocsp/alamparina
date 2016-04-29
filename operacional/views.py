@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from distutils.command.check import check
 
-from celery.task.base import periodic_task
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -566,6 +564,7 @@ def acompanhar_venda(request):
     data_ultima_venda = datetime.date(2000,01,01)
     total_pecas_vendidas = 0
     total_vendas = 0.0
+    total_a_receber = 0.0
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
@@ -587,6 +586,7 @@ def acompanhar_venda(request):
                         data_ultima_venda = venda.dtrealizado
                     total_pecas_vendidas += venda.quantidade
                     total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
+                    total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
 
 
     return render(request, 'marca_acompanhar_venda.html',
@@ -601,5 +601,6 @@ def acompanhar_venda(request):
                       'data_ultima_venda': data_ultima_venda,
                       'contrato': contrato,
                       'total_vendas': total_vendas,
+                      'total_a_receber': total_a_receber,
                   }
     )
