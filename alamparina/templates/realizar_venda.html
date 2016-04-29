@@ -11,11 +11,10 @@
         <li>
             <label for="id_dtrealizado">Data da venda:</label>
                 {% if dtrealizado_retorno != None %}
-                    <input type="text" id="id_dtrealizado" name="dtrealizado" value="{{dtrealizado_retorno}}">
+                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno}}">
                 {% else %}
-                    <input type="text" id="id_dtrealizado" name="dtrealizado" value="">
+                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
                 {% endif %}
-            <br><br>
         </li>
         <li>
             <label for="id_marcas">Marcas: </label>
@@ -81,7 +80,7 @@
         </li>
         <li>
             <label for="id_quantidade">Quantidade: </label>
-            <input type="text" id="id_quantidade" name="quantidade">
+            <input type="number" id="id_quantidade" name="quantidade" class="numero">
         </li>
         <li>
             <label for="id_observacao">Observacao: </label>

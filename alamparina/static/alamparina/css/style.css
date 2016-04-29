@@ -247,12 +247,16 @@ select{
 }
 
 
-.box-formulario .formulario-padrao li input[type="number"].numero{
+.box-formulario .formulario-padrao li input.numero{
     width: 65px;
 }
 
-.box-formulario .formulario-padrao li input[type="number"].numeroD{
+.box-formulario .formulario-padrao li input.numeroD{
     width: 80px;
+}
+
+.box-formulario .formulario-padrao li input.data{
+    width: 150px;
 }
 
 .formulario-padrao button{

@@ -47,7 +47,7 @@
     </select><br><br>
      {% if checkin.status == checkin.status_emprocessamento %}
         <label for="id_dia_agendamento"><i class="glyphicon glyphicon-calendar"></i></label>
-        <input placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
+        <input class="data" placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
          <br><br>
         <label for="id_canal"><i class="glyphicon glyphicon-ok-sign"></i></label>
         <select id="id_canal" name="canais">
@@ -64,7 +64,7 @@
         </button>
      {% else %}
         <label for="id_dia_agendamento"><i class="fa fa-calendar-check-o></i></label>
-        <input placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
+        <input class="data" placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
      {% endif %}
     <br><br>
 <hr>

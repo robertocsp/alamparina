@@ -58,7 +58,8 @@ def lista_produtos_operacional(request):
 
     return render(request, 'lista_produtos_operacional.html', {
         'produto_list': produto_list,
-        'marca': marca,
+        'marca': marca
+
     })
 
 @login_required
