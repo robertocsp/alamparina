@@ -546,30 +546,11 @@ def recomendar_marca(request):
                 'marca_recomendada': marca_recomendada
             })
         else:
-            raise forms.ValidationError("Há campos obrigatórios não preenchidos")
+            raise forms.ValidationError("Ha campos obrigatrios nao preenchidos")
     else:
         form = RecomendacaoForm()
     return render(request, 'recomendar_marca.html', {'form': form, 'error': False})
 
-
-
-class Calculadora(object):
-
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def soma(self):
-        return self.a + self.b
-
-    def subtrai(self):
-        return self.a - self.b
-
-    def multiplica(self):
-        return self.a * self.b
-
-    def divide(self):
-        return self.a / self.b
 
 @login_required
 def acompanhar_venda(request):
@@ -584,7 +565,6 @@ def acompanhar_venda(request):
     total_pecas_vendidas = 0
     total_vendas = 0.0
     total_a_receber = 0.0
-    venda_grafico = [[]]
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
@@ -607,26 +587,7 @@ def acompanhar_venda(request):
                     total_pecas_vendidas += venda.quantidade
                     total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
                     total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
-            #vendadiaria
-            dt = periodo_retorno.ate - periodo_retorno.de
-            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days+1)]
-            venda_grafico[0][0] = 'Data'
-            venda_grafico[0][1] = 'PrecoVenda'
-            venda_grafico[0][2] = 'OperacoesVenda'
-            venda_grafico[0][3] = 'Quantidade'
-            j = 1
-            inicio = periodo_retorno.de
-            while inicio < periodo_retorno.ate:
-                inicio += datetime.timedelta(days=1)
-                vendadiaria_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado=inicio)
-                venda_grafico[j][0] = inicio
-                k = 1
-                for vendadiaria in vendadiaria_list:
-                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0)
-                    venda_grafico[j][2] = k
-                    venda_grafico[j][3] += float(vendadiaria.quantidade or 0)
-                    k = k+1
-                j=j+1
+
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
@@ -641,6 +602,5 @@ def acompanhar_venda(request):
                       'contrato': contrato,
                       'total_vendas': total_vendas,
                       'total_a_receber': total_a_receber,
-                      'venda_grafico': venda_grafico,
                   }
     )
