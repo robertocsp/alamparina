@@ -29,6 +29,17 @@
                 {% endif %}
             {% endfor %}
         </select><br><br><br>
+
+<!--fabio-->
+        <!--{% for v in venda_grafico%}-->
+            <!--{{v}} <br>-->
+        <!--{% endfor %}-->
+        <!--{% for vp in venda_produto%}-->
+            <!--{{vp}} <br>-->
+        <!--{% endfor %}-->
+
+
+
         {% if venda_grafico|length > 1 %}
             <label>Resumo do contrato n&uacute;mero: {{contrato.no_contrato}}</label><br><br>
             <div class="resumo-vendas">
@@ -104,9 +115,8 @@
                                     <th>Produto</th>
                                     <th>C&oacute;digo</th>
                                     <th>Quantidade</th>
-                                    <th>Data da venda</th>
                                     <th>Pre&ccedil;o Venda</th>
-                                    <th>Valor a recer</th>
+                                    <th>Valor a receber</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -115,7 +125,6 @@
                                         <td>{{vp.1}}</td>
                                         <td>{{vp.0}}</td>
                                         <td>{{vp.4}}</td>
-                                        <td>12/12/2016</td>
                                         <td>R$ {{vp.2|floatformat:2}}</td>
                                         <td>R$ {{vp.3|floatformat:2}}</td>
                                     </tr>
