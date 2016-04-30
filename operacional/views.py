@@ -580,7 +580,7 @@ def acompanhar_venda(request):
                 contrato = contrato_list[0]
             else:
                 contrato = None
-            venda_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+            venda_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
             if venda_list.count() != 0:
                 data_ultima_venda = datetime.date(2000,01,01)
                 for venda in venda_list:
@@ -591,10 +591,10 @@ def acompanhar_venda(request):
                     total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
             #vendaPorProduto
             codigo = ''
-            vendaproduto_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            vendaproduto_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
             #vou precisar limpar
-            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count()+1)]
-            j = 1
+            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
+            j = 0
             for vendaproduto in vendaproduto_list:
                 if codigo != vendaproduto.produto.codigo:
                     #zero as variaveis
@@ -602,7 +602,7 @@ def acompanhar_venda(request):
                     venda_produto[j][1] = vendaproduto.produto.nome
                     venda_produto[j][2] = float(vendaproduto.preco_venda or 0)*float(vendaproduto.quantidade or 0)
                     venda_produto[j][3] = float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0)*float(vendaproduto.quantidade or 0)
-                    venda_produto[j][4] = vendaproduto.quantidade
+                    venda_produto[j][4] = int(vendaproduto.quantidade or 0)
                     j = j + 1
                     k = j - 1
                     codigo = vendaproduto.produto.codigo
@@ -612,22 +612,21 @@ def acompanhar_venda(request):
                     venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(vendaproduto.quantidade or 0)
                     venda_produto[k][4] += vendaproduto.quantidade
 
-            for vp in venda_produto:
+            for vp in reversed(venda_produto):
                 if vp[0] == 0:
                     venda_produto.remove(vp)
 
             #vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
-            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 2)]
-            j = 1
-
+            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
+            j = 0
             inicio = periodo_retorno.de
             while inicio <= periodo_retorno.ate:
-                vendadiaria_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado=inicio)
+                vendadiaria_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
                 k = 1
                 for vendadiaria in vendadiaria_list:
-                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0)
+                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0)*float(vendadiaria.quantidade or 0)
                     venda_grafico[j][2] = k
                     venda_grafico[j][3] += float(vendadiaria.quantidade or 0)
                     k = k + 1
