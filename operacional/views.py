@@ -594,11 +594,6 @@ def acompanhar_venda(request):
             vendaproduto_list = Checkout.objects.filter(loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
             #vou precisar limpar
             venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count()+1)]
-            venda_produto[0][0] = 'Codigo'
-            venda_produto[0][1] = 'Produto'
-            venda_produto[0][2] = 'Preco'
-            venda_produto[0][3] = 'AReceber'
-            venda_produto[0][4] = 'Quantidade'
             j = 1
             for vendaproduto in vendaproduto_list:
                 if codigo != vendaproduto.produto.codigo:
@@ -624,10 +619,6 @@ def acompanhar_venda(request):
             #vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
             venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 2)]
-            venda_grafico[0][0] = 'Data'
-            venda_grafico[0][1] = 'PrecoVenda'
-            venda_grafico[0][2] = 'OperacoesVenda'
-            venda_grafico[0][3] = 'Quantidade'
             j = 1
 
             inicio = periodo_retorno.de

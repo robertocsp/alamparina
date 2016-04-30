@@ -4,57 +4,163 @@
 {% block Vendas %}active{% endblock %}
 
 {% block conteudo %}
-<form id="form_marca_acompanhar_venda" method="post">{% csrf_token %}
-    <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
-        <select id="id_lojas" name="loja" onchange="seleciona()">
-        <option value="">Selecione uma loja</option>
-        {% for loja in loja_list %}
-            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                <option value="{{loja.id}}" selected >{{loja.nome}}</option>
-            {% else %}
-                <option value="{{loja.id}}">{{loja.nome}}</option>
-            {% endif %}
-        {% endfor %}
-        </select><br><br>
-
-    <label for="id_periodos"><i class="glyphicon glyphicon-map-marker"></i></label>
-        <select id="id_periodos" name="periodo" onchange="seleciona()">
-        <option value="">Selecione o periodo</option>
-        {% for periodo in periodo_list %}
-            {% if periodo_retorno != None and periodo_retorno.id == periodo.id  %}
-                 <option value="{{periodo.id}}" selected >{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
-            {% else %}
-                 <option value="{{periodo.id}}">{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
-            {% endif %}
-        {% endfor %}
-        </select><br><br>
-
-    <label><i class="fa fa-dropbox"></i> Resumo:</label>
-        <ul class="box-produtos-checkin">
-
-            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Número do contrato: {{contrato.no_contrato}}</li>
-            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Data da última venda: {{data_ultima_venda}}</li>
-            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total de peças vendidas: {{total_pecas_vendidas}}</li>
-            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Valor vendido para o período: R$ {{total_vendas}}</li>
-            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Total a receber para o período: R$ {{total_a_receber}}</li>
-<br><br>
-        Lista de Venda Diaria
-            <br>
-        {% for v in venda_grafico %}
-            {{v.0}} | {{v.1}} | {{v.2}} | {{v.3}} <br>
-        {% endfor %}
-<br><br>
-        Lista de produtos
-            <br>
-        {% for vp in venda_produto %}
-            {{vp.0}} | {{vp.1}} | {{vp.2}} | {{vp.3}} | {{vp.4}} <br>
-        {% endfor %}
-
+    <p><i class="glyphicon glyphicon-info-sign"></i> Selecione loja e per&iacute;odo para visualizar o resumo das vendas</p>
+    <br>
+    <form id="form_marca_acompanhar_venda" method="post">{% csrf_token %}
+        <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
+        <select id="id_lojas" class="select-loja" name="loja" onchange="seleciona()">
+            <option value="">Selecione uma loja...</option>
+            {% for loja in loja_list %}
+                {% if loja_retorno != None and loja_retorno.id == loja.id  %}
+                    <option value="{{loja.id}}" selected >{{loja.nome}}</option>
+                {% else %}
+                    <option value="{{loja.id}}">{{loja.nome}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <label for="id_periodos"><i class="glyphicon glyphicon-calendar"></i></label>
+        <select id="id_periodos" class="input-grande" name="periodo" onchange="seleciona()">
+            <option value="">Selecione o periodo...</option>
+            {% for periodo in periodo_list %}
+                {% if periodo_retorno != None and periodo_retorno.id == periodo.id  %}
+                     <option value="{{periodo.id}}" selected >{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
+                {% else %}
+                     <option value="{{periodo.id}}">{{periodo.nome}} (de {{periodo.de}} até {{periodo.ate}})</option>
+                {% endif %}
+            {% endfor %}
+        </select><br><br><br>
+        {% if venda_grafico|length > 1 %}
+            <label>Resumo do contrato n&uacute;mero: {{contrato.no_contrato}}</label><br><br>
+            <div class="resumo-vendas">
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel  panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-list fa-3x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">{{total_pecas_vendidas}}</div>
+                                </div>
+                                <div class="title-box-dashboard">Total de peças vendidas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel panel-yellow">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-credit-card fa-3x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">R$ {{total_vendas}}</div>
+                                </div>
+                                <div class="title-box-dashboard">Valor vendido para o período</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-credit-card fa-3x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge">R$ {{total_a_receber}}</div>
+                                </div>
+                                <div class="title-box-dashboard"> Total a receber para o período</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <br><br>
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="page-header">
+                        <small><i class="fa fa-fw fa-bar-chart-o"></i>Valor di&aacute;rio das vendas no per&iacute;odo selecionado (Valor em Reais x Data)</small>
+                    </h1>
+                    <div class="box">
+                        <div class="box-chart">
+                            <canvas id="GraficoLine" style="width:100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br><br>
+            <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="fa fa-money fa-fw"></i>Vendas realizadas</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>C&oacute;digo</th>
+                                    <th>Quantidade</th>
+                                    <th>Data da venda</th>
+                                    <th>Pre&ccedil;o Venda</th>
+                                    <th>Valor a recer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vp in venda_produto %}
+                                    <tr>
+                                        <td>{{vp.1}}</td>
+                                        <td>{{vp.0}}</td>
+                                        <td>{{vp.4}}</td>
+                                        <td>12/12/2016</td>
+                                        <td>R$ {{vp.2|floatformat:2}}</td>
+                                        <td>R$ {{vp.3|floatformat:2}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <strong><i class="glyphicon glyphicon-info-sign"></i> N&atilde;o h&aacute; nenhum per&iacute;odo selecionado.</strong>
+            </div>
+    {% endif %}
 </form>
 
-<script>
-function seleciona() {
-    document.getElementById("form_marca_acompanhar_venda").submit();
-}
+<script type="text/javascript">
+    function seleciona() {
+        document.getElementById("form_marca_acompanhar_venda").submit();
+    }
+
+    window.onload = function(){
+
+       var options = {
+            responsive:true,
+
+        };
+
+        var barData = {
+        labels:[{% for v in venda_grafico %}"{{v.0}}",{% endfor %}],
+
+         datasets: [
+            {
+                fillColor: '#5CB85C',
+                data:[{% for v in venda_grafico %}{{v.1}},{% endfor %}]
+            }
+        ]
+        };
+        var context = document.getElementById('GraficoLine').getContext('2d');
+        context.canvas.height = 300;
+        context.canvas.width = 1024;
+        var clientsChart = new Chart(context).Bar(barData);
+
+    }
 </script>
 {% endblock %}

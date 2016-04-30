@@ -195,6 +195,10 @@ ul li{
     padding-top: 0;
 }
 
+#wrapper .resumo-vendas .table tr td:last-child {
+    padding-top: 8px;
+}
+
 #wrapper .table tr td:last-child a{
     margin-top: 11px;
     float: left;
@@ -259,6 +263,14 @@ select{
     width: 150px;
 }
 
+.input-grande{
+    width: 420px;
+}
+
+.select-loja{
+    margin-right: 20px;
+}
+
 .formulario-padrao button{
     margin: 40px 0 0 40px;
 }
@@ -273,6 +285,21 @@ select{
 
 .panel .huge {
     font-size: 37px;
+}
+
+.resumo-vendas .panel .huge.menor-font{
+    font-size: 24px;
+    line-height: 42px;
+}
+
+.title-box-dashboard{
+    float: left;
+    text-align: center;
+    width: 100%;
+    border-top: 1px solid rgb(255, 255, 255);
+    margin: 10px 0px 0px;
+    padding: 10px 0px 0px;
+    font-weight: bold;
 }
 
 .font-16px{
@@ -518,6 +545,12 @@ ul.box-produtos-checkin li ul{
 
 .principal-operacional .row.first{
     display: none;
+}
+
+/*Resumo vendas*/
+
+.resumo-vendas{
+    display:none;
 }
 
 
