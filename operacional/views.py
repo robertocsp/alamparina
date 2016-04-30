@@ -567,6 +567,7 @@ def acompanhar_venda(request):
     total_a_receber = 0.0
     venda_grafico = [[]]
     venda_produto = [[]]
+    venda_grafico_dia =[]
     venda_grafico_valor =[]
     if len(request.POST) != 0:
         loja_retorno = Loja.objects.get(id=request.POST['loja'])
@@ -620,12 +621,14 @@ def acompanhar_venda(request):
             #vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
             venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
+            venda_grafico_dia = [0 for i in xrange(dt.days + 1)]
             venda_grafico_valor = [0 for i in xrange(dt.days + 1)]
             j = 0
             inicio = periodo_retorno.de
             while inicio <= periodo_retorno.ate:
                 vendadiaria_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
+                venda_grafico_dia[j] = inicio
                 k = 1
                 for vendadiaria in vendadiaria_list:
                     venda_grafico_valor[j] += float(vendadiaria.preco_venda or 0)*float(vendadiaria.quantidade or 0)
@@ -650,6 +653,7 @@ def acompanhar_venda(request):
                       'total_vendas': total_vendas,
                       'total_a_receber': total_a_receber,
                       'venda_grafico': venda_grafico,
+                      'venda_grafico_dia': venda_grafico_dia,
                       'venda_grafico_valor': venda_grafico_valor,
                       'venda_produto': venda_produto,
                   }
