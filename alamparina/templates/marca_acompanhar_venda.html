@@ -30,16 +30,6 @@
             {% endfor %}
         </select><br><br><br>
 
-<!--fabio-->
-        <!--{% for v in venda_grafico%}-->
-            <!--{{v}} <br>-->
-        <!--{% endfor %}-->
-        <!--{% for vp in venda_produto%}-->
-            <!--{{vp}} <br>-->
-        <!--{% endfor %}-->
-
-
-
         {% if venda_grafico|length > 1 %}
             <label>Resumo do contrato n&uacute;mero: {{contrato.no_contrato}}</label><br><br>
             <div class="resumo-vendas">
@@ -66,7 +56,7 @@
                                     <i class="fa fa-credit-card fa-3x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">R$ {{total_vendas}}</div>
+                                    <div class="huge">R$ {{total_vendas|floatformat:2}}</div>
                                 </div>
                                 <div class="title-box-dashboard">Valor vendido para o período</div>
                             </div>
@@ -81,7 +71,7 @@
                                     <i class="fa fa-credit-card fa-3x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">R$ {{total_a_receber}}</div>
+                                    <div class="huge">R$ {{total_a_receber|floatformat:2}}</div>
                                 </div>
                                 <div class="title-box-dashboard"> Total a receber para o período</div>
                             </div>
@@ -161,7 +151,7 @@
          datasets: [
             {
                 fillColor: '#5CB85C',
-                data:[{% for v in venda_grafico %}{{v.1}},{% endfor %}]
+                data:[{% for v in venda_grafico %}{{v.1|stringformat:'d'}},{% endfor %}]
             }
         ]
         };
