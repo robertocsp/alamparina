@@ -99,45 +99,53 @@
         <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
             <span class="glyphicon glyphicon-minus-sign"></span>
         </button>
-    </div>
-<hr>
-
+    </div><br><br>
 {%endif%}
-    <label><i class="fa fa-dropbox"></i> Produtos no checkin:</label>
-    {% if expedicao_list %}
-        {% for expedicao in expedicao_list %}
-            <ul class="box-produtos-checkin">
-                <label><i class="fa fa-dropbox"></i> Produto escolhido: {{expedicao.produto.nome}}</label>
-                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Quantidade: {{expedicao.quantidade}}</li>
-                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> Preço de venda: {{expedicao.produto.preco_venda}}</li>
-                <li class="text-verde"><i class="glyphicon glyphicon-usd"></i> <strong>Preços nos canais:</strong></li>
-                <li>
-                    <ul>
-                        {% if loja_retorno %}
-                            {% for canal in canal_list%}
-                                {% if contrato %}
-                                    <li class="text-azul"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} -  Retorno R${{precoestimado}}</li>
-                                {% endif %}
-                            {%endfor%}
-                        {% endif %}
-                    </ul>
-                </li>
-            </ul>
-        {% endfor %}
-        <hr>
-    {% else %}
-        <div class="alert alert-warning">
-            <strong>Não existem produtos adicionados a este checkin</strong>
-        </div><hr>
-    {% endif %}
-
-
-</div>
-
-    <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
-        <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
-    </button>
-</form>
+         {% if expedicao_list %}
+            <div class="panel panel-default">
+              <div class="panel-heading"><label><i class="glyphicon glyphicon-plus"></i> Produtos no checkin</label></div>
+              <table class="table ultimo-padding">
+                  <thead>
+                    <tr>
+                        <th>Nome do Produto Inserido</th>
+                        <th>Quantidade</th>
+                        <th>Preço de venda</th>
+                        <th>Preços nos canais</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      {% for expedicao in expedicao_list %}
+                        <tr>
+                            <th>{{expedicao.produto.nome}}</th>
+                                <td>{{expedicao.quantidade}}</td>
+                                <td>{{expedicao.produto.preco_venda|floatformat:2}}</td>
+                                <td>
+                                    <ul>
+                                    {% if loja_retorno %}
+                                        {% for canal in canal_list%}
+                                            {% if contrato %}
+                                                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} - Retorno <strong>R$ {{precoestimado|floatformat:2}}</strong></li>
+                                            {% endif %}
+                                        {%endfor%}
+                                    {% endif %}
+                                    </ul>
+                                </td>
+                        </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+            <hr>
+            <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
+                <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+            </button>
+            {% else %}
+                <div class="alert alert-warning">
+                    <strong>Não existem produtos adicionados a este checkin</strong>
+                </div><hr>
+         {% endif %}
+        </form>
+    </div>
 
 <script>
 function seleciona() {

@@ -95,7 +95,7 @@
             <div class="col-lg-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><i class="fa fa-money fa-fw"></i>Vendas realizadas</h3>
+                    <h3 class="panel-title"><i class="fa fa-money fa-fw"></i>Vendas realizadas por produto</h3>
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
@@ -112,7 +112,7 @@
                             <tbody>
                                 {% for vp in venda_produto %}
                                     <tr>
-                                        <td>{{vp.1}}</td>
+                                        <th>{{vp.1}}</th>
                                         <td>{{vp.0}}</td>
                                         <td>{{vp.4}}</td>
                                         <td>R$ {{vp.2|floatformat:2}}</td>

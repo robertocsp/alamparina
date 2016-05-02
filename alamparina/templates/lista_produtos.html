@@ -10,10 +10,8 @@
           <thead>
             <tr>
                 <th>Nome</th>
-                <th>Codigo</th>
-                <th>Canal</th>
+                <th>C&oacute;digo</th>
                 <th>Pre&ccedil;o</th>
-                <th>Quantidade no estoque</th>
                 <th></th>
             </tr>
           </thead>
@@ -22,9 +20,7 @@
                 <tr>
                     <th><strong>{{ produto.nome }}</strong></th>
                     <td>{{produto.codigo}}</td>
-                    <td>Loja Botafogo</td>
                     <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
-                    <td>{{ produto.quantidade }}</td>
                     <td><a href="/marca/cadastra-produto/{{produto.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
                 </tr>
              {% endfor %}

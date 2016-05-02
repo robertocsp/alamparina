@@ -187,12 +187,24 @@ ul li{
     text-align: left;
 }
 
+#wrapper .table th, #wrapper .table td{
+    vertical-align: middle;
+}
+
+#wrapper .table.center th:first-child{
+    text-align: center;
+}
+
 #wrapper .table td{
     text-align: center;
 }
 
 #wrapper .table tr td:last-child{
     padding-top: 0;
+}
+
+#wrapper .table.ultimo-padding tr td:last-child {
+    padding-top: 8px;
 }
 
 #wrapper .resumo-vendas .table tr td:last-child {
@@ -450,6 +462,7 @@ label[for="id_comentario"]{
     -webkit-box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
     -moz-box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
     box-shadow: -1px 5px 32px 2px rgba(255,0,NaN,1);
+    z-index: 999;
 }
 
 .box-info-checkin .h3{
