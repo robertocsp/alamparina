@@ -11,27 +11,27 @@
     {% endif %}
     <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
     <form class="formulario-padrao produto" action="." method="post">
-        <li><label for="id_nome">Nome:</label>
-            <input id="id_nome" maxlength="100" name="nome" type="text" />
+        <li><label for="{{ form.nome.id_nome }}">Nome:</label>
+            {{ form.nome }}
         </li>
-        <li><label for="id_codigo">codigo:</label>
-            <input id="id_codigo" name="codigo" type="number" />
+        <li><label for="{{ form.codigo.id_codigo }}">Codigo:</label>
+            {{ form.codigo }}
         </li>
-        <li><label for="id_descricao">Descri&ccedil;&atilde;o:</label>
-            <textarea id="id_descricao" maxlength="300" name="descricao" type="text"></textarea>
+        <li><label for="{{ form.descricao.id_descricao }}">Descri&ccedil;&atilde;o:</label>
+            {{ form.descricao }}
         </li>
-        <li><label for="id_largura">Largura:</label>
-            <input id="id_largura" name="largura" type="number" class="numero" /> cm
+        <li><label for="{{ form.largura.id_largura }}">Largura:</label>
+            {{ form.largura }} cm
         </li>
-        <li><label for="id_altura">Altura:</label>
-            <input id="id_altura" name="altura" type="number" class="numero" /> cm
+        <li><label for="{{ form.altura.id_altura }}">Altura:</label>
+            {{ form.altura }} cm
         </li>
-        <li><label for="id_profundidade">Profundidade:</label>
-            <input id="id_profundidade" name="profundidade" type="number" class="numero" /> cm
+        <li><label for="{{ form.profundidade.id_profundidade }}">Profundidade:</label>
+            {{ form.profundidade }} cm
         </li>
         <li>
-            <label for="id_preco_venda">Preço venda:</label>
-            R$ <input id="id_preco_venda" name="preco_venda" step="any" type="number" class="numeroD"/>
+            <label for="{{ form.preco_venda.id_preco_venda }}">Preço venda:</label>
+            R$ {{ form.preco_venda }}
         </li>
 
         {% csrf_token %}

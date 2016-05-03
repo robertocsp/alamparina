@@ -65,9 +65,9 @@ class Contrato(models.Model):
     marca = models.ForeignKey(Marca)
     espaco = models.ManyToManyField(Espaco, related_name='contrato')
     periodo = models.ManyToManyField(Periodo)
-    percentual_deflacao = models.FloatField(blank=True, null=True)
-    custo_embalagem = models.IntegerField(blank=True, null=True)
-    custo_entrega = models.IntegerField(blank=True, null=True)
+    percentual_deflacao = models.FloatField()
+    custo_embalagem = models.IntegerField()
+    custo_entrega = models.IntegerField()
     observacao = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
@@ -79,9 +79,9 @@ def __unicode__(self):
 
 class Canal(models.Model):
     nome = models.CharField('Nome', max_length=30)
-    percentual_deflacao = models.FloatField()
-    custo_embalagem = models.IntegerField()
-    custo_entrega = models.IntegerField()
+    percentual_deflacao = models.FloatField(blank=True, null=True)
+    custo_embalagem = models.IntegerField(blank=True, null=True)
+    custo_entrega = models.IntegerField(blank=True, null=True)
     acumulativo = models.BooleanField(default=False)
 
     TIPO = (

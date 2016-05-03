@@ -97,7 +97,6 @@ def edita_produto(request,id):
             produto.save()
             marca.sequencial_atual = int(marca.sequencial_atual) + 1
             marca.save()
-            produto_cadastado = True
             return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
 
     else:
