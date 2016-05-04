@@ -39,6 +39,9 @@ class CheckoutAdmin(admin.ModelAdmin):
     date_hierarchy = 'dia'
     ordering = ('dia',)
 
+class RecomendacaoAdmin(admin.ModelAdmin):
+    list_display = ('marca','nome','email')
+    list_filter = ('marca' ,)
 
 
 admin.site.register(Produto,ProdutoAdmin)
@@ -46,3 +49,4 @@ admin.site.register(Checkin,CheckinAdmin)
 admin.site.register(Expedicao,ExpedicaoAdmin)
 admin.site.register(Estoque,EstoqueAdmin)
 admin.site.register(Checkout, CheckoutAdmin)
+admin.site.register(Recomendacao, RecomendacaoAdmin)
