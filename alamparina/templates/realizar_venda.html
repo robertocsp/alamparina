@@ -67,7 +67,7 @@
         </li>
         <li>
             <label for="id_produtos">Produtos: </label>
-            <select id="id_produtos" name="produto">
+            <select id="id_produtos" name="produto" onchange="form.submit()">
                 <option value="">Selecione uma produto</option>
                 {% for produto in produto_list %}
                 {% if produto_retorno != None and produto_retorno.id == produto.id  %}
@@ -78,6 +78,13 @@
                 {% endfor %}
             </select>
         </li>
+        <li>
+        </li>
+            {% if preco_venda != None %}
+            <label>Pre&ccedil;o do produto: R$ {{preco_venda|floatformat:2}}</label>
+            {% else %}
+            <label>Pre&ccedil;o do produto: </label>
+            {% endif %}
         <li>
             <label for="id_quantidade">Quantidade: </label>
             <input type="number" id="id_quantidade" name="quantidade" class="numero">

@@ -472,6 +472,7 @@ def realizar_venda(request):
     checkout.motivo = 'venda'
     error = False
     estoque = None
+    preco_venda = None
 
     if request.method=='POST':
         checkout.observacao = request.POST['observacao']
@@ -483,7 +484,7 @@ def realizar_venda(request):
         checkout.preco_venda = checkout.produto.preco_venda
         estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
-
+        preco_venda = checkout.produto.preco_venda
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
             loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
@@ -511,7 +512,7 @@ def realizar_venda(request):
             produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
         if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' and "produto" in request.GET and request.GET['produto'] != '':
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
-
+            preco_venda = produto_retorno.preco_venda
 
     return render(request,'realizar_venda.html',
                  {
@@ -527,6 +528,7 @@ def realizar_venda(request):
                      'estoque': estoque,
                      'canal_list': canal_list,
                      'canal_retorno': canal_retorno,
+                     'preco_venda': preco_venda,
                   }
     )
 
