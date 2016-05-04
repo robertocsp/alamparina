@@ -54,34 +54,49 @@
     </ul>
     <hr>
     <div class="lista-produtos">
-        <label class="h4"><i class="fa fa-dropbox"></i> Produtos pertencentes ao ckeckin</label><hr>
-            {% if expedicao_list %}
-                {% for expedicao in expedicao_list %}
-                    <ul>
-                        <li><label class="h4">Produto: <strong>{{expedicao.produto.nome}}</strong></label></li>
-                        <li><label><i class="fa fa-list-ol"></i> Quantidade: {{expedicao.quantidade}}</label></li>
-                        <li><label><i class="glyphicon glyphicon-usd"></i> Preço de venda: {{expedicao.produto.preco_venda}}</label></li>
-                        <li><label><i class="glyphicon glyphicon-usd"></i> Preços nos canais:</label></li>
-                        <ul>
-                            {% for canal in canal_list %}
-                                <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {{canal.nome}}</li>
-                            {%endfor%}
-                        </ul>
-                        <li>
-                            <label for="id_status_produto"><span class="glyphicon glyphicon-check"></span> Status do Produto:</label>
-                            <select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>>
-                                {% for key, value in expedicao.STATUS%}
-                                    <option value="{{key}}" {%ifequal key expedicao.status %} selected {%endifequal%}>{{value}}</option>
-                                {% endfor %}
-                            </select>
-                        </li>
-                    </ul> <hr>
-                {% endfor %}
-        {% else %}
-            <div class="alert alert-warning">
-                <strong>Não existem produtos adicionados a este checkin</strong>
+        {% if expedicao_list %}
+            <div class="panel panel-default">
+              <div class="panel-heading"><label><i class="glyphicon glyphicon-plus"></i> Produtos inclu&iacute;dos neste ckeckin</label></div>
+              <table class="table ultimo-padding">
+                  <thead>
+                    <tr>
+                        <th>Nome do Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço de venda</th>
+                        <th>Preços nos canais</th>
+                        <th>Status do Produto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for expedicao in expedicao_list %}
+                        <tr>
+                            <th>{{expedicao.produto.nome}}</th>
+                            <td>{{expedicao.quantidade}}</td>
+                            <td>{{expedicao.produto.preco_venda|floatformat:2}}</td>
+                            <td>
+
+                                    {% for canal in canal_list %}
+                                        <strong class="text-verde"><i class="glyphicon glyphicon-ok"></i> {{ canal.nome }}</strong><br>
+                                    {% endfor %}
+
+                            </td>
+                            <td>
+                                <select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>>
+                                    {% for key, value in expedicao.STATUS%}
+                                        <option value="{{key}}" {%ifequal key expedicao.status %} selected {%endifequal%}>{{value}}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
             </div>
-            <hr>
+            {% else %}
+                <div class="alert alert-warning">
+                    <strong>Não existem produtos adicionados a este checkin</strong>
+                </div>
+                <hr>
         {% endif %}
     </div>
     <div>

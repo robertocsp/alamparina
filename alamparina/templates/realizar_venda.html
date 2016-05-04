@@ -42,8 +42,9 @@
                 {% endfor %}
             </select>
             {% if error %}
-                <div class="alert alert-error">
-                    <strong>Quantidade superior a de estoque ({{estoque.quantidade}})</strong>
+                <br><br>
+                <div class="alert alert-danger">
+                    <strong><i class="glyphicon glyphicon-info-sign"></i> Quantidade superior a de estoque ({{estoque.quantidade}})</strong>
                 </div>
             {% endif %}
         </li>
@@ -60,8 +61,9 @@
                 {% endfor %}
             </select>
             {% if error %}
-                <div class="alert alert-error">
-                    <strong>Erro no canal</strong>
+                <br><br>
+                <div class="alert alert-danger">
+                    <strong><i class="glyphicon glyphicon-info-sign"></i> Erro no canal</strong>
                 </div>
             {% endif %}
         </li>
