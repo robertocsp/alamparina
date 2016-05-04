@@ -9,7 +9,7 @@ class LoginForm(forms.Form):
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
-        exclude = ['marca','codigo','quantidade','preco_base','em_estoque', 'loja', 'espaco']
+        exclude = ['marca','codigo','quantidade','preco_base','em_estoque', 'unidade', 'miniloja']
         widgets = {
             'descricao': forms.Textarea
         }

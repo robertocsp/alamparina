@@ -4,8 +4,8 @@ from operacional.models import *
 # Register your models here.
 
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome','marca','cubagem','quantidade','preco_venda','marca', 'espaco')
-    list_filter = ('marca', 'espaco',)
+    list_display = ('nome','marca','cubagem','quantidade','preco_venda','marca', 'miniloja')
+    list_filter = ('marca', 'miniloja',)
     search_fields = ('marca',)
 
     def cubagem(self,obj):
@@ -27,15 +27,15 @@ class ExpedicaoAdmin(admin.ModelAdmin):
         return obj.checkin.dia_agendamento
 
 class EstoqueAdmin(admin.ModelAdmin):
-    list_display = ('produto', 'marca', 'loja', 'quantidade',)
-    list_filter = ('produto', 'loja', 'produto__marca__nome')
+    list_display = ('produto', 'marca', 'unidade', 'quantidade',)
+    list_filter = ('produto', 'unidade', 'produto__marca__nome')
 
     def marca(self,obj):
         return obj.produto.marca
 
 class CheckoutAdmin(admin.ModelAdmin):
-    list_display = ('marca', 'dia', 'motivo', 'loja')
-    list_filter = ('marca', 'motivo', 'loja')
+    list_display = ('marca', 'dia', 'motivo', 'unidade')
+    list_filter = ('marca', 'motivo', 'unidade')
     date_hierarchy = 'dia'
     ordering = ('dia',)
 

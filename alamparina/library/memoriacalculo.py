@@ -1,18 +1,18 @@
 from operacional.models import Estoque, Produto
-from administrativo.models import TipoEspaco, Espaco
+from administrativo.models import TipoMiniloja, Miniloja
 
 # Saldo da Cubagem:
-def CubagemContratada(marca, loja):
+def CubagemContratada(marca, unidade):
     cubagem_contratada = 0
-    espaco_list = Espaco.objects.filter(contrato__marca=marca, loja=loja).distinct()
-    for espaco in espaco_list:
-        tipoespaco = TipoEspaco.objects.get(id=espaco.tipo_id)
-        tipoespaco.volume = tipoespaco.largura * tipoespaco.altura * tipoespaco.profundidade
-        cubagem_contratada += tipoespaco.volume
+    miniloja_list = Miniloja.objects.filter(contrato__marca=marca, unidade=unidade).distinct()
+    for miniloja in miniloja_list:
+        tipominiloja = TipoMiniloja.objects.get(id=miniloja.tipo_id)
+        tipominiloja.volume = tipominiloja.largura * tipominiloja.altura * tipominiloja.profundidade
+        cubagem_contratada += tipominiloja.volume
     return cubagem_contratada
 
 # Saldo da Cubagem:
-# Geral de produto no estoque, saldo dele em todas as lojas somadas.
+# Geral de produto no estoque, saldo dele em todas as unidades somadas.
 def SaldoCubagemEstoqueProduto(produto):
     saldo_cubagem_estoque_produto = 0
     estoque_list = Estoque.objects.filter(produto=produto)
@@ -22,17 +22,17 @@ def SaldoCubagemEstoqueProduto(produto):
     return saldo_cubagem_estoque_produto
 
 # Saldo da Cubagem:
-# Geral da loja, de acordo com a marca
-def SaldoCubagemEstoqueLoja(marca, loja):
-    saldo_cubagem_estoque_loja = 0
+# Geral da unidade, de acordo com a marca
+def SaldoCubagemEstoqueUnidade(marca, unidade):
+    saldo_cubagem_estoque_unidade = 0
     produto_list = Produto.objects.filter(marca=marca)
     if len(produto_list) > 0:
         for produto in produto_list:
-            estoque_list = Estoque.objects.filter(loja=loja, produto=produto)
+            estoque_list = Estoque.objects.filter(unidade=unidade, produto=produto)
             if len(estoque_list) > 0:
                 for estoque in estoque_list:
-                    saldo_cubagem_estoque_loja += estoque.quantidade * produto.largura * produto.altura * produto.profundidade
-    return saldo_cubagem_estoque_loja
+                    saldo_cubagem_estoque_unidade += estoque.quantidade * produto.largura * produto.altura * produto.profundidade
+    return saldo_cubagem_estoque_unidade
 
 def PrecoEstimado(produto, canal, contrato):
     if canal.acumulativo == 0:

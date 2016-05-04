@@ -6,22 +6,22 @@
 {% block conteudo %}
     <br><br>
     <form method="GET" class="formulario-padrao">
-        <select id="id_lojas" name="loja" onchange="form.submit()">
-            <option value="">Selecione uma loja</option>
-            {% for loja in loja_list %}
-            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+        <select id="id_unidades" name="unidade" onchange="form.submit()">
+            <option value="">Selecione uma unidade</option>
+            {% for unidade in unidade_list %}
+            {% if unidade_retorno != None and unidade_retorno.id == unidade.id  %}
+                <option value="{{unidade.id}}" selected>{{unidade.nome}}</option>
             {% else %}
-                <option value="{{loja.id}}">{{loja.nome}}</option>
+                <option value="{{unidade.id}}">{{unidade.nome}}</option>
             {% endif %}
             {% endfor %}
         </select>
         <div class="box-info-checkin">
             <center><label class="h3"><i class="fa fa-pie-chart"></i> Espa&ccedil;o Alocado</label></center>
             <ul>
-                <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
-                <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
-                <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
+                <li><label> Total de Volume Alocado para a Unidade:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
+                <li><label> Total de Volume Utilizado na Unidade:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+                <li><label> Saldo para esta Unidade: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
             </ul>
         </div>
     </form><br><br><br>

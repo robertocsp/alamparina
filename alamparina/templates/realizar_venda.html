@@ -30,14 +30,14 @@
             </select>
         </li>
         <li>
-            <label for="id_lojas">Lojas: </label>
-            <select id="id_lojas" name="loja" onchange="form.submit()">
-                <option value="">Selecione uma loja</option>
-                {% for loja in loja_list %}
-                {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                <option value="{{loja.id}}" selected>{{loja.nome}}</option>
+            <label for="id_unidades">Unidades: </label>
+            <select id="id_unidades" name="unidade" onchange="form.submit()">
+                <option value="">Selecione uma unidade</option>
+                {% for unidade in unidade_list %}
+                {% if unidade_retorno != None and unidade_retorno.id == unidade.id  %}
+                <option value="{{unidade.id}}" selected>{{unidade.nome}}</option>
                 {% else %}
-                <option value="{{loja.id}}">{{loja.nome}}</option>
+                <option value="{{unidade.id}}">{{unidade.nome}}</option>
                 {% endif %}
                 {% endfor %}
             </select>

@@ -129,22 +129,22 @@ def inicia_checkin(request):
     expedicao_list = None
     contrato_list = None
     contrato = None
-    loja_list = Loja.objects.filter(espaco__contrato__marca=checkin.marca).distinct()
-    if len(request.POST) == 0 or request.POST['loja'] == '':
-        espaco_list = None
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=checkin.marca).distinct()
+    if len(request.POST) == 0 or request.POST['unidade'] == '':
+        miniloja_list = None
         canal_list = None
         produto_list = None
-        loja_retorno = None
+        unidade_retorno = None
     else:
-        loja_retorno = Loja.objects.get(id=request.POST['loja'])
-        checkin.loja_id = request.POST['loja']
-        espaco_list = Espaco.objects.filter(contrato__marca=checkin.marca, loja_id=request.POST['loja']).distinct()
+        unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+        checkin.unidade_id = request.POST['unidade']
+        miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=request.POST['unidade']).distinct()
         canal_list = Canal.objects.all()
-        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, loja_retorno)
-        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(checkin.marca, loja_retorno)
+        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
         expedicao = Expedicao()
         produto_list = checkin.marca.produto_set.all()
-        contrato_list = Contrato.objects.filter(marca=checkin.marca, espaco__loja=loja_retorno)
+        contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
         if contrato_list.count() != 0:
             contrato = contrato_list[0]
 
@@ -187,15 +187,15 @@ def inicia_checkin(request):
                   {
                       'marca': checkin.marca,
                       'checkin':checkin,
-                      'espaco_list':espaco_list,
+                      'miniloja_list':miniloja_list,
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
                       'cubagem_contratada': cubagem_contratada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
-                      'loja_list': loja_list,
-                      'loja_retorno': loja_retorno,
+                      'unidade_list': unidade_list,
+                      'unidade_retorno': unidade_retorno,
                       'contrato': contrato,
                   }
     )
@@ -206,25 +206,25 @@ def edita_checkin(request, id):
     expedicao = Expedicao()
 
     if len(request.POST) != 0:
-        loja_retorno = Loja.objects.get(id=request.POST['loja'])
-        checkin.loja_id = request.POST['loja']
+        unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+        checkin.unidade_id = request.POST['unidade']
     else:
-        loja_retorno = Loja.objects.get(id=checkin.loja_id)
+        unidade_retorno = Unidade.objects.get(id=checkin.unidade_id)
 
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
-    loja_list = Loja.objects.filter(espaco__contrato__marca=checkin.marca).distinct()
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=checkin.marca).distinct()
     canal_list = Canal.objects.all()
-    contrato_list = Contrato.objects.filter(marca=checkin.marca, espaco__loja=loja_retorno)
+    contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
     if contrato_list.count() != 0:
       contrato = contrato_list[0]
     else:
       contrato = None
 
-    cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, loja_retorno)
-    saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(checkin.marca, loja_retorno)
+    cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+    saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
 
-    espaco_list = Espaco.objects.filter(contrato__marca=checkin.marca, loja_id=checkin.loja_id).distinct()
+    miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=checkin.unidade_id).distinct()
     produto_list = checkin.marca.produto_set.all()
 
     if "adicionar_canal" in request.POST:
@@ -270,15 +270,15 @@ def edita_checkin(request, id):
                   {
                       'marca': checkin.marca,
                       'checkin': checkin,
-                      'espaco_list': espaco_list,
+                      'miniloja_list': miniloja_list,
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
                       'cubagem_contratada': cubagem_contratada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
-                      'loja_list': loja_list,
-                      'loja_retorno': loja_retorno,
+                      'unidade_list': unidade_list,
+                      'unidade_retorno': unidade_retorno,
                       'contrato': contrato,
                   }
     )
@@ -299,7 +299,7 @@ def lista_checkin_operacional(request):
 @login_required
 def edita_checkin_operacional(request, id):
     checkin = get_object_or_404(Checkin, id=id)
-    espaco_list = Espaco.objects.filter(contrato__marca=checkin.marca)
+    miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca)
     canal_list = Canal.objects.all()
 
     expedicao = Expedicao()
@@ -314,16 +314,16 @@ def edita_checkin_operacional(request, id):
             if checkin.status == 'confirmado' and expedicao.status == 'ok':
                 produto = Produto.objects.get(id=expedicao.produto.id)
                 try:
-                    estoque = Estoque.objects.get(produto=produto,loja=checkin.loja)
+                    estoque = Estoque.objects.get(produto=produto,unidade=checkin.unidade)
                     estoque.quantidade = estoque.quantidade + expedicao.quantidade
                     estoque.save()
                 except Estoque.DoesNotExist:
                     estoque = Estoque()
                     estoque.produto = produto
-                    estoque.loja = checkin.loja
+                    estoque.unidade = checkin.unidade
                     estoque.quantidade = expedicao.quantidade
                     estoque.save()
-                #produto.loja.add(checkin.loja(quantidade=expedicao.quantidade)
+                #produto.unidade.add(checkin.unidade(quantidade=expedicao.quantidade)
                 #produto.quantidade += expedicao.quantidade
                 #produto.save()
 
@@ -333,7 +333,7 @@ def edita_checkin_operacional(request, id):
                   {
                       'marca': checkin.marca,
                       'checkin': checkin,
-                      'espaco_list': espaco_list,
+                      'miniloja_list': miniloja_list,
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
@@ -348,10 +348,10 @@ def lista_checkout(request):
 def checkout(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()
-    loja_list = None
+    unidade_list = None
     produto_list = None
     marca_retorno = None
-    loja_retorno = None
+    unidade_retorno = None
     produto_retorno = None
     checkout.motivo = request.GET.get('motivo')
     error = False
@@ -361,16 +361,16 @@ def checkout(request):
         checkout.motivo = request.POST['motivo']
         checkout.observacao = request.POST['observacao']
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
-        checkout.loja = Loja.objects.get(id=request.POST['loja'])
+        checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
-        estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
+        estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
 
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
-            loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
-            loja_retorno = checkout.loja
-            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
+            unidade_retorno = checkout.unidade
+            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
             produto_retorno = checkout.produto
 
             error = True
@@ -383,21 +383,21 @@ def checkout(request):
     else:
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
-            loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
-        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
-            loja_retorno = Loja.objects.get(id=request.GET['loja'])
-            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
-        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' and "produto" in request.GET and request.GET['produto'] != '':
+            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' :
+            unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
+            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
 
 
     return render(request,'checkout.html',
                  {
                      'marca_list':marca_list,
-                     'loja_list':loja_list,
+                     'unidade_list':unidade_list,
                      'produto_list':produto_list,
                      'marca_retorno':marca_retorno,
-                     'loja_retorno':loja_retorno,
+                     'unidade_retorno':unidade_retorno,
                      'produto_retorno':produto_retorno,
                      'checkout':checkout,
                      'error': error,
@@ -408,27 +408,27 @@ def checkout(request):
 @login_required
 def estoque(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    loja_list = Loja.objects.filter(espaco__contrato__marca=marca).distinct()
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
     estoque = None
-    loja_retorno = None
+    unidade_retorno = None
     estoque_list = None
     cubagem_contratada = 0
     saldo_cubagem_estoque = 0
 
-    if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
-        estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
-        loja_retorno = Loja.objects.get(id=request.GET['loja'])
-        cubagem_contratada = memoriacalculo.CubagemContratada(marca, loja_retorno)
-        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueLoja(marca, loja_retorno)
+    if request.method == 'GET' and "unidade" in request.GET and request.GET['unidade'] != '':
+        estoque_list = Estoque.objects.filter(unidade_id=request.GET['unidade'], produto__marca=marca)
+        unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
+        cubagem_contratada = memoriacalculo.CubagemContratada(marca, unidade_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(marca, unidade_retorno)
 
     saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
 
     return render(request, 'estoque.html',
                   {
                       'marca': marca,
-                      'loja_list': loja_list,
+                      'unidade_list': unidade_list,
                       'estoque_list': estoque_list,
-                      'loja_retorno': loja_retorno,
+                      'unidade_retorno': unidade_retorno,
                       'cubagem_contratada': cubagem_contratada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
@@ -438,21 +438,21 @@ def estoque(request):
 @login_required
 def estoque_operacional(request):
     marca = Marca.objects.get.all()
-    loja_list = Loja.objects.filter(espaco__contrato__marca=marca).distinct()
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
     estoque = None
-    loja_retorno = None
+    unidade_retorno = None
     estoque_list = None
 
-    if request.method == 'GET' and "loja" in request.GET and request.GET['loja'] != '':
-        estoque_list = Estoque.objects.filter(loja_id=request.GET['loja'], produto__marca=marca)
-        loja_retorno = Loja.objects.get(id=request.GET['loja'])
+    if request.method == 'GET' and "unidade" in request.GET and request.GET['unidade'] != '':
+        estoque_list = Estoque.objects.filter(unidade_id=request.GET['unidade'], produto__marca=marca)
+        unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
 
     return render(request, 'estoque_operacional.html',
                   {
                       'marca': marca,
-                      'loja_list': loja_list,
+                      'unidade_list': unidade_list,
                       'estoque_list': estoque_list,
-                      'loja_retorno': loja_retorno,
+                      'unidade_retorno': unidade_retorno,
                   }
     )
 
@@ -461,10 +461,10 @@ def realizar_venda(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()
     canal_list = Canal.objects.all()
-    loja_list = None
+    unidade_list = None
     produto_list = None
     marca_retorno = None
-    loja_retorno = None
+    unidade_retorno = None
     produto_retorno = None
     dtrealizado_retorno = None
     canal_retorno = None
@@ -477,19 +477,19 @@ def realizar_venda(request):
     if request.method=='POST':
         checkout.observacao = request.POST['observacao']
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
-        checkout.loja = Loja.objects.get(id=request.POST['loja'])
+        checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
         checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
         checkout.canal = Canal.objects.get(id=request.POST['canal'])
         checkout.preco_venda = checkout.produto.preco_venda
-        estoque = Estoque.objects.get(loja=checkout.loja,produto=checkout.produto)
+        estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
         preco_venda = checkout.produto.preco_venda
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
-            loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
-            loja_retorno = checkout.loja
-            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
+            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
+            unidade_retorno = checkout.unidade
+            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
             produto_retorno = checkout.produto
             canal_retorno = checkout.canal
             error = True
@@ -506,21 +506,21 @@ def realizar_venda(request):
             canal_retorno = Canal.objects.get(id=request.GET['canal'])
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
-            loja_list = Loja.objects.filter(espaco__contrato__marca=marca_retorno).distinct()
-        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' :
-            loja_retorno = Loja.objects.get(id=request.GET['loja'])
-            produto_list = marca_retorno.produto_set.filter(loja=loja_retorno)
-        if "marca" in request.GET and request.GET['marca'] != '' and "loja" in request.GET and request.GET['loja'] != '' and "produto" in request.GET and request.GET['produto'] != '':
+            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' :
+            unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
+            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
             preco_venda = produto_retorno.preco_venda
 
     return render(request,'realizar_venda.html',
                  {
                      'marca_list':marca_list,
-                     'loja_list':loja_list,
+                     'unidade_list':unidade_list,
                      'produto_list':produto_list,
                      'marca_retorno':marca_retorno,
-                     'loja_retorno':loja_retorno,
+                     'unidade_retorno':unidade_retorno,
                      'produto_retorno':produto_retorno,
                      'dtrealizado_retorno':dtrealizado_retorno,
                      'checkout': checkout,
@@ -556,8 +556,8 @@ def recomendar_marca(request):
 @login_required
 def acompanhar_venda(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    loja_list = Loja.objects.filter(espaco__contrato__marca=marca).distinct()
-    loja_retorno = None
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
+    unidade_retorno = None
     periodo_list = None
     periodo_retorno = None
     venda_list = None
@@ -571,19 +571,19 @@ def acompanhar_venda(request):
     venda_grafico_dia =[]
     venda_grafico_valor =[]
     if len(request.POST) != 0:
-        loja_retorno = Loja.objects.get(id=request.POST['loja'])
+        unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
             periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
         # periodo
         periodo_list = Periodo.objects.all()
         # venda (groupby produto, sum(qtd))
         if periodo_retorno != None:
-            contrato_list = Contrato.objects.filter(marca=marca, espaco__loja=loja_retorno)
+            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=unidade_retorno)
             if contrato_list.count() != 0:
                 contrato = contrato_list[0]
             else:
                 contrato = None
-            venda_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+            venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
             if venda_list.count() != 0:
                 data_ultima_venda = datetime.date(2000,01,01)
                 for venda in venda_list:
@@ -594,7 +594,7 @@ def acompanhar_venda(request):
                     total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
             #vendaPorProduto
             codigo = ''
-            vendaproduto_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            vendaproduto_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
             #vou precisar limpar
             venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
             j = 0
@@ -627,7 +627,7 @@ def acompanhar_venda(request):
             j = 0
             inicio = periodo_retorno.de
             while inicio <= periodo_retorno.ate:
-                vendadiaria_list = Checkout.objects.filter(motivo='venda', loja=loja_retorno, marca=marca, dtrealizado=inicio)
+                vendadiaria_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
                 venda_grafico_dia[j] = inicio
                 k = 1
@@ -643,8 +643,8 @@ def acompanhar_venda(request):
     return render(request, 'marca_acompanhar_venda.html',
                   {
                       'marca': marca,
-                      'loja_list': loja_list,
-                      'loja_retorno': loja_retorno,
+                      'unidade_list': unidade_list,
+                      'unidade_retorno': unidade_retorno,
                       'periodo_list': periodo_list,
                       'periodo_retorno': periodo_retorno,
                       'venda_list': venda_list,

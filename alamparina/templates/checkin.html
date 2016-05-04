@@ -18,30 +18,30 @@
 <hr>
 <form id="form_checkin" method="post">{% csrf_token %}
     <div class="box-info-checkin">
-        <center><label class="h3"><i class="fa fa-pie-chart"></i> Espacos Alocados</label></center>
+        <center><label class="h3"><i class="fa fa-pie-chart"></i> Minilojas Alocadas</label></center>
         <ul>
-        {% for espaco in espaco_list%}
-             <li class="loja-lista"><label><i class="glyphicon glyphicon-map-marker"></i> {{ espaco.identificador }}</label></li>
+        {% for miniloja in miniloja_list%}
+             <li class="unidade-lista"><label><i class="glyphicon glyphicon-map-marker"></i> {{ miniloja.identificador }}</label></li>
 
         {% endfor %}
-            <li><label> Total de Espaço Alocado para a Loja:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
-            <li><label> Total de Espaço Utilizado na Loja:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
-            <li><label> Saldo para esta Loja: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
+            <li><label> Total de Volume Alocado para a Unidade:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
+            <li><label> Total de Volume Utilizado na Unidade:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+            <li><label> Saldo para esta Unidade: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
 
         </ul>
     </div>
-    <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
+    <label for="id_unidades"><i class="glyphicon glyphicon-map-marker"></i></label>
     {% if checkin.status == checkin.status_enviado %}
-        <select id="id_lojas" name="loja" onchange="seleciona()" disabled>
+        <select id="id_unidades" name="unidade" onchange="seleciona()" disabled>
     {% else %}
-        <select id="id_lojas" name="loja" onchange="seleciona()">
+        <select id="id_unidades" name="unidade" onchange="seleciona()">
     {% endif %}
-        <option value="">Selecione uma loja</option>
-        {% for loja in loja_list %}
-            {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                <option value="{{loja.id}}" selected >{{loja.nome}}</option>
+        <option value="">Selecione uma unidade</option>
+        {% for unidade in unidade_list %}
+            {% if unidade_retorno != None and unidade_retorno.id == unidade.id  %}
+                <option value="{{unidade.id}}" selected >{{unidade.nome}}</option>
             {% else %}
-                <option value="{{loja.id}}">{{loja.nome}}</option>
+                <option value="{{unidade.id}}">{{unidade.nome}}</option>
             {% endif %}
         {% endfor %}
     </select><br><br>
@@ -121,7 +121,7 @@
                                 <td>{{expedicao.produto.preco_venda|floatformat:2}}</td>
                                 <td>
                                     <ul>
-                                    {% if loja_retorno %}
+                                    {% if unidade_retorno %}
                                         {% for canal in canal_list%}
                                             {% if contrato %}
                                                 <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} - Retorno <strong>R$ {{precoestimado|floatformat:2}}</strong></li>

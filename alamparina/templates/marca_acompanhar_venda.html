@@ -4,17 +4,17 @@
 {% block Vendas %}active{% endblock %}
 
 {% block conteudo %}
-    <p><i class="glyphicon glyphicon-info-sign"></i> Selecione loja e per&iacute;odo para visualizar o resumo das vendas</p>
+    <p><i class="glyphicon glyphicon-info-sign"></i> Selecione unidade e per&iacute;odo para visualizar o resumo das vendas</p>
     <br>
     <form id="form_marca_acompanhar_venda" method="post">{% csrf_token %}
-        <label for="id_lojas"><i class="glyphicon glyphicon-map-marker"></i></label>
-        <select id="id_lojas" class="select-loja" name="loja" onchange="seleciona()">
-            <option value="">Selecione uma loja...</option>
-            {% for loja in loja_list %}
-                {% if loja_retorno != None and loja_retorno.id == loja.id  %}
-                    <option value="{{loja.id}}" selected >{{loja.nome}}</option>
+        <label for="id_unidades"><i class="glyphicon glyphicon-map-marker"></i></label>
+        <select id="id_unidades" class="select-unidade" name="unidade" onchange="seleciona()">
+            <option value="">Selecione uma unidade...</option>
+            {% for unidade in unidade_list %}
+                {% if unidade_retorno != None and unidade_retorno.id == unidade.id  %}
+                    <option value="{{unidade.id}}" selected >{{unidade.nome}}</option>
                 {% else %}
-                    <option value="{{loja.id}}">{{loja.nome}}</option>
+                    <option value="{{unidade.id}}">{{unidade.nome}}</option>
                 {% endif %}
             {% endfor %}
         </select>

@@ -5,15 +5,15 @@ from django.core import serializers
 
 # Create your models here.
 
-class Loja(models.Model):
+class Unidade(models.Model):
     nome = models.CharField(max_length=50)
     endereco = models.CharField(max_length=100)
 
     def __unicode__(self):
         return self.nome
 
-    def get_lojas_marca(self, marca):
-        return self.objects.filter(espaco__contrato__marca=marca).distinct()
+    def get_unidades_marca(self, marca):
+        return self.objects.filter(miniloja__contrato__marca=marca).distinct()
 
 class Marca(models.Model):
     nome = models.CharField(max_length=50)
@@ -29,7 +29,7 @@ class Marca(models.Model):
     def __unicode__(self):
         return self.nome
 
-class TipoEspaco(models.Model):
+class TipoMiniloja(models.Model):
     largura = models.IntegerField()
     altura = models.IntegerField()
     profundidade = models.IntegerField()
@@ -39,10 +39,10 @@ class TipoEspaco(models.Model):
     def __unicode__(self):
         return self.tipo
 
-class Espaco(models.Model):
+class Miniloja(models.Model):
     identificador = models.CharField(max_length=20)
-    tipo = models.ForeignKey(TipoEspaco)
-    loja = models.ForeignKey(Loja, blank=True, null=True, related_name='espaco')
+    tipo = models.ForeignKey(TipoMiniloja)
+    unidade = models.ForeignKey(Unidade, blank=True, null=True, related_name='miniloja')
     disponivel = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -63,7 +63,7 @@ class Contrato(models.Model):
     valor = models.FloatField(blank=True, null=True)
     identificador = models.CharField(max_length=20, blank=True)
     marca = models.ForeignKey(Marca)
-    espaco = models.ManyToManyField(Espaco, related_name='contrato')
+    miniloja = models.ManyToManyField(Miniloja, related_name='contrato')
     periodo = models.ManyToManyField(Periodo)
     percentual_deflacao = models.FloatField()
     custo_embalagem = models.IntegerField()
@@ -71,7 +71,7 @@ class Contrato(models.Model):
     observacao = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.marca, self.periodo, self.espaco)
+        return u'%s %s %s' % (self.marca, self.periodo, self.miniloja)
 
 
 def __unicode__(self):
@@ -85,12 +85,12 @@ class Canal(models.Model):
     acumulativo = models.BooleanField(default=False)
 
     TIPO = (
-        ("loja","Loja"),
+        ("unidade","Unidade"),
         ("catalogo","Catalogo"),
         ("ecommerce", "Ecommerce"),
         ("revenda", "Revenda"),
     )
-    tipo = models.CharField(max_length=15, choices=TIPO, default="loja")
+    tipo = models.CharField(max_length=15, choices=TIPO, default="unidade")
 
     def __unicode__(self):
         return self.nome

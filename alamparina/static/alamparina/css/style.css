@@ -279,7 +279,7 @@ select{
     width: 420px;
 }
 
-.select-loja{
+.select-unidade{
     margin-right: 20px;
 }
 
@@ -471,7 +471,7 @@ label[for="id_comentario"]{
     color: #D9534F;
 }
 
-.box-info-checkin ul li.loja-lista{
+.box-info-checkin ul li.unidade-lista{
     margin: 13px 0 25px 0;
     font-weight: bold;
     font-size: 18px;
