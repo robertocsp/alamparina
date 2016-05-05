@@ -14,6 +14,13 @@ class ProdutoForm(forms.ModelForm):
             'descricao': forms.Textarea
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ProdutoForm, self).__init__(*args, **kwargs)
+        self.fields['largura'].widget.attrs['class'] = 'numero'
+        self.fields['altura'].widget.attrs['class'] = 'numero'
+        self.fields['profundidade'].widget.attrs['class'] = 'numero'
+        self.fields['preco_venda'].widget.attrs['class'] = 'numero'
+
 class CheckinForm(forms.Form):
     dia_agendamento = forms.DateField(label='Dia agendamento')
     hora_agendamento = forms.TimeField(label='Hora agendamento')

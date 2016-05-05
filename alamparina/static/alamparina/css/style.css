@@ -430,7 +430,7 @@ textarea{
     height: 90px;
 }
 
-label[for="id_observacao"], label[for="id_descricao"]{
+label[for="id_observacao"], label[for="id_descricao"], label[id="id_descricao"]{
     top: -68px;
     position: relative;
 }
