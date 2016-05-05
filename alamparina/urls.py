@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from alamparina.views import usuario_marca
 from operacional.views import *
+from operacional import views
 #from alamparina.views import login_marca
 
 admin.autodiscover()
@@ -13,7 +14,8 @@ urlpatterns = patterns('',
     # ...
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuariomarca/$', usuario_marca),
-    url(r'^login/$', login_operacional, name='login_operacional'),
+    url(r'^login/$', login_geral, name='login_geral'),
+    url(r'^logout/$', views.Logout),
     url(r'^marca/dashboard/$', dashboard_marca, name='dashboard_marca'),
     url(r'^operacional/dashboard/$', dashboard_operacional, name='dashboard_operacional'),
     url(r'^marca/listaprodutos/$', lista_produtos, name='lista_produtos'),

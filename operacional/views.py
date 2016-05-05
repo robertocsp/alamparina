@@ -2,11 +2,14 @@
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response
+from django.contrib.auth.decorators import user_passes_test
+from django.template.context_processors import request
 from django.utils import *
 
 from administrativo.models import *
@@ -19,8 +22,12 @@ from operacional.forms import *
 from alamparina.library import memoriacalculo
 import datetime
 
+def Logout(request):
+    logout(request)
+    return HttpResponseRedirect('/login/')
+
 #a ideia e fazer um login unico verificando se e marca ou operacao
-def login_operacional(request):
+def login_geral(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -31,11 +38,11 @@ def login_operacional(request):
             user = authenticate(username=username, password=senha)
             if user != None:
                 login(request, user)
-                try:
+                if user.groups.filter(name='marca').count() != 0:
                     marca = Marca.objects.get(user=request.user)
                     request.session['marca_id'] = marca.id
                     return HttpResponseRedirect('/marca/dashboard/')
-                except:
+                else:
                     return HttpResponseRedirect('/operacional/dashboard/')
             else:
                 return render(request, 'login_marca.html', {'form': form, 'error': True})
@@ -46,24 +53,32 @@ def login_operacional(request):
         return render(request, 'login_marca.html', {'form': form, 'error': False})
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def lista_produtos(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     #produto_list = Produto.objects.filter(marca__id=marca.id)
     produto_list = marca.produto_set.all()
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
-@login_required
+@login_required #rfh
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_produtos_operacional(request):
-    marca = Marca.objects.get()
-    produto_list = marca.produto_set.all()
+    produto_list = Produto.objects.all().order_by('marca')
+    marca_list = Marca.objects.all().order_by('nome')
+    marca_retorno = None
+    if request.method == 'POST':
+        if "marca" in request.POST:
+            produto_list = Produto.objects.filter(marca=request.POST['marca']).order_by('codigo')
+            marca_retorno = Marca.objects.get(id=request.POST['marca'])
 
     return render(request, 'lista_produtos_operacional.html', {
         'produto_list': produto_list,
-        'marca': marca
-
+        'marca_list': marca_list,
+        'marca_retorno': marca_retorno
     })
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def cadastra_produto(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     if request.method == 'POST':
@@ -85,6 +100,7 @@ def cadastra_produto(request):
     return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_produto(request,id):
     produto = get_object_or_404(Produto, id=id)
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -105,6 +121,7 @@ def edita_produto(request,id):
     #return HttpResponseRedirect(reverse('marca_cadastra_produto'))
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def lista_checkin(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     checkin_list = Checkin.objects.filter(marca__id=marca.id)
@@ -117,8 +134,8 @@ def adicionar_canal(lcheckin, lrequest):
     lcheckin.save()
     lcheckin.canal.add(Canal.objects.get(id=lrequest.POST['canais']))
 
-#pendente analisar adicionar_produto e remover_produto
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def inicia_checkin(request):
     checkin = Checkin()
     checkin.tipo = 'chin'
@@ -201,6 +218,7 @@ def inicia_checkin(request):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_checkin(request, id):
     checkin = get_object_or_404(Checkin, id=id)
     expedicao = Expedicao()
@@ -284,19 +302,23 @@ def edita_checkin(request, id):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def dashboard_marca(request):
     return render (request,'dashboard_marca.html')
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def dashboard_operacional(request):
     return render (request, 'dashboard_operacional.html')
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_checkin_operacional(request):
     checkin_list = Checkin.objects.all().exclude(status='emprocessamento')
     return render(request, 'lista_checkin_operacional.html', {'checkin_list': checkin_list})
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def edita_checkin_operacional(request, id):
     checkin = get_object_or_404(Checkin, id=id)
     miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca)
@@ -355,10 +377,13 @@ def edita_checkin_operacional(request, id):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_checkout(request):
     checkout_list = Checkout.objects.all().exclude(motivo='venda')
     return render(request, 'lista_checkout.html', {'checkout_list': checkout_list})
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def checkout(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()
@@ -420,6 +445,7 @@ def checkout(request):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def estoque(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
@@ -450,6 +476,7 @@ def estoque(request):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def estoque_operacional(request):
     marca = Marca.objects.get.all()
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
@@ -470,7 +497,8 @@ def estoque_operacional(request):
                   }
     )
 
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def realizar_venda(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()
@@ -514,8 +542,6 @@ def realizar_venda(request):
             checkout.save()
             return HttpResponseRedirect(reverse('realizar_venda'))
     else:
-        if "dtrealizado" in request.GET:
-            dtrealizado_retorno = request.GET['dtrealizado']
         if "canal" in request.GET and request.GET['canal'] != '':
             canal_retorno = Canal.objects.get(id=request.GET['canal'])
         if "marca" in request.GET and request.GET['marca'] != '':
@@ -547,6 +573,7 @@ def realizar_venda(request):
     )
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def recomendar_marca(request):
 
     if request.method == 'POST':
@@ -568,6 +595,7 @@ def recomendar_marca(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def acompanhar_venda(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
