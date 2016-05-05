@@ -308,9 +308,12 @@ def edita_checkin_operacional(request, id):
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
     if request.method == 'POST':
+        # todo tratar erro, caso operador nao selecione status do produto
+        # por enquanto, ta gravando ate o option=status... no bd em vez de dar um alerta.
         checkin.status = request.POST['statuscheckin']
         for expedicao in expedicao_list:
             expedicao.status = request.POST['status_produto_'+str(expedicao.produto.id)]
+
             if checkin.status == 'confirmado' and expedicao.status == 'ok':
                 produto = Produto.objects.get(id=expedicao.produto.id)
                 try:
@@ -323,10 +326,21 @@ def edita_checkin_operacional(request, id):
                     estoque.unidade = checkin.unidade
                     estoque.quantidade = expedicao.quantidade
                     estoque.save()
-                #produto.unidade.add(checkin.unidade(quantidade=expedicao.quantidade)
-                #produto.quantidade += expedicao.quantidade
-                #produto.save()
+                expedicao.gravou_estoque = True
+            else:
+                if expedicao.gravou_estoque:
+                    # testo se a expedicao do produto "gravou_estoque"
+                    try:
+                        estoque = Estoque.objects.get(produto=expedicao.produto, unidade=checkin.unidade)
+                        estoque.quantidade -= expedicao.quantidade
+                        estoque.save()
+                        expedicao.gravou_estoque = False
+                    except Estoque.DoesNotExist:
+                        # tirar except ou deixar nulo
+                        # msg = "nao existe estoque para produto e checkin"
+                        expedicao.gravou_estoque = False
 
+            expedicao.save()
         checkin.save()
 
     return render(request, 'checkin_operacional.html',
