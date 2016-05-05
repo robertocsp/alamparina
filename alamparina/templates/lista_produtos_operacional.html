@@ -4,6 +4,20 @@
 {% block Produtos %}active{% endblock %}
 
 {% block conteudo %}
+<form id="form_lista_produtos_operacional" method="post">{% csrf_token %}
+
+<label for="id_marca"><i class="glyphicon glyphicon-ok-sign"></i></label>
+<select id="id_marca" name="marca" onchange="form.submit()">
+    <option>Selecione uma marca...</option>
+    {% for marca in marca_list %}
+        {% if marca_retorno != None and marca_retorno.id == marca.id %}
+            <option value="{{marca.id}}" selected>{{marca.nome}}</option>
+        {% else %}
+            <option value="{{marca.id}}">{{marca.nome}}</option>
+        {% endif %}
+    {% endfor %}
+</select>
+
 <br><br>
     <div class="panel panel-default">
       <table class="table">
@@ -13,7 +27,6 @@
                 <th>Codigo</th>
                 <th>Marca</th>
                 <th>Pre&ccedil;o</th>
-                <th>Quantidade no estoque</th>
                 <th></th>
             </tr>
           </thead>
@@ -24,10 +37,17 @@
                     <td>{{produto.codigo}}</td>
                     <td>{{produto.marca.nome}}</td>
                     <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
-                    <td>{{ produto.quantidade }}</td>
                 </tr>
              {% endfor %}
           </tbody>
       </table>
     </div>
+ </form>
+
+<script>
+function seleciona() {
+    document.getElementById("form_lista_produtos_operacional").submit();
+}
+</script>
+
 {% endblock %}

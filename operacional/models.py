@@ -100,6 +100,7 @@ class Expedicao(models.Model):
     )
     status = models.CharField(max_length=20, choices=STATUS, blank=True, null=True)
     observacao = models.TextField(blank=True)
+    gravou_estoque = models.BooleanField(blank=False, null=False, default=False)
 
     class Meta:
        unique_together = ('checkin', 'produto')
