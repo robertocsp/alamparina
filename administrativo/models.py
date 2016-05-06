@@ -53,7 +53,8 @@ class Periodo(models.Model):
     nome = models.CharField(max_length=30)
     de = models.DateField(auto_now=False,auto_now_add=False)
     ate = models.DateField(auto_now=False,auto_now_add=False)
-
+    pagamento_de = models.DateField(auto_now=False, auto_now_add=False)
+    pagamento_ate = models.DateField(auto_now=False, auto_now_add=False)
     def __unicode__(self):
         return self.nome
 

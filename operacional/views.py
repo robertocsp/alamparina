@@ -21,6 +21,7 @@ from operacional.forms import *
 # Create your views here.
 from alamparina.library import memoriacalculo
 import datetime
+import time
 
 def Logout(request):
     logout(request)
@@ -60,7 +61,7 @@ def lista_produtos(request):
     produto_list = marca.produto_set.all()
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
-@login_required #rfh
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_produtos_operacional(request):
     produto_list = Produto.objects.all().order_by('marca')
@@ -105,7 +106,7 @@ def edita_produto(request,id):
     produto = get_object_or_404(Produto, id=id)
     marca = Marca.objects.get(id=request.session['marca_id'])
     if request.method == 'POST':
-        form = ProdutoForm(request.POST, instance=produto)
+        form = ProdutoForm(request.     POST, instance=produto)
         if form.is_valid():
             #jogar pra dentro do models
             #mas vou precisar salvar marca
@@ -301,10 +302,144 @@ def edita_checkin(request, id):
                   }
     )
 
-@login_required
+@login_required #rfh
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def dashboard_marca(request):
-    return render (request,'dashboard_marca.html')
+    marca = Marca.objects.get(id=request.session['marca_id'])
+    venda_list = Checkout.objects.filter(motivo='venda', marca=marca)
+    total_venda = 0
+    total_venda_periodo = 0
+    vendaperiodo_list = None
+    for venda in venda_list:
+        total_venda += 1
+
+    data_hoje = time.strftime("%Y-%m-%d")
+    periodo_list = Periodo.objects.filter(ate__gte=data_hoje, de__lte=data_hoje) #é invertido mesmo.
+    for periodo in periodo_list:
+        vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
+                                         dtrealizado__range=[periodo.de, periodo.ate])
+        for vendaperiodo in vendaperiodo_list:
+            total_venda_periodo += 1
+
+    produtos_em_estoque = 0
+    estoque_list = Estoque.objects.filter(produto__marca=marca)
+    for estoque in estoque_list:
+        produtos_em_estoque += estoque.quantidade
+
+    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
+    unidade_retorno = None
+    periodo_list = None
+    periodo_retorno = None
+    venda_list = None
+    contrato = None
+    data_ultima_venda = datetime.date(2000, 01, 01)
+    total_pecas_vendidas = 0
+    total_vendas = 0.0
+    total_a_receber = 0.0
+    venda_grafico = [[]]
+    venda_produto = [[]]
+    venda_grafico_dia = []
+    venda_grafico_valor = []
+    if len(request.POST) != 0:
+        unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+        if "periodo" in request.POST and request.POST['periodo'] != '':
+            periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
+        # periodo
+        periodo_list = Periodo.objects.all()
+        # venda (groupby produto, sum(qtd))
+        if periodo_retorno != None:
+            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=unidade_retorno)
+            if contrato_list.count() != 0:
+                contrato = contrato_list[0]
+            else:
+                contrato = None
+            venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca,
+                                                 dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+            if venda_list.count() != 0:
+                data_ultima_venda = datetime.date(2000, 01, 01)
+                for venda in venda_list:
+                    if venda.dtrealizado > data_ultima_venda:
+                        data_ultima_venda = venda.dtrealizado
+                    total_pecas_vendidas += venda.quantidade
+                    total_vendas += float(venda.quantidade or 0) * float(venda.preco_venda or 0)
+                    total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0) * float(
+                        venda.quantidade or 0)
+            # vendaPorProduto
+            codigo = ''
+            vendaproduto_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca,
+                                                        dtrealizado__range=[periodo_retorno.de,
+                                                                            periodo_retorno.ate]).order_by(
+                'produto__codigo')
+            # vou precisar limpar
+            venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
+            j = 0
+            for vendaproduto in vendaproduto_list:
+                if codigo != vendaproduto.produto.codigo:
+                    # zero as variaveis
+                    venda_produto[j][0] = vendaproduto.produto.codigo
+                    venda_produto[j][1] = vendaproduto.produto.nome
+                    venda_produto[j][2] = float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[j][3] = float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(
+                        vendaproduto.quantidade or 0)
+                    venda_produto[j][4] = int(vendaproduto.quantidade or 0)
+                    j = j + 1
+                    k = j - 1
+                    codigo = vendaproduto.produto.codigo
+                else:
+                    # vou somando
+                    venda_produto[k][2] += float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(
+                        vendaproduto.quantidade or 0)
+                    venda_produto[k][4] += vendaproduto.quantidade
+
+            for vp in reversed(venda_produto):
+                if vp[0] == 0:
+                    venda_produto.remove(vp)
+
+            # vendadiaria
+            dt = periodo_retorno.ate - periodo_retorno.de
+            venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
+            venda_grafico_dia = [0 for i in xrange(dt.days + 1)]
+            venda_grafico_valor = [0 for i in xrange(dt.days + 1)]
+            j = 0
+            inicio = periodo_retorno.de
+            while inicio <= periodo_retorno.ate:
+                vendadiaria_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca,
+                                                           dtrealizado=inicio)
+                venda_grafico[j][0] = inicio
+                venda_grafico_dia[j] = inicio
+                k = 1
+                for vendadiaria in vendadiaria_list:
+                    venda_grafico_valor[j] += float(vendadiaria.preco_venda or 0) * float(vendadiaria.quantidade or 0)
+                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0) * float(vendadiaria.quantidade or 0)
+                    venda_grafico[j][2] = k
+                    venda_grafico[j][3] += float(vendadiaria.quantidade or 0)
+                    k = k + 1
+                j = j + 1
+                inicio += datetime.timedelta(days=1)
+
+    return render(request, 'dashboard_marca.html',
+                  {
+                      'marca': marca,
+                      'total_venda': total_venda,
+                      'total_venda_periodo': total_venda_periodo,
+                      'produtos_em_estoque': produtos_em_estoque,
+                      'unidade_list': unidade_list,
+                      'unidade_retorno': unidade_retorno,
+                      'periodo_list': periodo_list,
+                      'periodo_retorno': periodo_retorno,
+                      'venda_list': venda_list,
+                      'total_pecas_vendidas': total_pecas_vendidas,
+                      'data_ultima_venda': data_ultima_venda,
+                      'contrato': contrato,
+                      'total_vendas': total_vendas,
+                      'total_a_receber': total_a_receber,
+                      'venda_grafico': venda_grafico,
+                      'venda_grafico_dia': venda_grafico_dia,
+                      'venda_grafico_valor': venda_grafico_valor,
+                      'venda_produto': venda_produto,
+                  }
+                  )
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
@@ -544,6 +679,8 @@ def realizar_venda(request):
     else:
         if "canal" in request.GET and request.GET['canal'] != '':
             canal_retorno = Canal.objects.get(id=request.GET['canal'])
+        if "dtrealizado" in request.GET and request.GET['dtrealizado'] != '':
+            dtrealizado_retorno = request.GET['dtrealizado']
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
@@ -612,10 +749,14 @@ def acompanhar_venda(request):
     venda_produto = [[]]
     venda_grafico_dia =[]
     venda_grafico_valor =[]
+    pagamento_de = datetime.date(2000,01,01)
+    pagamento_ate = datetime.date(2000,01,01)
     if len(request.POST) != 0:
         unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
             periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
+            pagamento_de = periodo_retorno.pagamento_de
+            pagamento_ate = periodo_retorno.pagamento_ate
         # periodo
         periodo_list = Periodo.objects.all()
         # venda (groupby produto, sum(qtd))
@@ -682,6 +823,14 @@ def acompanhar_venda(request):
                 j = j + 1
                 inicio += datetime.timedelta(days=1)
 
+    #consequencia da falta de null date
+    # todo nulldate
+    if pagamento_de == datetime.date(2000,01,01):
+        pagamento_de = ''
+    if pagamento_ate == datetime.date(2000,01,01):
+        pagamento_ate = ''
+
+
     return render(request, 'marca_acompanhar_venda.html',
                   {
                       'marca': marca,
@@ -699,5 +848,8 @@ def acompanhar_venda(request):
                       'venda_grafico_dia': venda_grafico_dia,
                       'venda_grafico_valor': venda_grafico_valor,
                       'venda_produto': venda_produto,
+                      'pagamento_de': pagamento_de,
+                      'pagamento_ate': pagamento_ate,
                   }
     )
+
