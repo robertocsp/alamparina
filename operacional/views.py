@@ -309,7 +309,9 @@ def dashboard_marca(request):
     venda_list = Checkout.objects.filter(motivo='venda', marca=marca)
     total_venda = 0
     total_venda_periodo = 0
-    vendaperiodo_list = None
+    total_a_receber_periodo = 0
+    venda_grafico = [[]]
+
     for venda in venda_list:
         total_venda += 1
 
@@ -320,12 +322,39 @@ def dashboard_marca(request):
                                          dtrealizado__range=[periodo.de, periodo.ate])
         for vendaperiodo in vendaperiodo_list:
             total_venda_periodo += 1
+            #preciso obter o contrato da venda (row do queryset Checkout)
+            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=vendaperiodo.unidade)
+            if contrato_list.count() != 0:
+                contrato = contrato_list[0]
+                total_a_receber_periodo += float(memoriacalculo.PrecoReceber(vendaperiodo, contrato) or 0)*(float(vendaperiodo.quantidade) or 0)
+            else:
+                contrato = None
 
     produtos_em_estoque = 0
     estoque_list = Estoque.objects.filter(produto__marca=marca)
     for estoque in estoque_list:
         produtos_em_estoque += estoque.quantidade
 
+        # datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+    #pego todos os periodos order by ate desc
+    #faço um loop com 6 entradas
+    #uso o de-para como legenda
+    periodo_list = Periodo.objects.filter(de__lte=data_hoje).order_by('-de')
+    venda_valor_grafico = [[0 for i in xrange(2)] for i in xrange(6)]
+    j = 5;
+    for periodo in periodo_list:
+        venda_valor_grafico[j][0] = str(periodo.de) + ' | ' + str(periodo.ate)
+        vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
+                                                    dtrealizado__range=[periodo.de, periodo.ate])
+        preco_venda_periodo = 0
+        for vendaperiodo in vendaperiodo_list:
+           preco_venda_periodo += vendaperiodo.preco_venda
+        venda_valor_grafico[j][1] = preco_venda_periodo
+        if j == 0:
+            break
+        j -= 1
+
+    #anterior
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
     unidade_retorno = None
     periodo_list = None
@@ -424,6 +453,8 @@ def dashboard_marca(request):
                       'total_venda': total_venda,
                       'total_venda_periodo': total_venda_periodo,
                       'produtos_em_estoque': produtos_em_estoque,
+                      'total_a_receber_periodo': total_a_receber_periodo,
+                      'venda_valor_grafico': venda_valor_grafico,
                       'unidade_list': unidade_list,
                       'unidade_retorno': unidade_retorno,
                       'periodo_list': periodo_list,

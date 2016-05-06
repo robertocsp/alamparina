@@ -55,14 +55,15 @@
                         <i class="fa fa-credit-card fa-3x"></i>
                     </div>
                     <div class="col-xs-9 text-right">
-                        <div class="huge">R$ 3.300,00</div>
-                        <div>Receita Período atual</div>
+                        <div class="huge">R$ {{ total_a_receber_periodo|floatformat:2 }}</div>
+                        <div>Receita Per&iacute;odo Atual</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{{venda_valor_grafico}}
 <!-- /.row -->
  <div class="row">
     <div class="col-md-6">
@@ -211,7 +212,7 @@
     };
 
     var data = {
-        labels: ["Julho / Agosto", "Agosto / Setembro", "Setembro / Outubro", "Outubro / Novembro", "Novembro / Dezembro", "Dezembro / Janeiro"],
+        labels: [{% for v in venda_valor_grafico %}"{{v.0}}",{% endfor %}],
         datasets: [
             {
                 label: "Dados primários",
@@ -221,7 +222,7 @@
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
                 pointHighlightStroke: "rgba(92, 184, 92, 1)",
-                data: [0, 5, 5, 4, 12,17]
+                data: [{% for v in venda_valor_grafico %}"{{v.1|floatformat:0}}",{% endfor %}]
             }
         ]
     };
