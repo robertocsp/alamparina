@@ -1,6 +1,7 @@
 from operacional.models import Estoque, Produto
 from administrativo.models import TipoMiniloja, Miniloja
 
+# todo tenho duvidas, precisa ser revisto.
 # Saldo da Cubagem:
 def CubagemContratada(marca, unidade):
     cubagem_contratada = 0
@@ -10,6 +11,17 @@ def CubagemContratada(marca, unidade):
         tipominiloja.volume = tipominiloja.largura * tipominiloja.altura * tipominiloja.profundidade
         cubagem_contratada += tipominiloja.volume
     return cubagem_contratada
+
+# Cubagem do contrato
+def CubagemContrato(contrato):
+    cubagem_contrato = 0
+    miniloja_list = Miniloja.objects.filter(contrato=contrato)
+    for miniloja in miniloja_list:
+        tipominiloja = TipoMiniloja.objects.get(id=miniloja.tipo_id)
+        tipominiloja.volume = tipominiloja.largura * tipominiloja.altura * tipominiloja.profundidade
+        cubagem_contrato += tipominiloja.volume
+    return cubagem_contrato
+
 
 # Saldo da Cubagem:
 # Geral de produto no estoque, saldo dele em todas as unidades somadas.

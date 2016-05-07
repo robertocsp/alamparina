@@ -63,7 +63,6 @@
         </div>
     </div>
 </div>
-{{venda_valor_grafico}}
 <!-- /.row -->
  <div class="row">
     <div class="col-md-6">
@@ -119,50 +118,35 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>3</td>
-                                <td>Lamparina verde</td>
-                                <td>22/02/2016</td>
-                                <td>$3600,00</td>
-                                <td>$600,00</td>
-                                <td>$3000,00</td>
+                            {% for v in venda%}
+                                <td>{{v.0}}</td>
+                            {% endfor %}
                             </tr>
                             <tr>
-                                <td>2</td>
-                                <td>Lamparina amarela</td>
-                                <td>17/02/2016</td>
-                                <td>$3500,00</td>
-                                <td>$200,00</td>
-                                <td>$3300,00</td>
+                            {% for v in venda%}
+                                <td>{{v.1}}</td>
+                            {% endfor %}
                             </tr>
                             <tr>
-                                <td>1</td>
-                                <td>Lamparina azul</td>
-                                <td>14/02/2016</td>
-                                <td>$3500,00</td>
-                                <td>$200,00</td>
-                                <td>$3300,00</td>
+                            {% for v in venda%}
+                                <td>{{v.2|floatformat:2}}</td>
+                            {% endfor %}
                             </tr>
                             <tr>
-                                <td>5</td>
-                                <td>Lamparina cinza</td>
-                                <td>12/02/2016</td>
-                                <td>$200,00</td>
-                                <td>$50,00</td>
-                                <td>$150,00</td>
+                            {% for v in venda%}
+                                <td>{{v.3|floatformat:2}}</td>
+                            {% endfor %}
                             </tr>
                             <tr>
-                                <td>5</td>
-                                <td>Lamparina vermelha</td>
-                                <td>12/02/2016</td>
-                                <td>$3300,00</td>
-                                <td>$200,00</td>
-                                <td>$3100,00</td>
+                            {% for v in venda%}
+                                <td>{{v.4|floatformat:2}}</td>
+                            {% endfor %}
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="text-right">
-                    <a href="#">Ver todas as vendas <i class="fa fa-arrow-circle-right"></i></a>
+                    <!--<a href="#">Ver todas as vendas <i class="fa fa-arrow-circle-right"></i></a>-->
                 </div>
             </div>
         </div>
@@ -175,28 +159,28 @@
             <div class="panel-body">
                 <div class="list-group">
                     <a href="#" class="list-group-item">
-                        <span class="badge">15 produtos</span>
-                        <i class="fa fa-fw fa-calendar"></i> Checkin agendado
+                        <span class="badge">{{quantidade_produtos_checkin }} produto(s)</span>
+                        <i class="fa fa-fw fa-calendar"></i> Checkin enviados
                     </a>
-                     <a href="#" class="list-group-item">
-                        <span class="badge">0 produtos</span>
-                        <i class="fa fa-fw fa-calendar"></i> Checkout agendado
-                    </a>
+                    <!--<a href="#" class="list-group-item">-->
+                        <!--<span class="badge">0 produtos</span>-->
+                        <!--<i class="fa fa-fw fa-calendar"></i> Checkout agendado-->
+                    <!--</a>-->
                     <a href="#" class="list-group-item">
-                        <span class="badge">4 produtos</span>
-                        <i class="fa fa-fw fa-truck"></i> Produtos Devolvidos no período
+                        <span class="badge">{{quantidade_produtos_devolvidos}} produto(s)</span>
+                        <i class="fa fa-fw fa-truck"></i> Produtos devolvidos
                     </a>
-                    <a href="#" class="list-group-item">
-                        <span class="badge">23 minutos atrás</span>
-                        <i class="fa fa-fw fa-check"></i> último produto vendido
-                    </a>
-                    <a href="#" class="list-group-item">
-                        <span class="badge">2 produtos</span>
-                        <i class="fa fa-fw fa-list"></i> Produtos há mais de 6 meses no estoque
-                    </a>
+                    <!--<a href="#" class="list-group-item">-->
+                        <!--<span class="badge">23 minutos atrás</span>-->
+                        <!--<i class="fa fa-fw fa-check"></i> último produto vendido-->
+                    <!--</a>-->
+                    <!--<a href="#" class="list-group-item">-->
+                        <!--<span class="badge">2 produtos</span>-->
+                        <!--<i class="fa fa-fw fa-list"></i> Produtos há mais de 6 meses no estoque-->
+                    <!--</a>-->
                 </div>
                 <div class="text-right">
-                    <a href="#">Ver Mais <i class="fa fa-arrow-circle-right"></i></a>
+                    <!--<a href="#">Ver Mais <i class="fa fa-arrow-circle-right"></i></a>-->
                 </div>
             </div>
         </div>
@@ -229,11 +213,11 @@
 
     var pieData = [
             {
-                value: 60,
+                value: {{ saldo_cubagem_estoque }},
                 color:"#F0AD4E"
             },
             {
-                value : 70,
+                value : {{ saldo_cubagem_contratada_periodo }},
                 color : "#337AB7"
             }
         ];

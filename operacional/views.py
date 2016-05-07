@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db.models.lookups import Exact
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response
@@ -310,6 +311,7 @@ def dashboard_marca(request):
     total_venda = 0
     total_venda_periodo = 0
     total_a_receber_periodo = 0
+    periodo_atual = None
     venda_grafico = [[]]
 
     for venda in venda_list:
@@ -318,8 +320,9 @@ def dashboard_marca(request):
     data_hoje = time.strftime("%Y-%m-%d")
     periodo_list = Periodo.objects.filter(ate__gte=data_hoje, de__lte=data_hoje) #é invertido mesmo.
     for periodo in periodo_list:
+        periodo_atual = periodo
         vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
-                                         dtrealizado__range=[periodo.de, periodo.ate])
+                                                    dtrealizado__range=[periodo.de, periodo.ate])
         for vendaperiodo in vendaperiodo_list:
             total_venda_periodo += 1
             #preciso obter o contrato da venda (row do queryset Checkout)
@@ -335,10 +338,6 @@ def dashboard_marca(request):
     for estoque in estoque_list:
         produtos_em_estoque += estoque.quantidade
 
-        # datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
-    #pego todos os periodos order by ate desc
-    #faço um loop com 6 entradas
-    #uso o de-para como legenda
     periodo_list = Periodo.objects.filter(de__lte=data_hoje).order_by('-de')
     venda_valor_grafico = [[0 for i in xrange(2)] for i in xrange(6)]
     j = 5;
@@ -354,8 +353,54 @@ def dashboard_marca(request):
             break
         j -= 1
 
-    #anterior
+    cubagem_contratada_periodo = 0
+    contrato_list = Contrato.objects.filter(marca=marca, periodo=periodo_atual)
+    for contrato in contrato_list:
+        cubagem_contratada_periodo += memoriacalculo.CubagemContrato(contrato)
+
+    saldo_cubagem_estoque = 0
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
+    for unidade in unidade_list:
+        saldo_cubagem_estoque += memoriacalculo.SaldoCubagemEstoqueUnidade(marca, unidade)
+
+    saldo_cubagem_contratada_periodo = cubagem_contratada_periodo - saldo_cubagem_estoque
+
+    ultimasvendas_list = Checkout.objects.filter(motivo='venda', marca=marca).order_by('-dtrealizado')
+    venda = [[0 for i in xrange(5)] for i in xrange(6)]
+    j = 0
+    for ultimasvendas in ultimasvendas_list:
+        venda[0][j] = ultimasvendas.quantidade
+        venda[1][j] = ultimasvendas.produto.nome
+        venda[2][j] = ultimasvendas.dtrealizado
+        venda[3][j] = ultimasvendas.preco_venda
+        # todo o lance do contrato ta confuso.
+        contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=ultimasvendas.unidade)
+        if contrato_list.count() != 0:
+            contrato = contrato_list[0]
+            venda[4][j] = ultimasvendas.preco_venda - memoriacalculo.PrecoReceber(ultimasvendas, contrato)
+            venda[5][j] = memoriacalculo.PrecoReceber(ultimasvendas, contrato)
+        else:
+            venda[4][j] = 'erro!'
+            venda[5][j] = 'erro!'
+        j += 1
+        if j == 5:
+            break
+
+    quantidade_produtos_checkin = 0
+    quantidade_produtos_devolvidos = 0
+    checkin_list = Checkin.objects.filter(marca=marca, status='enviado')
+    for checkin in checkin_list:
+        expedicao_list = Expedicao.objects.filter(checkin=checkin)
+        for expedicao in expedicao_list:
+            quantidade_produtos_checkin += expedicao.quantidade
+            if expedicao.status == 'avariado' or expedicao.status == 'ausente':
+                quantidade_produtos_devolvidos += expedicao.quantidade
+
+
+
+
+
+    # anterior
     unidade_retorno = None
     periodo_list = None
     periodo_retorno = None
@@ -371,6 +416,7 @@ def dashboard_marca(request):
     venda_grafico_valor = []
     if len(request.POST) != 0:
         unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+
         if "periodo" in request.POST and request.POST['periodo'] != '':
             periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
         # periodo
@@ -455,6 +501,13 @@ def dashboard_marca(request):
                       'produtos_em_estoque': produtos_em_estoque,
                       'total_a_receber_periodo': total_a_receber_periodo,
                       'venda_valor_grafico': venda_valor_grafico,
+                      'saldo_cubagem_contratada_periodo': saldo_cubagem_contratada_periodo,
+                      'saldo_cubagem_estoque': saldo_cubagem_estoque,
+                      'venda': venda,
+                      'quantidade_produtos_checkin': quantidade_produtos_checkin,
+                      'quantidade_produtos_devolvidos': quantidade_produtos_devolvidos,
+
+
                       'unidade_list': unidade_list,
                       'unidade_retorno': unidade_retorno,
                       'periodo_list': periodo_list,
@@ -611,7 +664,7 @@ def checkout(request):
     )
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def estoque(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
     unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca).distinct()
