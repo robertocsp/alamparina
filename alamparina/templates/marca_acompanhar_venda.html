@@ -32,8 +32,10 @@
 
 
         {% if venda_grafico|length > 1 %}
-            <label>Previs&atilde;o de pagamento: de {{ pagamento_de }} at&eacute; {{ pagamento_ate }}</label><br><br>
-            <label>Resumo do contrato n&uacute;mero: {{contrato.no_contrato}}</label><br><br>
+            <label>Resumo do contrato: {{contrato.no_contrato}}</label><br><br><br>
+            <div class="alert alert-info" role="alert">
+                <strong><i class="glyphicon glyphicon-usd"></i> Previs&atilde;o de pagamento:</strong> De {{ pagamento_de }} at&eacute; {{ pagamento_ate }}
+            </div><br>
             <div class="resumo-vendas">
                 <div class="col-lg-4 col-md-6">
                     <div class="panel  panel-primary">
