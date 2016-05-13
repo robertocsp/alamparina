@@ -18,13 +18,20 @@ class Unidade(models.Model):
 class Marca(models.Model):
     nome = models.CharField(max_length=50)
     razao_social = models.CharField(max_length=100)
-    cnpj_cpf = models.IntegerField()
+    cnpj_cpf = models.CharField(max_length=18)
     endereco = models.CharField(max_length=100)
     contato = models.CharField(max_length=100,blank=True)
     logo = models.ImageField(upload_to='/var/www/html/logos',height_field=None,width_field=None,max_length=100,blank=True)
     user = models.ManyToManyField(User,blank=True,null=True,related_name="marca")
     codigo = models.CharField(max_length=5, blank=True)
     sequencial_atual = models.IntegerField(default=0)
+    responsavel_cpf = models.CharField(max_length=18,blank=True,null=True)
+    responsavel_telefone = models.CharField(max_length=20,blank=True,null=True)
+    banco = models.CharField(max_length=4,blank=True,null=True)
+    agencia = models.CharField(max_length=6,blank=True,null=True)
+    conta = models.CharField(max_length=8,blank=True,null=True)
+    cnpj_cpf_titular_conta = models.CharField(max_length=18,blank=True,null=True)
+    nome_titular_conta = models.CharField(max_length=150,blank=True,null=True)
 
     def __unicode__(self):
         return self.nome
@@ -67,8 +74,8 @@ class Contrato(models.Model):
     miniloja = models.ManyToManyField(Miniloja, related_name='contrato')
     periodo = models.ManyToManyField(Periodo)
     percentual_deflacao = models.FloatField()
-    custo_embalagem = models.IntegerField()
-    custo_entrega = models.IntegerField()
+    custo_embalagem = models.FloatField()
+    custo_entrega = models.FloatField()
     observacao = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
@@ -81,8 +88,8 @@ def __unicode__(self):
 class Canal(models.Model):
     nome = models.CharField('Nome', max_length=30)
     percentual_deflacao = models.FloatField(blank=True, null=True)
-    custo_embalagem = models.IntegerField(blank=True, null=True)
-    custo_entrega = models.IntegerField(blank=True, null=True)
+    custo_embalagem = models.FloatField(blank=True, null=True)
+    custo_entrega = models.FloatField(blank=True, null=True)
     acumulativo = models.BooleanField(default=False)
 
     TIPO = (

@@ -5,8 +5,10 @@
 
 {% block conteudo %}
 
+
 <form method="post">
 <ul method="post">{% csrf_token %}
+{% load custom_tags %}
     <label class="h4" for="id_status_checkin">Status do checkin:</label>
     <!--<select id="id_status_checkin" name="statuscheckin" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}> >-->
     <select id="id_status_checkin" name="statuscheckin" onchange="form.submit()">
@@ -75,11 +77,13 @@
                             <td>{{expedicao.quantidade}}</td>
                             <td>{{expedicao.produto.preco_venda|floatformat:2}}</td>
                             <td>
-
-                                    {% for canal in canal_list %}
-                                        <strong class="text-verde"><i class="glyphicon glyphicon-ok"></i> {{ canal.nome }}</strong><br>
-                                    {% endfor %}
-
+                                <!--<ul>-->
+                                {% for canal in canal_list%}
+                                    {% if contrato %}
+                                        <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} - Retorno <strong>R$ {{precoestimado|floatformat:2}}</strong></li>
+                                    {% endif %}
+                                {%endfor%}
+                                <!--</ul>-->
                             </td>
                             <td>
                                 <!--<select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>>-->
