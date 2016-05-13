@@ -64,29 +64,29 @@ WSGI_APPLICATION = 'alamparina.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 # local
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
-        'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': 'toor',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',
-    }
-}
-
-
-# producao
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#         'NAME': 'alamparina06maio',                      # Or path to database file if using sqlite3.
-#         'USER': 'Alamparina2016',                      # Not used with sqlite3.
-#         'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
-#         'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+#         'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
+#         'USER': 'root',                      # Not used with sqlite3.
+#         'PASSWORD': 'toor',                  # Not used with sqlite3.
+#         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
 #         'PORT': '3306',
 #     }
 # }
+
+
+# producao
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'alamparina06maio',                      # Or path to database file if using sqlite3.
+        'USER': 'Alamparina2016',                      # Not used with sqlite3.
+        'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
+        'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '3306',
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
