@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
     'alamparina',
     'administrativo',
     'operacional',
@@ -141,12 +142,12 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_LOCATION = ''
 
 DAB_FIELD_RENDERER = 'django_admin_bootstrapped.renderers.BootstrapFieldRenderer'
-
-MESSAGE_TAGS = {
-    messages.SUCCESS: 'alert-success success',
-    messages.WARNING: 'alert-warning warning',
-    messages.ERROR: 'alert-danger error'
-}
+#
+# MESSAGE_TAGS = {
+#     messages.SUCCESS: 'alert-success success',
+#     messages.WARNING: 'alert-warning warning',
+#     messages.ERROR: 'alert-danger error'
+# }
 
 TEMPLATES = [
     {
