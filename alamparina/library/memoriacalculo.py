@@ -47,15 +47,21 @@ def SaldoCubagemEstoqueUnidade(marca, unidade):
     return saldo_cubagem_estoque_unidade
 
 def PrecoEstimado(produto, canal, contrato):
-    if canal.acumulativo == 0:
-        preco_estimado = (produto.preco_venda*(100 - canal.percentual_deflacao)/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0))
+    if canal.tipo == 'unidade':
+        preco_estimado = (float(produto.preco_venda or 0)*(100 - float(contrato.percentual_deflacao or 0))/100 - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0))
     else:
-        preco_estimado = produto.preco_venda*(100 - float(canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - int(canal.custo_embalagem or 0) - int(canal.custo_entrega or 0) - int(contrato.custo_embalagem or 0) - int(contrato.custo_entrega or 0)
+        if canal.acumulativo == 0:
+            preco_estimado = (float(produto.preco_venda or 0) * (100 - float(canal.percentual_deflacao or 0)) / 100 - float(canal.custo_embalagem or 0) - float(canal.custo_entrega or 0))
+        else:
+            preco_estimado = float(produto.preco_venda or 0)*(100 - float(canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - float(canal.custo_embalagem or 0) - float(canal.custo_entrega or 0) - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0)
     return preco_estimado
 
 def PrecoReceber(checkout, contrato):
-    if checkout.canal.acumulativo == 0:
-        preco_receber = (float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0))/100 - int(checkout.canal.custo_embalagem or 0) - int(checkout.canal.custo_entrega or 0))
+    if checkout.canal.tipo == 'unidade':
+        preco_receber = (float(checkout.preco_venda or 0)*(100 - float(contrato.percentual_deflacao or 0))/100 - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0))
     else:
-        preco_receber = float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - int(checkout.canal.custo_embalagem or 0) - int(checkout.canal.custo_entrega or 0) - int(contrato.custo_embalagem or 0) - int(contrato.custo_entrega or 0)
+        if checkout.canal.acumulativo == 0:
+            preco_receber = (float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0))/100 - float(checkout.canal.custo_embalagem or 0) - float(checkout.canal.custo_entrega or 0))
+        else:
+            preco_receber = float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - float(checkout.canal.custo_embalagem or 0) - float(checkout.canal.custo_entrega or 0) - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0)
     return preco_receber

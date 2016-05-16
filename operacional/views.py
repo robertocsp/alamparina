@@ -303,7 +303,7 @@ def edita_checkin(request, id):
                   }
     )
 
-@login_required #rfh
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def dashboard_marca(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -547,6 +547,10 @@ def edita_checkin_operacional(request, id):
     produto = Produto()
     produto_list = checkin.marca.produto_set.all()
     expedicao_list = Expedicao.objects.filter(checkin=checkin)
+    contrato = None
+    contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=checkin.unidade)
+    if contrato_list.count() != 0:
+        contrato = contrato_list[0]
 
     if request.method == 'POST':
         # todo tratar erro, caso operador nao selecione status do produto
@@ -592,6 +596,7 @@ def edita_checkin_operacional(request, id):
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
+                      'contrato': contrato,
                   }
     )
 

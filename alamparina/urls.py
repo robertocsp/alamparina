@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from alamparina.views import usuario_marca
@@ -35,6 +37,9 @@ urlpatterns = patterns('',
     url(r'^operacional/lista-produtos/$', lista_produtos_operacional, name='lista_produtos_operacional'),
     url(r'^operacional/estoque/$', estoque_operacional, name='estoque_operacional')
     #url(r'^marca/listaprodutos2/$', ProdutoList.as_view(template_name="lista_produtos-old.html")),
-
     # ...
 )
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

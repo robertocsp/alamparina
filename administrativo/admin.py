@@ -28,7 +28,7 @@ class PeriodoAdmin(admin.ModelAdmin):
 class MarcaAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('nome', 'razao_social', 'cnpj_cpf', 'endereco', 'contato', 'logo', 'user', 'codigo')
+            'fields': ('nome', 'razao_social', 'cnpj_cpf', 'endereco', 'contato', 'logo', 'user', 'codigo', 'responsavel_cpf', 'responsavel_telefone', 'banco', 'agencia','conta', 'cnpj_cpf_titular_conta','nome_titular_conta')
         }),
     )
     list_display = ('nome', 'contato')
