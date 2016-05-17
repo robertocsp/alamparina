@@ -723,6 +723,25 @@ def estoque_operacional(request):
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
+def acompanhar_vendas_operacional(request):
+    unidade = Unidade.objects.all().order_by('nome')
+    venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade).order_by('-dtrealizado')
+    unidade_retorno = None
+
+    if request.method == 'POST':
+        if "unidade" in request.POST:
+            venda_list = Checkout.objects.filter(unidade=request.POST['unidade']).order_by('-dtrealizado')
+            unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+
+    return render(request, 'operacional_acompanhar_venda.html', {
+        'venda_list': venda_list,
+        'unidade': unidade,
+        'unidade_retorno': unidade_retorno
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def realizar_venda(request):
     checkout = Checkout()
     marca_list = Marca.objects.all()

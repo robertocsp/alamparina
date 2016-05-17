@@ -4,5 +4,53 @@
 {% block Vendas %}active{% endblock %}
 
 {% block conteudo %}
+<form id="form_lista_vendas_operacional" method="post">{% csrf_token %}
+    <label for="id_unidade"><i class="glyphicon glyphicon-ok-sign"></i></label>
+    <select id="id_unidade" name="unidade" onchange="form.submit()">
+        <option>Selecione uma Unidade...</option>
+        {% for u in unidade %}
+            {% if unidade_retorno != None and unidade_retorno.id == u.id %}
+                <option value="{{u.id}}" selected>{{u.nome}}</option>
+            {% else %}
+                <option value="{{u.id}}">{{u.nome}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    {% if venda_list %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><a href="/operacional/realizar-venda/"><i class="glyphicon glyphicon-plus"></i> Realizar nova venda</a></div>
+      <table class="table">
+          <thead>
+            <tr>
+                <th>Nome do Produto</th>
+                <th>Quantidade</th>
+                <th>Valor da Unidade</th>
+                <th>Data da Venda</th>
+            </tr>
+          </thead>
+          <tbody>
+             {% for venda in venda_list %}
+                <tr>
+                    <th><strong>{{ venda.produto.nome }}</strong></th>
+                    <td>{{ venda.quantidade }}</td>
+                    <td>{{ venda.preco_venda|floatformat:2 }}</td>
+                    <td>{{ venda.dtrealizado }}</td>
+                </tr>
+             {% endfor %}
+          </tbody>
+      </table>
+    </div>
+    {% else %}
+        <div class="alert alert-danger">
+            <strong><i class="glyphicon glyphicon-info-sign"></i> N&atilde;o h&aacute; vendas realizadas nesta Unidade</strong>
+        </div>
+    {% endif %}
+ </form>
 
+<script>
+function seleciona() {
+    document.getElementById("form_lista_vendas_operacional").submit();
+}
+</script>
 {% endblock %}
