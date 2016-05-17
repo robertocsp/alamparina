@@ -85,6 +85,15 @@
                                 {%endfor%}
                                 <!--</ul>-->
                             </td>
+                             <td>
+                                <ul>
+                                    {% for canal in canal_list%}
+
+                                            <li class="text-verde"><i class="glyphicon glyphicon-ok"></i> {% getPrecoEstimado expedicao.produto canal contrato %}{{canal.nome}} - Retorno <strong>R$ {{precoestimado|floatformat:2}}</strong></li>
+
+                                    {%endfor%}
+                                </ul>
+                            </td>
                             <td>
                                 <!--<select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>>-->
                                 <select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" onchange="form.submit()">
