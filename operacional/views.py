@@ -342,7 +342,7 @@ def dashboard_marca(request):
     venda_valor_grafico = [[0 for i in xrange(2)] for i in xrange(6)]
     j = 5;
     for periodo in periodo_list:
-        venda_valor_grafico[j][0] = str(periodo.de) + ' | ' + str(periodo.ate)
+        venda_valor_grafico[j][0] = 'De ' + periodo.de.strftime("%d-%m-%y") + ' Até ' + periodo.ate.strftime("%d-%m-%y")
         vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
                                                     dtrealizado__range=[periodo.de, periodo.ate])
         preco_venda_periodo = 0
@@ -369,16 +369,20 @@ def dashboard_marca(request):
     venda = [[0 for i in xrange(5)] for i in xrange(6)]
     j = 0
     for ultimasvendas in ultimasvendas_list:
-        venda[0][j] = ultimasvendas.quantidade
-        venda[1][j] = ultimasvendas.produto.nome
-        venda[2][j] = ultimasvendas.dtrealizado
-        venda[3][j] = ultimasvendas.preco_venda
+        venda[0][j] = ultimasvendas.produto.nome
+        venda[1][j] = ultimasvendas.dtrealizado
+        venda[2][j] = "%.2f" % round(ultimasvendas.preco_venda, 2)
+        venda[3][j] = ultimasvendas.quantidade
         # todo o lance do contrato ta confuso.
         contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=ultimasvendas.unidade)
         if contrato_list.count() != 0:
             contrato = contrato_list[0]
-            venda[4][j] = ultimasvendas.preco_venda - memoriacalculo.PrecoReceber(ultimasvendas, contrato)
-            venda[5][j] = memoriacalculo.PrecoReceber(ultimasvendas, contrato)
+            desconto_unidade = ultimasvendas.preco_venda - memoriacalculo.PrecoReceber(ultimasvendas, contrato)
+            valor_unidade_liquido = memoriacalculo.PrecoReceber(ultimasvendas, contrato)
+            desconto_total = desconto_unidade * venda[3][j]
+            valor_total = valor_unidade_liquido * venda[3][j]
+            venda[4][j] = "%.2f" % round(desconto_total, 2)
+            venda[5][j] = "%.2f" % round(valor_total, 2)
         else:
             venda[4][j] = 'erro!'
             venda[5][j] = 'erro!'
