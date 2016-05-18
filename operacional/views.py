@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from boto.ecs import item
+from botocore.vendored.requests.api import request
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
@@ -730,7 +731,7 @@ def estoque_operacional(request):
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def acompanhar_vendas_operacional(request):
     unidade = Unidade.objects.all().order_by('nome')
-    venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade).order_by('-dtrealizado')
+    venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade).order_by('-dtrealizado','-id')
     unidade_retorno = None
 
     if request.method == 'POST':
@@ -745,82 +746,6 @@ def acompanhar_vendas_operacional(request):
     })
 
 
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
-def realizar_venda(request):
-    checkout = Checkout()
-    marca_list = Marca.objects.all()
-    canal_list = Canal.objects.all()
-    unidade_list = None
-    produto_list = None
-    marca_retorno = None
-    unidade_retorno = None
-    produto_retorno = None
-    dtrealizado_retorno = None
-    canal_retorno = None
-    #checkout.motivo = request.GET.get('motivo')
-    checkout.motivo = 'venda'
-    error = False
-    estoque = None
-    preco_venda = None
-
-    if request.method=='POST':
-        checkout.observacao = request.POST['observacao']
-        checkout.marca = Marca.objects.get(id=request.POST['marca'])
-        checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
-        checkout.produto = Produto.objects.get(id=request.POST['produto'])
-        checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
-        checkout.canal = Canal.objects.get(id=request.POST['canal'])
-        checkout.preco_venda = checkout.produto.preco_venda
-        estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
-        checkout.quantidade = int(request.POST['quantidade'])
-        preco_venda = checkout.produto.preco_venda
-        if estoque.quantidade < checkout.quantidade:
-            marca_retorno = checkout.marca
-            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
-            unidade_retorno = checkout.unidade
-            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
-            produto_retorno = checkout.produto
-            canal_retorno = checkout.canal
-            error = True
-
-        else:
-            estoque.quantidade = estoque.quantidade - checkout.quantidade
-            estoque.save()
-            checkout.save()
-            return HttpResponseRedirect(reverse('realizar_venda'))
-    else:
-        if "canal" in request.GET and request.GET['canal'] != '':
-            canal_retorno = Canal.objects.get(id=request.GET['canal'])
-        if "dtrealizado" in request.GET and request.GET['dtrealizado'] != '':
-            dtrealizado_retorno = request.GET['dtrealizado']
-        if "marca" in request.GET and request.GET['marca'] != '':
-            marca_retorno = Marca.objects.get(id=request.GET['marca'])
-            unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
-        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' :
-            unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
-            produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
-        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
-            produto_retorno = Produto.objects.get(id=request.GET['produto'])
-            preco_venda = produto_retorno.preco_venda
-
-    return render(request,'realizar_venda.html',
-                 {
-                     'marca_list':marca_list,
-                     'unidade_list':unidade_list,
-                     'produto_list':produto_list,
-                     'marca_retorno':marca_retorno,
-                     'unidade_retorno':unidade_retorno,
-                     'produto_retorno':produto_retorno,
-                     'dtrealizado_retorno':dtrealizado_retorno,
-                     'checkout': checkout,
-                     'error': error,
-                     'estoque': estoque,
-                     'canal_list': canal_list,
-                     'canal_retorno': canal_retorno,
-                     'preco_venda': preco_venda,
-                  }
-    )
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
@@ -963,5 +888,329 @@ def acompanhar_venda(request):
                       'venda_produto': venda_produto,
                       'pagamento_de': pagamento_de,
                       'pagamento_ate': pagamento_ate,
+                  }
+    )
+
+
+
+#funções inicia_realizar_venda e edita_realizar_venda
+# adicionar produto
+def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
+    error = ''
+    lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.formapagamento = lrequest.POST['formapagamento']
+    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.save()
+    itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
+    for _ in itemvenda_list:
+        error = 'Produto já existe neste checkout. Você deve excluí-lo antes de alterar a quantidade.'
+    if error == '':
+        itemvenda = ItemVenda()
+        itemvenda.checkout = lcheckout
+        itemvenda.produto = lestoque_retorno.produto
+        itemvenda.preco_venda = lestoque_retorno.produto.preco_venda
+        itemvenda.quantidade = int(lrequest.POST['quantidade'])
+        estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
+        for estoque in estoque_list:
+            if estoque.quantidade >= itemvenda.quantidade:
+                estoque.quantidade -= itemvenda.quantidade
+                estoque.save()
+                itemvenda.save()
+            else:
+                error = 'Quantidade de venda superior à quantidade presente no estoque. Quantidade em estoque: ' + str(estoque.quantidade) +'.'
+
+    lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
+    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.save()
+
+    return error
+
+#funções inicia_realizar_venda e edita_realizar_venda
+# remover produto
+def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
+    error = ''
+    lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.formapagamento = lrequest.POST['formapagamento']
+    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.save()
+    itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
+    if itemvenda_list:
+        for itemvenda in itemvenda_list:
+            if itemvenda.quantidade == int(lrequest.POST['quantidade']):
+                itemvenda.delete()
+                estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
+                if estoque_list:
+                    for estoque in estoque_list:
+                        estoque.quantidade += int(lrequest.POST['quantidade'])
+                        estoque.save()
+                else:
+                    estoque = Estoque()
+                    estoque.quantidade = int(lrequest.POST['quantidade'])
+                    estoque.produto = lestoque_retorno.produto
+                    estoque.unidade = lcheckout.unidade
+                    estoque.save()
+                #aumentoestoque
+            if itemvenda.quantidade > int(lrequest.POST['quantidade']):
+                itemvenda.quantidade -= int(lrequest.POST['quantidade'])
+                itemvenda.save()
+                estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
+                if estoque_list:
+                    for estoque in estoque_list:
+                        estoque.quantidade += int(lrequest.POST['quantidade'])
+                        estoque.save()
+                else:
+                    estoque = Estoque()
+                    estoque.quantidade = int(lrequest.POST['quantidade'])
+                    estoque.produto = lestoque_retorno.produto
+                    estoque.unidade = lcheckout.unidade
+                    estoque.save()
+                #aummento estoque
+            if itemvenda.quantidade < int(lrequest.POST['quantidade']):
+                error = 'Não é possível excluir quantidade maior à do checkout.'
+    else:
+        error = 'Produto já não faz parte deste checkout.'
+
+    lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
+    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+    lcheckout.save()
+
+    return error
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
+def inicia_realizar_venda(request):
+    checkout = Checkout()
+    canal_list = Canal.objects.all()
+    unidade_list = None
+    estoque_list = None
+    unidade_retorno = None
+    dtrealizado_retorno = None
+    canal_retorno = None
+    cliente_retorno = None
+    estoque_retorno = None
+    formapagamento_retorno = None
+    itemvenda_list = None
+    checkout.motivo = 'venda'
+    error = False
+    estoque = None
+    preco_venda = None
+    observacao_retorno = None
+    unidade_list = Unidade.objects.all().distinct()
+
+    # só entra aqui pra salvar
+    if request.method=='POST':
+        checkout.observacao = request.POST['observacao']
+        if request.POST['unidade']:
+            checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
+        if request.POST['dtrealizado']:
+            checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        if request.POST['canal']:
+            checkout.canal = Canal.objects.get(id=request.POST['canal'])
+        if request.POST['estoque']:
+            estoque_list = Estoque.objects.get(produto_id=request.POST['estoque'])
+        if request.POST['telefone']:
+            cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+
+            for cliente in cliente_list:
+                cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
+                for cliente_unidade in cliente_unidade_list:
+                    checkout.cliente_unidade_id = cliente_unidade.id
+                if not cliente_unidade_list:
+                    cliente_unidade = Cliente_Unidade()
+                    cliente_unidade.cliente = cliente
+                    cliente_unidade.unidade = checkout.unidade
+                    cliente_unidade.save()
+                    checkout.cliente_unidade = cliente_unidade
+
+        if request.POST['observacao']:
+            checkout.observacao = request.POST['observacao']
+        if request.POST['formapagamento']:
+            checkout.formapagamento = request.POST['formapagamento']
+
+        # tratamento para Cliente
+        if "telefone" in request.POST and request.POST['telefone'] != '':
+            cliente_retorno_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+            for cliente_retorno in cliente_retorno_list:
+                if "clientenome" in request.POST and request.POST['clientenome'] != '':
+                    cliente_retorno.nome = request.POST['clientenome']
+                if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'], '%d/%m/%Y')
+
+            if not cliente_retorno_list:
+                cliente_retorno = Cliente()
+                cliente_retorno.telefone = request.POST['telefone']
+                if "clientenome" in request.POST and request.POST['clientenome'] != '':
+                    cliente_retorno.nome = request.POST['clientenome']
+                else:
+                    cliente_retorno.nome = 'nome em processamento'
+                if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'], '%d/%m/%Y')
+            cliente_retorno.save()
+
+        if "canal" in request.POST and request.POST['canal'] != '':
+            canal_retorno = Canal.objects.get(id=request.POST['canal'])
+        if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
+            dtrealizado_retorno = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        if "observacao" in request.POST and request.POST['observacao'] != '':
+            observacao_retorno = request.POST['observacao']
+        if "unidade" in request.POST and request.POST['unidade'] != '':
+            unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+            estoque_list = Estoque.objects.filter(unidade=unidade_retorno)
+        if "unidade" in request.POST and request.POST['unidade'] != '' and "produto" in request.POST and request.POST['produto'] != '':
+            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            preco_venda = estoque_retorno.produto.preco_venda
+        if "estoque" in request.POST and request.POST['estoque'] != '':
+            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            preco_venda = estoque_retorno.produto.preco_venda
+        if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
+            formapagamento_retorno = request.POST['formapagamento']
+
+    if "adicionar_produto" in request.POST:
+        error = realizar_venda_adicionar_produto(checkout, request, estoque_retorno)
+        return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
+
+    if "remover_produto" in request.POST:
+        error = realizar_venda_remover_produto(checkout, request, estoque_retorno)
+        return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
+
+    if "finalizar" in request.POST:
+        checkout.status = 'confirmado'
+        checkout.save()
+
+    preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
+
+    return render(request,'realizar_venda.html',
+                 {
+                     'unidade_list':unidade_list,
+                     'estoque_list':estoque_list,
+                     'itemvenda_list':itemvenda_list,
+                     'unidade_retorno':unidade_retorno,
+                     'estoque_retorno':estoque_retorno,
+                     'dtrealizado_retorno':dtrealizado_retorno,
+                     'checkout': checkout,
+                     'error': error,
+                     'canal_list': canal_list,
+                     'canal_retorno': canal_retorno,
+                     'preco_venda': preco_venda,
+                     'preco_calculado': preco_calculado,
+                     'cliente_retorno': cliente_retorno,
+                     'observacao_retorno': observacao_retorno,
+                     'formapagamento_retorno': formapagamento_retorno,
+                 }
+    )
+
+
+
+@login_required #rfh
+@user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
+def edita_realizar_venda(request, id):
+    checkout = get_object_or_404(Checkout, id=id)
+    canal_list = Canal.objects.all()
+    unidade_list = Unidade.objects.all().distinct()
+    estoque_list = None
+    unidade_retorno = checkout.unidade
+    dtrealizado_retorno = checkout.dtrealizado
+    canal_retorno = checkout.canal
+    cliente_retorno = checkout.cliente_unidade.cliente
+    estoque_retorno = None
+    formapagamento_retorno = checkout.formapagamento
+    checkout.motivo = 'venda'
+    error = False
+    estoque = None
+    preco_venda = None
+    observacao_retorno = checkout.observacao
+    unidade_list = Unidade.objects.all().distinct()
+    itemvenda_list = ItemVenda.objects.filter(checkout=checkout)
+    estoque_list = Estoque.objects.filter(unidade=checkout.unidade)
+
+    if request.method=='POST':
+        checkout.observacao = request.POST['observacao']
+        checkout.formapagamento = request.POST['formapagamento']
+        checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        checkout.canal = Canal.objects.get(id=request.POST['canal'])
+        cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+        checkout.observacao = request.POST['observacao']
+
+        for cliente in cliente_list:
+            cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
+            for cliente_unidade in cliente_unidade_list:
+                checkout.cliente_unidade_id = cliente_unidade.id
+            if not cliente_unidade_list:
+                cliente_unidade = Cliente_Unidade()
+                cliente_unidade.cliente = cliente
+                cliente_unidade.unidade = checkout.unidade
+                cliente_unidade.save()
+                checkout.cliente_unidade = cliente_unidade
+
+        # tratamento para Cliente
+        if "telefone" in request.POST and request.POST['telefone'] != '':
+            cliente_retorno_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+            for cliente_retorno in cliente_retorno_list:
+                if "clientenome" in request.POST and request.POST['clientenome'] != '':
+                    cliente_retorno.nome = request.POST['clientenome']
+                if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'],
+                                                                             '%d/%m/%Y')
+
+            if not cliente_retorno_list:
+                cliente_retorno = Cliente()
+                cliente_retorno.telefone = request.POST['telefone']
+                if "clientenome" in request.POST and request.POST['clientenome'] != '':
+                    cliente_retorno.nome = request.POST['clientenome']
+                else:
+                    cliente_retorno.nome = 'nome em processamento'
+                if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'],
+                                                                             '%d/%m/%Y')
+            cliente_retorno.save()
+
+        if "canal" in request.POST and request.POST['canal'] != '':
+            canal_retorno = Canal.objects.get(id=request.POST['canal'])
+        if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
+            dtrealizado_retorno = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        if "observacao" in request.POST and request.POST['observacao'] != '':
+            observacao_retorno = request.POST['observacao']
+        if "unidade" in request.POST and request.POST['unidade'] != '':
+            unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+            estoque_list = Estoque.objects.filter(unidade=checkout.unidade)
+        if "unidade" in request.POST and request.POST['unidade'] != '' and "produto" in request.POST and request.POST[
+            'produto'] != '':
+            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            preco_venda = estoque_retorno.produto.preco_venda
+        if "estoque" in request.POST and request.POST['estoque'] != '':
+            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            preco_venda = estoque_retorno.produto.preco_venda
+        if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
+            formapagamento_retorno = request.POST['formapagamento']
+
+    if "adicionar_produto" in request.POST:
+        error = realizar_venda_adicionar_produto(checkout, request, estoque_retorno)
+
+    if "remover_produto" in request.POST:
+        error = realizar_venda_remover_produto(checkout, request, estoque_retorno)
+
+    if "finalizar" in request.POST:
+        checkout.status = 'confirmado'
+        checkout.save()
+
+    preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
+    return render(request,'realizar_venda.html',
+                 {
+                     'unidade_list':unidade_list,
+                     'estoque_list':estoque_list,
+                     'itemvenda_list':itemvenda_list,
+                     'unidade_retorno':unidade_retorno,
+                     'estoque_retorno':estoque_retorno,
+                     'dtrealizado_retorno':dtrealizado_retorno,
+                     'checkout': checkout,
+                     'error': error,
+                     'canal_list': canal_list,
+                     'canal_retorno': canal_retorno,
+                     'preco_venda': preco_venda,
+                     'preco_calculado': preco_calculado,
+                     'cliente_retorno': cliente_retorno,
+                     'observacao_retorno': observacao_retorno,
+                     'formapagamento_retorno': formapagamento_retorno,
                   }
     )
