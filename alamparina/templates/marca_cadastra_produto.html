@@ -9,31 +9,32 @@
     {% if produto_cadastrado %}
         <div class="alert alert-success" role="alert"><i class="glyphicon glyphicon-exclamation-sign"></i> Produto Salvo com sucesso</div>
     {% endif %}
+
     <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
     <form class="formulario-padrao produto" action="." method="post">
-        <li><label for="{{ form.nome.id_nome }}">Nome:</label>
+        <li><label for="{{ form.nome.id_nome }}">Nome*</label>
             {{ form.nome }}
         </li>
-        <li><label for="{{ form.codigo.id_codigo }}">C&oacute;digo:</label>
+        <li><label for="{{ form.codigo.id_codigo }}">C&oacute;digo</label>
             {{ form.codigo }}
         </li>
-        <li><label id="id_descricao" for="{{ form.descricao.id_descricao }}">Descri&ccedil;&atilde;o:</label>
+        <li><label id="id_descricao" for="{{ form.descricao.id_descricao }}">Descri&ccedil;&atilde;o*</label>
             {{ form.descricao }}
         </li>
-        <li><label for="{{ form.largura.id_largura }}">Largura:</label>
+        <li><label for="{{ form.largura.id_largura }}">Largura*</label>
             {{ form.largura }} cm
         </li>
-        <li><label for="{{ form.altura.id_altura }}">Altura:</label>
+        <li><label for="{{ form.altura.id_altura }}">Altura*</label>
             {{ form.altura }} cm
         </li>
-        <li><label for="{{ form.profundidade.id_profundidade }}">Profundidade:</label>
+        <li><label for="{{ form.profundidade.id_profundidade }}">Profundidade*</label>
             {{ form.profundidade }} cm
         </li>
         <li>
-            <label for="{{ form.preco_venda.id_preco_venda }}">Preço venda:</label>
+            <label for="{{ form.preco_venda.id_preco_venda }}">Preço venda* </label>
             R$ {{ form.preco_venda }}
         </li>
-
+         <li>(*) Campos com preenchimento Obrigat&oacute;rio</li>
         {% csrf_token %}
         <button type="submit" value="Salvar" class="btn btn-primary">
             <span class="glyphicon glyphicon-ok"></span> Salvar
