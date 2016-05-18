@@ -25,7 +25,7 @@
             <tr>
                 <th>Nome</th>
                 <th>Codigo</th>
-                <th>Marca</th>
+                <th>Quantidade</th>
                 <th>Pre&ccedil;o</th>
                 <th></th>
             </tr>
@@ -35,7 +35,7 @@
                 <tr>
                     <th><strong>{{ produto.nome }}</strong></th>
                     <td>{{produto.codigo}}</td>
-                    <td>{{produto.marca.nome}}</td>
+                    <td>{{produto.quantidade}}</td>
                     <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
                 </tr>
              {% endfor %}

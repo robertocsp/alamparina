@@ -84,6 +84,7 @@ def lista_produtos_operacional(request):
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def cadastra_produto(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
+
     if request.method == 'POST':
         form = ProdutoForm(request.POST)
         if form.is_valid():
@@ -95,8 +96,8 @@ def cadastra_produto(request):
             produto.save()
             marca.sequencial_atual = int(marca.sequencial_atual) + 1
             marca.save()
-            produto_cadastado = True
-            return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado':produto_cadastado})
+            produto_cadastrado = True
+            return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado':produto_cadastrado})
 
     else:
         form = ProdutoForm()
