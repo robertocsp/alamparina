@@ -1,4 +1,4 @@
-from operacional.models import Estoque, Produto
+from operacional.models import Estoque, Produto, ItemVenda
 from administrativo.models import TipoMiniloja, Miniloja
 
 # todo tenho duvidas, precisa ser revisto.
@@ -65,3 +65,17 @@ def PrecoReceber(checkout, contrato):
         else:
             preco_receber = float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - float(checkout.canal.custo_embalagem or 0) - float(checkout.canal.custo_entrega or 0) - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0)
     return preco_receber
+
+def CalculoPrecoVendaCheckout(checkout):
+    itemvenda_list = ItemVenda.objects.filter(checkout=checkout)
+    precocalculado = 0.0
+    for itemvenda in itemvenda_list:
+        precocalculado += float(itemvenda.quantidade or 0) * float(itemvenda.preco_venda or 0)
+    return precocalculado
+
+def CalculoQuantidadeCheckout(checkout):
+    itemvenda_list = ItemVenda.objects.filter(checkout=checkout)
+    quantidadecalculada = 0.0
+    for itemvenda in itemvenda_list:
+        quantidadecalculada += float(itemvenda.quantidade or 0)
+    return quantidadecalculada

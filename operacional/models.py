@@ -131,6 +131,7 @@ class Checkout(models.Model):
     dia = models.DateField(auto_now_add=True)
     hora = models.TimeField(auto_now_add=True)
     observacao = models.TextField(blank=True)
+    marca = models.ForeignKey(Marca, blank=True, null=True)
 
     FORMAPAGAMENTO = (
         ("credito", "Crédito"),
@@ -148,7 +149,6 @@ class Checkout(models.Model):
     dtrealizado = models.DateField(blank=True, null=True)
     quantidade = models.IntegerField()
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
-
     def __unicode__(self):
         return '%s %s' % (self.motivo, self.dia)
 

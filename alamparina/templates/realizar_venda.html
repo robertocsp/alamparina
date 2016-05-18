@@ -4,13 +4,29 @@
 {% block Vendas %}active{% endblock %}
 
 {% block conteudo %}
+{% load custom_tags %}
+
 <div class="box-formulario">
     <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Efetuar Venda para efetuar a venda.</p>
     <form class="formulario-padrao venda" id="form_realizar_venda" method="post" >{% csrf_token %}
+            {% if error %}
+                <br><br>
+                <div class="alert alert-danger">
+                    <strong><i class="glyphicon glyphicon-info-sign"></i> {{error}}</strong>
+                </div>
+            {% endif %}
+
         <ul>
         <li>
             <label for="id_unidades">Unidades: </label>
-            <select id="id_unidades" name="unidade" onchange="form.submit()">
+
+                {% if checkout.unidade and itemvenda_list.count > 0 %}
+                <select id="id_unidades" name="unidade" onchange="form.submit()" disabled>
+                <!--<select id="id_unidades" name="unidade" onchange="form.submit()">-->
+                {% else %}
+                <select id="id_unidades" name="unidade" onchange="form.submit()">
+                {% endif %}
+
                 <option value="">Selecione uma unidade</option>
                 {% for unidade in unidade_list %}
                 {% if unidade_retorno != None and unidade_retorno.id == unidade.id  %}
@@ -19,18 +35,18 @@
                 <option value="{{unidade.id}}">{{unidade.nome}}</option>
                 {% endif %}
                 {% endfor %}
-            </select>
-            {% if error %}
-                <br><br>
-                <div class="alert alert-danger">
-                    <strong><i class="glyphicon glyphicon-info-sign"></i> Quantidade superior a de estoque ({{estoque.quantidade}})</strong>
-                </div>
-            {% endif %}
+                </select>
+            <!--{% if error %}-->
+                <!--<br><br>-->
+                <!--<div class="alert alert-danger">-->
+                    <!--<strong><i class="glyphicon glyphicon-info-sign"></i> Quantidade superior a de estoque (estoque.quantidade)</strong>-->
+                <!--</div>-->
+            <!--{% endif %}-->
         </li>
         <li>
             <label for="id_dtrealizado">Data da venda:</label>
                 {% if dtrealizado_retorno != None %}
-                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno}}">
+                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno|date:'d/m/Y'}}">
                 {% else %}
                     <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
                 {% endif %}
@@ -77,17 +93,16 @@
                 {% endif %}
                 {% endfor %}
             </select>
-            {% if error %}
-                <br><br>
-                <div class="alert alert-danger">
-                    <strong><i class="glyphicon glyphicon-info-sign"></i> Erro no canal</strong>
-                </div>
-            {% endif %}
+            <!--{% if error %}-->
+                <!--<br><br>-->
+                <!--<div class="alert alert-danger">-->
+                    <!--<strong><i class="glyphicon glyphicon-info-sign"></i> Erro no canal</strong>-->
+                <!--</div>-->
+            <!--{% endif %}-->
         </li>
-<br><br>
-    <div>
+    <li>
         <label for="id_estoque">Produtos: </label>
-        <select id="id_estoque" name="estoque" onchange="form.submit()">
+        <select id="id_estoque" name="estoque">
             <option value="">Selecione um produto</option>
             {% for estoque in estoque_list %}
             {% if estoque_retorno != None and estoque_retorno.id == estoque.id  %}
@@ -97,7 +112,8 @@
             {% endif %}
             {% endfor %}
         </select>
-
+    </li>
+    <li>
             <label for="id_quantidade">Quantidade: </label>
             <input type="number" id="id_quantidade" name="quantidade" class="numero">
         <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
@@ -106,31 +122,79 @@
         <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
             <span class="glyphicon glyphicon-minus-sign"></span>
         </button>
-    </div><br><br>
+    </li>
+<br>
 
-
-            {% if preco_venda != None %}
-            <label>Pre&ccedil;o do produto: R$ {{preco_venda|floatformat:2}}</label>
+         {% if itemvenda_list %}
+            <div class="panel panel-default">
+              <div class="panel-heading"><label><i class="glyphicon glyphicon-plus"></i> Produtos no checkout</label></div>
+              <table class="table ultimo-padding">
+                  <thead>
+                    <tr>
+                        <th>Nome do Produto Inserido</th>
+                        <th>Quantidade</th>
+                        <th>Preço de unitário</th>
+                        <th>Preço de venda</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      {% for itemvenda in itemvenda_list %}
+                        <tr>
+                            <th>{{itemvenda.produto.nome}}</th>
+                                <td>{{itemvenda.quantidade}}</td>
+                                <td>{{itemvenda.produto.preco_venda|floatformat:2}}</td>
+                                <td>{% Multiplicacao  itemvenda.quantidade itemvenda.produto.preco_venda %}R$ {{calculado|floatformat:2}}</td>
+                        </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+            </div>
+            <hr>
             {% else %}
-            <label>Pre&ccedil;o do produto: </label>
+                <div class="alert alert-warning">
+                    <strong>Não existem produtos adicionados a esta venda</strong>
+                </div><hr>
+         {% endif %}
+
+
+
+            {% if preco_calculado != None %}
+            <label>Total da venda: R$ {{preco_calculado|floatformat:2}}</label>
+            {% else %}
+            <label>Total da venda: </label>
             {% endif %}
 
-            <li>
+            <!--<li>-->
+            <!--<label for="id_formapagamento">Forma de pagamento: </label>-->
+            <!--<select id="id_formapagamento" name="formapagamento">-->
+                <!--{% for key, value in checkout.FORMAPAGAMENTO %}-->
+                    <!--&lt;!&ndash;{% if key != 'venda' %}&ndash;&gt;-->
+                    <!--<option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>-->
+                    <!--&lt;!&ndash;{% endif %}&ndash;&gt;-->
+                <!--{% endfor %}-->
+            <!--</select>-->
+            <!--</li>-->
+        <li>
+
             <label for="id_formapagamento">Forma de pagamento: </label>
-            <select id="id_formapagamento" name="formapagamento">
-                {% for key, value in checkout.FORMAPAGAMENTO %}
-                    <!--{% if key != 'venda' %}-->
-                    <option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>
-                    <!--{% endif %}-->
+            <select id="id_formapagamento" name="formapagamento" onchange="form.submit()">
+                {% for key, value in checkout.FORMAPAGAMENTO%}
+                <option value="{{key}}" {%ifequal key checkout.formapagamento %} selected {%endifequal%}>{{value}}</option>
                 {% endfor %}
             </select>
-            </li>
-        <li>
-            <label for="id_observacao">Observacao: </label>
-            <textarea type="text" id="id_observacao" name="observacao"></textarea>
         </li>
         <li>
-            <button type="button" onclick="submete_form()" value="Enviar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Efetuar Venda</button>
+            <label for="id_observacao">Observacao: </label>
+            {% if observacao_retorno != None %}
+                 <textarea type="text" id="id_observacao" name="observacao">{{observacao_retorno}}</textarea>
+            {% else %}
+                <textarea type="text" id="id_observacao" name="observacao"></textarea>
+            {% endif %}
+        </li>
+        <li>
+            <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
+                <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+            </button>
         </li>
         </ul>
     </form>
