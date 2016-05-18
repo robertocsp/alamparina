@@ -23,6 +23,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+PRODUCAO = False
 
 ADMINS = (
     ("Roberto", "80.pereira@gmail.com") #envia email caso ocorra erro 500 e debug=false
@@ -62,30 +63,29 @@ WSGI_APPLICATION = 'alamparina.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-# local
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#         'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
-#         'USER': 'root',                      # Not used with sqlite3.
-#         'PASSWORD': 'toor',                  # Not used with sqlite3.
-#         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-#         'PORT': '3306',
-#     }
-# }
-
-
-# producao
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'alamparina06maio',                      # Or path to database file if using sqlite3.
-        'USER': 'Alamparina2016',                      # Not used with sqlite3.
-        'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
-        'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '3306',
+if not PRODUCAO:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
+            'USER': 'root',                      # Not used with sqlite3.
+            'PASSWORD': 'toor',                  # Not used with sqlite3.
+            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '3306',
+        }
     }
-}
+else:
+    # producao
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'alamparina06maio',                      # Or path to database file if using sqlite3.
+            'USER': 'Alamparina2016',                      # Not used with sqlite3.
+            'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
+            'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '3306',
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -100,7 +100,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
@@ -109,45 +108,46 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
-        'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
-        'Cache-Control': 'max-age=94608000',
-    }
+if PRODUCAO:
+    AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
+            'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+            'Cache-Control': 'max-age=94608000',
+        }
 
 
-ALAMPARINA_S3_ACCESS_KEY_DEV = 'AKIAISC7E346KMSITNLQ'
-ALAMPARINA_S3_SECRET_ACCESS_KEY = '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'
+    ALAMPARINA_S3_ACCESS_KEY_DEV = 'AKIAISC7E346KMSITNLQ'
+    ALAMPARINA_S3_SECRET_ACCESS_KEY = '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'
 
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_ALAMPARINA_STORAGE', 'alamparina')
-AWS_ACCESS_KEY_ID = os.environ.get('ALAMPARINA_AWS_ACCESS_KEY', ALAMPARINA_S3_ACCESS_KEY_DEV)
-AWS_SECRET_ACCESS_KEY = os.environ.get('ALAMPARINA_AWS_SECRET_ACCESS_KEY', ALAMPARINA_S3_SECRET_ACCESS_KEY)
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_ALAMPARINA_STORAGE', 'alamparina')
+    AWS_ACCESS_KEY_ID = os.environ.get('ALAMPARINA_AWS_ACCESS_KEY', ALAMPARINA_S3_ACCESS_KEY_DEV)
+    AWS_SECRET_ACCESS_KEY = os.environ.get('ALAMPARINA_AWS_SECRET_ACCESS_KEY', ALAMPARINA_S3_SECRET_ACCESS_KEY)
 
-# Tell django-storages that when coming up with the URL for an item in S3 storage, keep
-# it simple - just use this domain plus the path. (If this isn't set, things get complicated).
-# This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
-# We also use it in the next setting.
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-#AWS_S3_CUSTOM_DOMAIN = 'weikedev.s3-website-sa-east-1.amazonaws.com'
+    # Tell django-storages that when coming up with the URL for an item in S3 storage, keep
+    # it simple - just use this domain plus the path. (If this isn't set, things get complicated).
+    # This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
+    # We also use it in the next setting.
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    #AWS_S3_CUSTOM_DOMAIN = 'weikedev.s3-website-sa-east-1.amazonaws.com'
 
-# This is used by the `static` template tag from `static`, if you're using that. Or if anything else
-# refers directly to STATIC_URL. So it's safest to always set it.
-STATIC_URL = "https://%s/static/" % AWS_S3_CUSTOM_DOMAIN
-MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+    # This is used by the `static` template tag from `static`, if you're using that. Or if anything else
+    # refers directly to STATIC_URL. So it's safest to always set it.
+    STATIC_URL = "https://%s/static/" % AWS_S3_CUSTOM_DOMAIN
+    MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
-# Tell the staticfiles app to use S3Boto storage when writing the collected static files (when
-# you run `collectstatic`).
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+    # Tell the staticfiles app to use S3Boto storage when writing the collected static files (when
+    # you run `collectstatic`).
+    STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
-AWS_LOCATION = ''
+    AWS_LOCATION = ''
 
-DAB_FIELD_RENDERER = 'django_admin_bootstrapped.renderers.BootstrapFieldRenderer'
-#
-# MESSAGE_TAGS = {
-#     messages.SUCCESS: 'alert-success success',
-#     messages.WARNING: 'alert-warning warning',
-#     messages.ERROR: 'alert-danger error'
-# }
+    DAB_FIELD_RENDERER = 'django_admin_bootstrapped.renderers.BootstrapFieldRenderer'
+    #
+    # MESSAGE_TAGS = {
+    #     messages.SUCCESS: 'alert-success success',
+    #     messages.WARNING: 'alert-warning warning',
+    #     messages.ERROR: 'alert-danger error'
+    # }
 
 TEMPLATES = [
     {
