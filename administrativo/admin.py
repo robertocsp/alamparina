@@ -40,8 +40,29 @@ class MinilojaAdmin(admin.ModelAdmin):
     list_display = ('identificador', 'tipo', 'unidade', 'disponivel')
     list_filter = ('unidade','disponivel',)
 
+
+class UnidadeInlineAdmin(admin.TabularInline):
+    model = Cliente.unidades.through
+
+class ClienteAdmin(admin.ModelAdmin):
+
+    fieldsets = (
+        (None, {
+            'fields': ('telefone', 'nome', 'aniversario',)
+        }),
+    )
+    list_display = ('telefone', 'nome', 'aniversario',)
+    list_filter = ('telefone', 'nome', 'aniversario',)
+    search_fields = ('unidade',)
+
+    inlines = (UnidadeInlineAdmin,)
+
+    def unidades(self,obj):
+        return Unidade.objects.all().order_by('nome')
+
 admin.site.register(TipoMiniloja)
 admin.site.register(Miniloja, MinilojaAdmin)
+admin.site.register(Cliente, ClienteAdmin)
 admin.site.register(Marca,MarcaAdmin)
 admin.site.register(Periodo,PeriodoAdmin)
 admin.site.register(Unidade)

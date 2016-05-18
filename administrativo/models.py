@@ -81,8 +81,7 @@ class Contrato(models.Model):
     def __unicode__(self):
         return u'%s %s %s' % (self.marca, self.periodo, self.miniloja)
 
-
-def __unicode__(self):
+    def __unicode__(self):
         return self.marca.nome
 
 class Canal(models.Model):
@@ -102,3 +101,14 @@ class Canal(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+class Cliente(models.Model):
+    telefone = models.CharField(max_length=13)
+    nome = models.CharField(max_length=50)
+    aniversario = models.DateField(blank=True, null=True)
+    unidades = models.ManyToManyField(Unidade, through='Cliente_Unidade')
+
+class Cliente_Unidade(models.Model):
+    cliente = models.ForeignKey(Cliente)
+    unidade = models.ForeignKey(Unidade)
+

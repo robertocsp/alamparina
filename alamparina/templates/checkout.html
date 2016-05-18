@@ -42,7 +42,7 @@
         <li>
             <label for="id_produtos">Produtos: </label>
             <select id="id_produtos" name="produto">
-                <option value="">Selecione uma produto</option>
+                <option value="">Selecione um produto</option>
                 {% for produto in produto_list %}
                 {% if produto_retorno != None and produto_retorno.id == produto.id  %}
                 <option value="{{produto.id}}" selected>{{produto.nome}}</option>

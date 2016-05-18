@@ -122,13 +122,27 @@ class Checkout(models.Model):
     )
     motivo = models.CharField(max_length=20, choices=MOTIVO)
 
+    STATUS = (
+        ("emprocessamento", "EmProcessamento"),
+        ("confirmado", "Confirmado"),
+    )
+    status = models.CharField(max_length=20, choices=STATUS, default="emprocessamento")
+
     dia = models.DateField(auto_now_add=True)
     hora = models.TimeField(auto_now_add=True)
     observacao = models.TextField(blank=True)
 
-    marca = models.ForeignKey(Marca)
+    FORMAPAGAMENTO = (
+        ("credito", "Crédito"),
+        ("debito", "Débito"),
+        ("dinheiro", "Dinheiro"),
+        ("cheque", "Cheque"),
+    )
+
+    formapagamento = models.CharField(max_length=20, choices=FORMAPAGAMENTO, blank=True, null=True)
     unidade = models.ForeignKey(Unidade)
-    produto = models.ForeignKey(Produto)
+    produto = models.ForeignKey(Produto, blank=True, null=True)
+    cliente_unidade = models.ForeignKey(Cliente_Unidade, blank=True, null=True)
     canal = models.ForeignKey(Canal, blank=True, null=True)
     periodo = models.ForeignKey(Periodo, blank=True, null=True)
     dtrealizado = models.DateField(blank=True, null=True)
@@ -136,7 +150,7 @@ class Checkout(models.Model):
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
 
     def __unicode__(self):
-        return '%s %s %s' % (self.marca, self.motivo, self.dia)
+        return '%s %s' % (self.motivo, self.dia)
 
     def motivo_emprestimo(self):
         return 'emprestimo'
@@ -158,3 +172,22 @@ class Recomendacao(models.Model):
     telefone = models.CharField('telefone', max_length=20, blank=True)
     comentario = models.CharField('comentario', max_length=200, blank=True)
     marca = models.ForeignKey(Marca)
+
+class ItemVenda(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, null=False)
+    checkout = models.ForeignKey(Checkout, on_delete=models.CASCADE, null=False)
+    quantidade = models.IntegerField()
+
+    # não vou implementar o status. Deverá ser utilizado como devolução, retorno de venda.
+    STATUS = (
+        ("ok", "ProdutoOK"),
+        ("avariado", "ProdutoAvariado"),
+        ("ausente", "Ausente")
+    )
+    status = models.CharField(max_length=20, choices=STATUS, blank=True, null=True)
+    preco_venda = models.FloatField()
+    observacao = models.TextField(blank=True)
+    gravou_estoque = models.BooleanField(blank=False, null=False, default=False)
+
+    class Meta:
+       unique_together = ('checkout', 'produto')

@@ -6,29 +6,8 @@
 {% block conteudo %}
 <div class="box-formulario">
     <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Efetuar Venda para efetuar a venda.</p>
-    <form class="formulario-padrao venda" id="form_realizar_venda">{% csrf_token %}
+    <form class="formulario-padrao venda" id="form_realizar_venda" method="post" >{% csrf_token %}
         <ul>
-        <li>
-            <label for="id_dtrealizado">Data da venda:</label>
-                {% if dtrealizado_retorno != None %}
-                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno}}">
-                {% else %}
-                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
-                {% endif %}
-        </li>
-        <li>
-            <label for="id_marcas">Marcas: </label>
-            <select id="id_marcas" name="marca" onchange="form.submit()">
-                <option value="">Selecione uma marca</option>
-                {% for marca in marca_list %}
-                {% if marca_retorno != None and marca_retorno.id == marca.id  %}
-                <option value="{{marca.id}}" selected>{{marca.nome}}</option>
-                {% else %}
-                <option value="{{marca.id}}">{{marca.nome}}</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-        </li>
         <li>
             <label for="id_unidades">Unidades: </label>
             <select id="id_unidades" name="unidade" onchange="form.submit()">
@@ -49,6 +28,44 @@
             {% endif %}
         </li>
         <li>
+            <label for="id_dtrealizado">Data da venda:</label>
+                {% if dtrealizado_retorno != None %}
+                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno}}">
+                {% else %}
+                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
+                {% endif %}
+        </li>
+        <br><br>
+        <li>
+            <label for="id_clientes_telefone">Telefone do cliente:</label>
+                {% if cliente_retorno != None %}
+                    <input type="text"  id="id_clientes_telefone" placeholder="" name="telefone" value="{{cliente_retorno.telefone}}" onchange="form.submit()">
+                {% else %}
+                    <input type="text"  id="id_clientes_telefone" placeholder="" name="telefone" value="" onchange="form.submit()">
+                {% endif %}
+        </li>
+        <li>
+            <label for="id_clientes_nome">Nome do cliente:</label>
+                {% if cliente_retorno != None %}
+                    {% if cliente_retorno.nome != 'nome em processamento'%}
+                        <input type="text" id="id_clientes_nome" placeholder="" name="clientenome" value="{{cliente_retorno.nome}}" onchange="form.submit()">
+                    {% else %}
+                        <input type="text" id="id_clientes_nome" placeholder="" name="clientenome" value="" onchange="form.submit()">
+                    {% endif %}
+                {% else %}
+                    <input type="text" id="id_clientes_nome" placeholder="" name="clientenome" value="" onchange="form.submit()">
+                {% endif %}
+        </li>
+        <li>
+            <label for="id_clientes_aniversario">Anivers&aacute;rio do cliente:</label>
+                {% if cliente_retorno != None %}
+                    <input type="text" class="data" id="id_clientes_aniversario" placeholder="" name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}" onchange="form.submit()">
+                {% else %}
+                    <input type="text" class="data" id="id_clientes_aniversario" placeholder="" name="clienteaniversario" value="" onchange="form.submit()">
+                {% endif %}
+        </li>
+        <br><br>
+        <li>
             <label for="id_canais">Canais: </label>
             <select id="id_canais" name="canal" onchange="form.submit()">
                 <option value="">Selecione um canal</option>
@@ -67,30 +84,47 @@
                 </div>
             {% endif %}
         </li>
-        <li>
-            <label for="id_produtos">Produtos: </label>
-            <select id="id_produtos" name="produto" onchange="form.submit()">
-                <option value="">Selecione uma produto</option>
-                {% for produto in produto_list %}
-                {% if produto_retorno != None and produto_retorno.id == produto.id  %}
-                <option value="{{produto.id}}" selected>{{produto.nome}}</option>
-                {% else %}
-                <option value="{{produto.id}}">{{produto.nome}}</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-        </li>
-        <li>
-        </li>
+<br><br>
+    <div>
+        <label for="id_estoque">Produtos: </label>
+        <select id="id_estoque" name="estoque" onchange="form.submit()">
+            <option value="">Selecione um produto</option>
+            {% for estoque in estoque_list %}
+            {% if estoque_retorno != None and estoque_retorno.id == estoque.id  %}
+            <option value="{{estoque.produto.id}}" selected>{{estoque.produto.nome}}</option>
+            {% else %}
+            <option value="{{estoque.produto.id}}">{{estoque.produto.nome}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+
+            <label for="id_quantidade">Quantidade: </label>
+            <input type="number" id="id_quantidade" name="quantidade" class="numero">
+        <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
+            <span class="glyphicon glyphicon-plus-sign"></span>
+        </button>
+        <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
+            <span class="glyphicon glyphicon-minus-sign"></span>
+        </button>
+    </div><br><br>
+
+
             {% if preco_venda != None %}
             <label>Pre&ccedil;o do produto: R$ {{preco_venda|floatformat:2}}</label>
             {% else %}
             <label>Pre&ccedil;o do produto: </label>
             {% endif %}
-        <li>
-            <label for="id_quantidade">Quantidade: </label>
-            <input type="number" id="id_quantidade" name="quantidade" class="numero">
-        </li>
+
+            <li>
+            <label for="id_formapagamento">Forma de pagamento: </label>
+            <select id="id_formapagamento" name="formapagamento">
+                {% for key, value in checkout.FORMAPAGAMENTO %}
+                    <!--{% if key != 'venda' %}-->
+                    <option value="{{key}}" {%ifequal key checkout.motivo %} selected {%endifequal%}>{{value}}</option>
+                    <!--{% endif %}-->
+                {% endfor %}
+            </select>
+            </li>
         <li>
             <label for="id_observacao">Observacao: </label>
             <textarea type="text" id="id_observacao" name="observacao"></textarea>

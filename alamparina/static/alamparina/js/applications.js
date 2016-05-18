@@ -19,9 +19,10 @@ $.datepicker.regional['pt-BR'] = {
         yearSuffix: ''};
 $.datepicker.setDefaults($.datepicker.regional['pt-BR']);
 
-$("#id_dia_agendamento, #id_dtrealizado").datepicker({
+$("#id_dia_agendamento, #id_dtrealizado, #id_clientes_aniversario").datepicker({
     dateFormat: "dd/mm/yy"
 });
+
 
 $(window).load(function() {
   $(".resumo-vendas").toggle("slow");

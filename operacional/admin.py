@@ -34,8 +34,8 @@ class EstoqueAdmin(admin.ModelAdmin):
         return obj.produto.marca
 
 class CheckoutAdmin(admin.ModelAdmin):
-    list_display = ('marca', 'dia', 'motivo', 'unidade')
-    list_filter = ('marca', 'motivo', 'unidade')
+    list_display = ('dia', 'motivo', 'unidade')
+    list_filter = ('motivo', 'unidade')
     date_hierarchy = 'dia'
     ordering = ('dia',)
 
@@ -43,10 +43,14 @@ class RecomendacaoAdmin(admin.ModelAdmin):
     list_display = ('marca','nome','email')
     list_filter = ('marca' ,)
 
+class ItemVendaAdmin(admin.ModelAdmin):
+    list_display = ('produto','checkout',)
+    list_filter = ('produto', 'checkout',)
 
 admin.site.register(Produto,ProdutoAdmin)
 admin.site.register(Checkin,CheckinAdmin)
 admin.site.register(Expedicao,ExpedicaoAdmin)
+admin.site.register(ItemVenda, ItemVendaAdmin)
 admin.site.register(Estoque,EstoqueAdmin)
 admin.site.register(Checkout, CheckoutAdmin)
 admin.site.register(Recomendacao, RecomendacaoAdmin)
