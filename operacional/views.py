@@ -901,7 +901,7 @@ def acompanhar_venda(request):
 def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
     lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    if "formapagamento" in request.POST and lrequest.POST['formapagamento'] != '':
+    if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
         lcheckout.formapagamento = lrequest.POST['formapagamento']
     lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
     lcheckout.save()
@@ -927,7 +927,7 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
 def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
     lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
+    if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
         lcheckout.formapagamento = lrequest.POST['formapagamento']
     lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
     lcheckout.save()
