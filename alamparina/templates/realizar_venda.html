@@ -17,15 +17,18 @@
             {% endif %}
 
         <ul>
+            <!--UNIDADES-->
         <li>
+
             <label for="id_unidades">Unidades: </label>
 
-                {% if checkout.unidade and itemvenda_list.count > 0 %}
-                <select id="id_unidades" name="unidade" onchange="form.submit()" disabled>
-                <!--<select id="id_unidades" name="unidade" onchange="form.submit()">-->
+                {% if checkout.unidade and itemvenda_list.count > 0 or checkout.status == 'confirmado' %}
+                    <select id="id_unidades" name="unidade" onchange="form.submit()" disabled>
+                    <!--<select id="id_unidades" name="unidade" onchange="form.submit()">-->
                 {% else %}
-                <select id="id_unidades" name="unidade" onchange="form.submit()">
+                    <select id="id_unidades" name="unidade" onchange="form.submit()">
                 {% endif %}
+
 
                 <option value="">Selecione uma unidade</option>
                 {% for unidade in unidade_list %}
@@ -36,20 +39,20 @@
                 {% endif %}
                 {% endfor %}
                 </select>
-            <!--{% if error %}-->
-                <!--<br><br>-->
-                <!--<div class="alert alert-danger">-->
-                    <!--<strong><i class="glyphicon glyphicon-info-sign"></i> Quantidade superior a de estoque (estoque.quantidade)</strong>-->
-                <!--</div>-->
-            <!--{% endif %}-->
         </li>
+            <!--DATA DA VENDA-->
         <li>
+
             <label for="id_dtrealizado">Data da venda:</label>
-                {% if dtrealizado_retorno != None %}
-                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno|date:'d/m/Y'}}">
-                {% else %}
-                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
-                {% endif %}
+            {% if checkout.status == 'confirmado' %}
+               <input class="data" placeholder="Dia da venda..." id="id_dtrealizado" type="text" name="dtrealizado" value="{% if checkout %}{{checkout.dtrealizado|date:'d/m/Y'}}{% endif %}" disabled>
+            {% else %}
+               {% if dtrealizado_retorno != None %}
+                   <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="{{dtrealizado_retorno|date:'d/m/Y'}}">
+               {% else %}
+                   <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
+               {% endif %}
+            {% endif %}
         </li>
         <br><br>
         <li>
@@ -83,7 +86,8 @@
         <br><br>
         <li>
             <label for="id_canais">Canais: </label>
-            <select id="id_canais" name="canal" onchange="form.submit()">
+            <select id="id_canais" name="canal">
+            <!--<select id="id_canais" name="canal" onchange="form.submit()">-->
                 <option value="">Selecione um canal</option>
                 {% for canal in canal_list %}
                 {% if canal_retorno != None and canal_retorno.id == canal.id  %}
@@ -176,12 +180,30 @@
             <!--</li>-->
         <li>
 
-            <label for="id_formapagamento">Forma de pagamento: </label>
-            <select id="id_formapagamento" name="formapagamento" onchange="form.submit()">
-                {% for key, value in checkout.FORMAPAGAMENTO%}
-                <option value="{{key}}" {%ifequal key checkout.formapagamento %} selected {%endifequal%}>{{value}}</option>
-                {% endfor %}
-            </select>
+            <label>Forma de pagamento: </label> <br>
+
+            {% if checkout.formapagamento == 'credito' %}
+              <input type="radio" name="formapagamento" value="credito" checked> Crédito<br>
+            {% else %}
+              <input type="radio" name="formapagamento" value="credito"> Crédito<br>
+            {% endif %}
+            {% if checkout.formapagamento == 'debito' %}
+              <input type="radio" name="formapagamento" value="debito" checked> Débito<br>
+            {% else %}
+              <input type="radio" name="formapagamento" value="debito"> Débito<br>
+            {% endif %}
+            {% if checkout.formapagamento == 'dinheiro' %}
+              <input type="radio" name="formapagamento" value="dinheiro" checked> Dinheiro<br>
+            {% else %}
+              <input type="radio" name="formapagamento" value="dinheiro"> Dinheiro<br>
+            {% endif %}
+            {% if checkout.formapagamento == 'cheque' %}
+              <input type="radio" name="formapagamento" value="cheque" checked> Cheque
+            {% else %}
+              <input type="radio" name="formapagamento" value="cheque"> Cheque
+            {% endif %}
+
+
         </li>
         <li>
             <label for="id_observacao">Observacao: </label>
@@ -192,8 +214,8 @@
             {% endif %}
         </li>
         <li>
-            <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
-                <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+            <button type="submit" name="finalizar" value="Finalizar Venda" class="btn btn-primary">
+                <span class="glyphicon glyphicon-ok"></span> Finalizar Venda
             </button>
         </li>
         </ul>

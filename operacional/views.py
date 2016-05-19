@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from resource import error
+
 from boto.ecs import item
 from botocore.vendored.requests.api import request
 from django.contrib import messages
@@ -11,6 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response
 from django.contrib.auth.decorators import user_passes_test
+from django.db import transaction
 from django.template.context_processors import request
 from django.utils import *
 
@@ -893,7 +896,7 @@ def acompanhar_venda(request):
 
 
 
-#funções inicia_realizar_venda e edita_realizar_venda
+#funções inicia_realizar_venda, edita_realizar_venda e estoque
 # adicionar produto
 def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
@@ -910,14 +913,7 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
         itemvenda.produto = lestoque_retorno.produto
         itemvenda.preco_venda = lestoque_retorno.produto.preco_venda
         itemvenda.quantidade = int(lrequest.POST['quantidade'])
-        estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
-        for estoque in estoque_list:
-            if estoque.quantidade >= itemvenda.quantidade:
-                estoque.quantidade -= itemvenda.quantidade
-                estoque.save()
-                itemvenda.save()
-            else:
-                error = 'Quantidade de venda superior à quantidade presente no estoque. Quantidade em estoque: ' + str(estoque.quantidade) +'.'
+        itemvenda.save()
 
     lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
     lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
@@ -925,7 +921,7 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
 
     return error
 
-#funções inicia_realizar_venda e edita_realizar_venda
+#funções inicia_realizar_venda e edita_realizar_venda e estoque
 # remover produto
 def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
@@ -938,33 +934,9 @@ def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
         for itemvenda in itemvenda_list:
             if itemvenda.quantidade == int(lrequest.POST['quantidade']):
                 itemvenda.delete()
-                estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
-                if estoque_list:
-                    for estoque in estoque_list:
-                        estoque.quantidade += int(lrequest.POST['quantidade'])
-                        estoque.save()
-                else:
-                    estoque = Estoque()
-                    estoque.quantidade = int(lrequest.POST['quantidade'])
-                    estoque.produto = lestoque_retorno.produto
-                    estoque.unidade = lcheckout.unidade
-                    estoque.save()
-                #aumentoestoque
             if itemvenda.quantidade > int(lrequest.POST['quantidade']):
                 itemvenda.quantidade -= int(lrequest.POST['quantidade'])
                 itemvenda.save()
-                estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
-                if estoque_list:
-                    for estoque in estoque_list:
-                        estoque.quantidade += int(lrequest.POST['quantidade'])
-                        estoque.save()
-                else:
-                    estoque = Estoque()
-                    estoque.quantidade = int(lrequest.POST['quantidade'])
-                    estoque.produto = lestoque_retorno.produto
-                    estoque.unidade = lcheckout.unidade
-                    estoque.save()
-                #aummento estoque
             if itemvenda.quantidade < int(lrequest.POST['quantidade']):
                 error = 'Não é possível excluir quantidade maior à do checkout.'
     else:
@@ -973,8 +945,39 @@ def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
     lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
     lcheckout.save()
-
     return error
+
+
+#funções inicia_realizar_venda e edita_realizar_venda e estoque
+#atualizar estoque
+@transaction.atomic
+def realizar_venda_atualizar_estoque(lcheckout):
+        # begin tran
+        try:
+            with transaction.atomic():
+                itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, gravou_estoque=0)
+                for itemvenda in itemvenda_list:
+                    estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
+                    if estoque_list:
+                        for estoque in estoque_list:
+                            if estoque.quantidade >= itemvenda.quantidade:
+                                estoque.quantidade -= itemvenda.quantidade
+                                estoque.save()
+                                itemvenda.gravou_estoque = 1
+                                itemvenda.save()
+                            elif estoque.quantidade == itemvenda.quantidade:
+                                estoque.quantidade.delete()
+                                itemvenda.gravou_estoque = 1
+                                itemvenda.save()
+                            else:
+                                erro = 'Quantidade de venda do produto ' + str(itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
+                                    estoque.quantidade) + '.'
+                                raise Exception(erro)
+                    else:
+                        erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(lcheckout.unidade.nome) + '.'
+                        raise Exception(erro)
+        except Exception as e:
+            return e
 
 
 @login_required
@@ -998,7 +1001,6 @@ def inicia_realizar_venda(request):
     observacao_retorno = None
     unidade_list = Unidade.objects.all().distinct()
 
-    # só entra aqui pra salvar
     if request.method=='POST':
         checkout.observacao = request.POST['observacao']
         if request.POST['unidade']:
@@ -1068,15 +1070,16 @@ def inicia_realizar_venda(request):
 
     if "adicionar_produto" in request.POST:
         error = realizar_venda_adicionar_produto(checkout, request, estoque_retorno)
-        return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
+        if not error:
+            return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
 
     if "remover_produto" in request.POST:
         error = realizar_venda_remover_produto(checkout, request, estoque_retorno)
-        return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
+        if not error:
+            return HttpResponseRedirect('/operacional/realizar-venda/' + str(checkout.id))
 
     if "finalizar" in request.POST:
-        checkout.status = 'confirmado'
-        checkout.save()
+        error = 'Favor inserir produtos.'
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
 
@@ -1191,8 +1194,10 @@ def edita_realizar_venda(request, id):
         error = realizar_venda_remover_produto(checkout, request, estoque_retorno)
 
     if "finalizar" in request.POST:
-        checkout.status = 'confirmado'
-        checkout.save()
+        error = realizar_venda_atualizar_estoque(checkout)
+        if not error:
+            checkout.status = 'confirmado'
+            checkout.save()
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
     return render(request,'realizar_venda.html',
