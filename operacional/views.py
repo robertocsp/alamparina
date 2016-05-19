@@ -1027,7 +1027,7 @@ def inicia_realizar_venda(request):
 
         if request.POST['observacao']:
             checkout.observacao = request.POST['observacao']
-        if request.POST['formapagamento']:
+        if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             checkout.formapagamento = request.POST['formapagamento']
 
         # tratamento para Cliente
