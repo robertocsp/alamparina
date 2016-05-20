@@ -35,7 +35,12 @@
             {% endfor %}
                 </select>
 
-            <select id="id_canais" name="canal">
+
+            {% if checkout.status == 'confirmado' %}
+                <select id="id_canais" name="canal" disabled>
+            {% else %}
+                <select id="id_canais" name="canal">
+            {% endif %}
             <!--<select id="id_canais" name="canal" onchange="form.submit()">-->
                 <option value="">Selecione o canal...</option>
                 {% for canal in canal_list %}
@@ -46,12 +51,7 @@
                 {% endif %}
                 {% endfor %}
             </select>
-            <!--{% if error %}-->
-                <!--<br><br>-->
-                <!--<div class="alert alert-danger">-->
-                    <!--<strong><i class="glyphicon glyphicon-info-sign"></i> Erro no canal</strong>-->
-                <!--</div>-->
-            <!--{% endif %}-->
+
             {% if checkout.status == 'confirmado' %}
                <input class="data" placeholder="Dia da venda..." id="id_dtrealizado" type="text" name="dtrealizado" value="{% if checkout %}{{checkout.dtrealizado|date:'d/m/Y'}}{% endif %}" disabled>
             {% else %}
@@ -61,34 +61,67 @@
                    <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda..." name="dtrealizado" value="">
                {% endif %}
             {% endif %}<br><br><hr>
+
         </div><br>
         <label class="link-cliente"><i class="glyphicon glyphicon-user"></i> Adicionar / Editar Informa&ccedil;&otildees do Cliente</label>
         <div class="info-cliente" style="display: none;"><br>
-                        {% if cliente_retorno != None %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}" onchange="form.submit()">
+            {% if checkout.status == 'confirmado' %}
+                {% if cliente_retorno != None %}
+                    <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}" onchange="form.submit()" disabled>
+                {% else %}
+                    <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="" onchange="form.submit()" disabled>
+                {% endif %}
+                {% if cliente_retorno != None %}
+                    {% if cliente_retorno.nome != 'nome em processamento'%}
+                        <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}" onchange="form.submit()" disabled>
+                    {% else %}
+                        <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()" disabled>
+                    {% endif %}
+                {% else %}
+                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()" disabled>
+                {% endif %}
+
+                {% if cliente_retorno != None %}
+                    <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}" onchange="form.submit()" disabled>
+                {% else %}
+                    <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="" onchange="form.submit()" disabled>
+                {% endif %}
             {% else %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="" onchange="form.submit()">
-            {% endif %}
-            {% if cliente_retorno != None %}
-                {% if cliente_retorno.nome != 'nome em processamento'%}
-                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}" onchange="form.submit()">
+                {% if cliente_retorno != None %}
+                    <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}" onchange="form.submit()">
+                {% else %}
+                    <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="" onchange="form.submit()">
+                {% endif %}
+                {% if cliente_retorno != None %}
+                    {% if cliente_retorno.nome != 'nome em processamento'%}
+                        <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}" onchange="form.submit()">
+                    {% else %}
+                        <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()">
+                    {% endif %}
                 {% else %}
                     <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()">
                 {% endif %}
-            {% else %}
-                <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()">
+
+                {% if cliente_retorno != None %}
+                    <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}" onchange="form.submit()">
+                {% else %}
+                    <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="" onchange="form.submit()">
+                {% endif %}
+
             {% endif %}
 
-            {% if cliente_retorno != None %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}" onchange="form.submit()">
-            {% else %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="" onchange="form.submit()">
-            {% endif %}<br><br><br><hr>
+
+            <br><br><br><hr>
         </div>
         <br>
         <div class="info-produto"><br>
             <label><i class="fa fa-dropbox"></i> Incluir / Excluir Produtos: </label><br><br>
-            <select id="id_estoque" name="estoque">
+            {% if checkout.status == 'confirmado' %}
+                <select id="id_estoque" name="estoque" disabled>
+            {% else %}
+                <select id="id_estoque" name="estoque">
+            {% endif %}
+
                 <option value="">Selecione um produto</option>
                 {% for estoque in estoque_list %}
                 {% if estoque_retorno != None and estoque_retorno.id == estoque.id  %}
@@ -100,12 +133,22 @@
             </select>
             <input type="number" id="id_quantidade" placeholder="Quantidade" name="quantidade" class="numero">
             <div class="buttons-produto">
-                <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
-                    <span class="glyphicon glyphicon-plus-sign"></span>
-                </button>
-                <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-minus-sign"></span>
-                </button>
+
+                {% if checkout.status == 'confirmado' %}
+                    <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success" disabled>
+                        <span class="glyphicon glyphicon-plus-sign"></span>
+                    </button>
+                    <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger" disabled>
+                        <span class="glyphicon glyphicon-minus-sign"></span>
+                    </button>
+                {% else %}
+                    <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus-sign"></span>
+                    </button>
+                    <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-minus-sign"></span>
+                    </button>
+                {% endif %}
             </div>
             <br>
              {% if itemvenda_list %}
@@ -156,56 +199,109 @@
         </div>
         <div class="Forma-pagamento"><br>
             <label><i class="fa fa-dollar"></i> Forma de Pagamento</label><br><br>
-            {% if checkout.formapagamento == 'credito' %}
-                <label>
-                    <input type="radio" name="formapagamento" value="credito" checked> <i class="glyphicon glyphicon-credit-card"></i> Crédito
-                </label>
+            {% if checkout.status == 'confirmado' %}
+                {% if checkout.formapagamento == 'credito' %}
+                    <label>
+                        <input type="radio" name="formapagamento" value="credito" checked> <i class="glyphicon glyphicon-credit-card" disabled></i> Crédito
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="credito"> <i class="glyphicon glyphicon-credit-card" disabled></i> Crédito
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'debito' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="debito" checked> <i class="fa fa-credit-card" disabled></i> Débito
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="debito"> <i class="fa fa-credit-card" disabled></i> Débito
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'dinheiro' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="dinheiro" checked> <i class="fa fa-money" disabled></i> Dinheiro
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="dinheiro"> <i class="fa fa-money" disabled></i> Dinheiro
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'cheque' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="cheque" checked> <i class="glyphicon glyphicon-list-alt" disabled></i> Cheque
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="cheque"> <i class="glyphicon glyphicon-list-alt" disabled></i> Cheque
+                    </label>
+                {% endif %}
             {% else %}
-                <label>
-                  <input type="radio" name="formapagamento" value="credito"> <i class="glyphicon glyphicon-credit-card"></i> Crédito
-                </label>
-            {% endif %}
-            {% if checkout.formapagamento == 'debito' %}
-                <label>
-                  <input type="radio" name="formapagamento" value="debito" checked> <i class="fa fa-credit-card"></i> Débito
-                </label>
-            {% else %}
-                <label>
-                  <input type="radio" name="formapagamento" value="debito"> <i class="fa fa-credit-card"></i> Débito
-                </label>
-            {% endif %}
-            {% if checkout.formapagamento == 'dinheiro' %}
-                <label>
-                  <input type="radio" name="formapagamento" value="dinheiro" checked> <i class="fa fa-money"></i> Dinheiro
-                </label>
-            {% else %}
-                <label>
-                  <input type="radio" name="formapagamento" value="dinheiro"> <i class="fa fa-money"></i> Dinheiro
-                </label>
-            {% endif %}
-            {% if checkout.formapagamento == 'cheque' %}
-                <label>
-                  <input type="radio" name="formapagamento" value="cheque" checked> <i class="glyphicon glyphicon-list-alt"></i> Cheque
-                </label>
-            {% else %}
-                <label>
-                  <input type="radio" name="formapagamento" value="cheque"> <i class="glyphicon glyphicon-list-alt"></i> Cheque
-                </label>
+                {% if checkout.formapagamento == 'credito' %}
+                    <label>
+                        <input type="radio" name="formapagamento" value="credito" checked> <i class="glyphicon glyphicon-credit-card"></i> Crédito
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="credito"> <i class="glyphicon glyphicon-credit-card"></i> Crédito
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'debito' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="debito" checked> <i class="fa fa-credit-card"></i> Débito
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="debito"> <i class="fa fa-credit-card"></i> Débito
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'dinheiro' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="dinheiro" checked> <i class="fa fa-money"></i> Dinheiro
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="dinheiro"> <i class="fa fa-money"></i> Dinheiro
+                    </label>
+                {% endif %}
+                {% if checkout.formapagamento == 'cheque' %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="cheque" checked> <i class="glyphicon glyphicon-list-alt"></i> Cheque
+                    </label>
+                {% else %}
+                    <label>
+                      <input type="radio" name="formapagamento" value="cheque"> <i class="glyphicon glyphicon-list-alt"></i> Cheque
+                    </label>
+                {% endif %}
             {% endif %}
 
         </div>
         <div class="obs"><br><br><hr><br>
             <label><i class="glyphicon glyphicon-map-marker"></i> Observa&ccedil;&atilde;o </label><br><br>
-            {% if observacao_retorno != None %}
-                 <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao">{{observacao_retorno}}</textarea>
+            {% if checkout.status == 'confirmado' %}
+                {% if observacao_retorno != None %}
+                    <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao" disabled>{{observacao_retorno}}</textarea>
+                {% else %}
+                    <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao" disabled></textarea>
+                {% endif %}
             {% else %}
-                <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao"></textarea>
+                {% if observacao_retorno != None %}
+                    <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao">{{observacao_retorno}}</textarea>
+                {% else %}
+                    <textarea type="text" id="id_observacao" placeholder="Observa&ccedil;&atilde;o..." name="observacao"></textarea>
+                {% endif %}
             {% endif %}
         </div>
         <br>
-        <button type="submit" name="finalizar" value="Finalizar Venda" class="btn btn-primary">
-            <span class="glyphicon glyphicon-ok"></span> Finalizar Venda
-        </button>
+        {% if checkout.status == 'confirmado' %}
+            <button type="submit" name="finalizar" value="Finalizar Venda" class="btn btn-primary" disabled>
+                <span class="glyphicon glyphicon-ok"></span> Finalizar Venda
+            </button>
+        {% else %}
+            <button type="submit" name="finalizar" value="Finalizar Venda" class="btn btn-primary">
+                <span class="glyphicon glyphicon-ok"></span> Finalizar Venda
+            </button>
+        {% endif %}
     </form><br>
     <a href="javascript:history.back();"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar</a>
 </div>
