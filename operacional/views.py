@@ -1132,16 +1132,14 @@ def edita_realizar_venda(request, id):
     checkout = get_object_or_404(Checkout, id=id)
     canal_list = Canal.objects.all()
     unidade_list = Unidade.objects.all().distinct()
-    estoque_list = None
     unidade_retorno = checkout.unidade
     dtrealizado_retorno = checkout.dtrealizado
     canal_retorno = checkout.canal
-    cliente_retorno = checkout.cliente_unidade.cliente
+    cliente_retorno = None
     estoque_retorno = None
     formapagamento_retorno = checkout.formapagamento
     checkout.motivo = 'venda'
     error = False
-    estoque = None
     preco_venda = None
     observacao_retorno = checkout.observacao
     unidade_list = Unidade.objects.all().distinct()
@@ -1159,19 +1157,20 @@ def edita_realizar_venda(request, id):
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
         if "telefone" in request.POST and request.POST['telefone'] != '':
             cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+
+            for cliente in cliente_list:
+                cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
+                for cliente_unidade in cliente_unidade_list:
+                    checkout.cliente_unidade_id = cliente_unidade.id
+                if not cliente_unidade_list:
+                    cliente_unidade = Cliente_Unidade()
+                    cliente_unidade.cliente = cliente
+                    cliente_unidade.unidade = checkout.unidade
+                    cliente_unidade.save()
+                    checkout.cliente_unidade = cliente_unidade
+
         if "observacao" in request.POST and request.POST['observacao'] != '':
             checkout.observacao = request.POST['observacao']
-
-        for cliente in cliente_list:
-            cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
-            for cliente_unidade in cliente_unidade_list:
-                checkout.cliente_unidade_id = cliente_unidade.id
-            if not cliente_unidade_list:
-                cliente_unidade = Cliente_Unidade()
-                cliente_unidade.cliente = cliente
-                cliente_unidade.unidade = checkout.unidade
-                cliente_unidade.save()
-                checkout.cliente_unidade = cliente_unidade
 
         # tratamento para Cliente
         if "telefone" in request.POST and request.POST['telefone'] != '':
