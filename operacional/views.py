@@ -1135,7 +1135,10 @@ def edita_realizar_venda(request, id):
     unidade_retorno = checkout.unidade
     dtrealizado_retorno = checkout.dtrealizado
     canal_retorno = checkout.canal
-    cliente_retorno = None
+    if checkout.cliente_unidade:
+        cliente_retorno = checkout.cliente_unidade.cliente
+    else:
+        cliente_retorno = None
     estoque_retorno = None
     formapagamento_retorno = checkout.formapagamento
     checkout.motivo = 'venda'
@@ -1224,6 +1227,7 @@ def edita_realizar_venda(request, id):
         if not error:
             checkout.status = 'confirmado'
             checkout.save()
+            return HttpResponseRedirect('/operacional/realizar-venda/')
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
     return render(request,'realizar_venda.html',
