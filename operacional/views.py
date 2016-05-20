@@ -1132,7 +1132,6 @@ def edita_realizar_venda(request, id):
     checkout = get_object_or_404(Checkout, id=id)
     canal_list = Canal.objects.all()
     unidade_list = Unidade.objects.all().distinct()
-    estoque_list = None
     unidade_retorno = checkout.unidade
     dtrealizado_retorno = checkout.dtrealizado
     canal_retorno = checkout.canal
@@ -1141,7 +1140,6 @@ def edita_realizar_venda(request, id):
     formapagamento_retorno = checkout.formapagamento
     checkout.motivo = 'venda'
     error = False
-    estoque = None
     preco_venda = None
     observacao_retorno = checkout.observacao
     unidade_list = Unidade.objects.all().distinct()
