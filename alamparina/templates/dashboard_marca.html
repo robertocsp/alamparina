@@ -6,13 +6,13 @@
 {% block conteudo %}
 <div class="row">
     <div class="col-lg-2 col-md-6">
-        <div class="panel panel-primary">
+        <div class="panel  panel-primary">
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-xs-9 text-center cem">
+                    <div class="col-xs-9 text-right">
                         <div class="huge">{{ total_venda }}</div>
-                        <div class="font-16px">Total Produtos Vendidos</div>
                     </div>
+                    <div class="title-box-dashboard">Produtos Vendidos</div>
                 </div>
             </div>
         </div>
@@ -25,9 +25,9 @@
                         <i class="fa fa-tasks fa-3x"></i>
                     </div>
                     <div class="col-xs-9 text-right">
-                        <div class="huge"> {{ total_venda_periodo }}</div>
-                        <div>Vendas período atual</div>
+                        <div class="huge">{{ total_venda_periodo }}</div>
                     </div>
+                    <div class="title-box-dashboard">Vendas período atual</div>
                 </div>
             </div>
         </div>
@@ -41,8 +41,8 @@
                     </div>
                     <div class="col-xs-9 text-right">
                         <div class="huge">{{ produtos_em_estoque }}</div>
-                        <div>Produtos em estoque</div>
                     </div>
+                    <div class="title-box-dashboard">Produtos em estoque</div>
                 </div>
             </div>
         </div>
@@ -56,8 +56,8 @@
                     </div>
                     <div class="col-xs-9 text-right">
                         <div class="huge">R$ {{ total_a_receber_periodo|floatformat:2 }}</div>
-                        <div>Receita Per&iacute;odo Atual</div>
                     </div>
+                    <div class="title-box-dashboard">Receita Per&iacute;odo Atual</div>
                 </div>
             </div>
         </div>
