@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.template.context_processors import request
 from django.utils import *
-
+from django.shortcuts import get_object_or_404
 from administrativo.models import *
 from models import Canal
 from models import Produto
@@ -25,6 +25,7 @@ from operacional.forms import *
 
 # Create your views here.
 from alamparina.library import memoriacalculo
+from alamparina.library import acesso
 import datetime
 import time
 
@@ -110,22 +111,26 @@ def cadastra_produto(request):
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_produto(request,id):
     produto = get_object_or_404(Produto, id=id)
-    marca = Marca.objects.get(id=request.session['marca_id'])
-    if request.method == 'POST':
-        form = ProdutoForm(request.     POST, instance=produto)
-        if form.is_valid():
-            #jogar pra dentro do models
-            #mas vou precisar salvar marca
-            produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
-            produto.save()
-            marca.sequencial_atual = int(marca.sequencial_atual) + 1
-            marca.save()
-            return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
+    erro = acesso.ValidaAcesso(request, produto.marca)
+    if not erro:
+        marca = Marca.objects.get(id=request.session['marca_id'])
+        if request.method == 'POST':
+            form = ProdutoForm(request.     POST, instance=produto)
+            if form.is_valid():
+                #jogar pra dentro do models
+                #mas vou precisar salvar marca
+                produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
+                produto.save()
+                marca.sequencial_atual = int(marca.sequencial_atual) + 1
+                marca.save()
+                return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
 
+        else:
+            form = ProdutoForm(instance=produto)
+        return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
     else:
-        form = ProdutoForm(instance=produto)
-    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
-    #return HttpResponseRedirect(reverse('marca_cadastra_produto'))
+        return render(request, 'acesso-negado.html')
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
@@ -224,91 +229,96 @@ def inicia_checkin(request):
                   }
     )
 
-@login_required
+@login_required #rfh
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_checkin(request, id):
     checkin = get_object_or_404(Checkin, id=id)
-    expedicao = Expedicao()
+    erro = acesso.ValidaAcesso(request, checkin.marca)
+    if not erro:
+        expedicao = Expedicao()
 
-    if len(request.POST) != 0:
-        unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
-        checkin.unidade_id = request.POST['unidade']
-    else:
-        unidade_retorno = Unidade.objects.get(id=checkin.unidade_id)
-
-    expedicao_list = Expedicao.objects.filter(checkin=checkin)
-
-    unidade_list = Unidade.objects.filter(miniloja__contrato__marca=checkin.marca).distinct()
-    canal_list = Canal.objects.all()
-    contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
-    if contrato_list.count() != 0:
-      contrato = contrato_list[0]
-    else:
-      contrato = None
-
-    cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
-    saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
-
-    miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=checkin.unidade_id).distinct()
-    produto_list = checkin.marca.produto_set.all()
-
-    if "adicionar_canal" in request.POST:
-        adicionar_canal(checkin, request)
-
-    elif "remover_canal" in request.POST:
-        checkin.canal.remove(Canal.objects.get(id=request.POST['canais']))
-        checkin.save()
-
-    elif "adicionar_produto" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        produto = Produto.objects.get(id=request.POST['produtos'])
-        expedicao.quantidade = request.POST['qtde_produto']
-        expedicao.produto = produto
-        expedicao.checkin = checkin
-        checkin.save()
-        expedicao.save()
-
-    elif "remover_produto" in request.POST:
-
-        produto = Produto.objects.get(id=request.POST['produtos'])
-        expedicao_remove = Expedicao.objects.filter(checkin=checkin, produto=produto)
-        if expedicao_remove: #ajeitar urgente esse expedicao_remove. Faço FILTER para testar para null, se for not null, faço um get.. :/
-            expedicao_remove = Expedicao.objects.get(checkin=checkin, produto=produto)
-            if expedicao_remove.quantidade > int(request.POST['qtde_produto']):
-                expedicao_remove.quantidade -= int(request.POST['qtde_produto'])
-                expedicao_remove.save()
-                checkin.save()
-            elif expedicao_remove.quantidade == int(request.POST['qtde_produto']):
-                expedicao_remove.delete()
-                checkin.save()
-
-    elif "finalizar" in request.POST:
-        if expedicao_list == None:
-            messages.error(request, 'Não existe nenhum produto inserido')
+        if len(request.POST) != 0:
+            unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+            checkin.unidade_id = request.POST['unidade']
         else:
-            checkin.status = checkin.status_enviado()
+            unidade_retorno = Unidade.objects.get(id=checkin.unidade_id)
+
+        expedicao_list = Expedicao.objects.filter(checkin=checkin)
+
+        unidade_list = Unidade.objects.filter(miniloja__contrato__marca=checkin.marca).distinct()
+        canal_list = Canal.objects.all()
+        contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
+        if contrato_list.count() != 0:
+          contrato = contrato_list[0]
+        else:
+          contrato = None
+
+        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
+
+        miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=checkin.unidade_id).distinct()
+        produto_list = checkin.marca.produto_set.all()
+
+        if "adicionar_canal" in request.POST:
+            adicionar_canal(checkin, request)
+
+        elif "remover_canal" in request.POST:
+            checkin.canal.remove(Canal.objects.get(id=request.POST['canais']))
             checkin.save()
 
-    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
+        elif "adicionar_produto" in request.POST:
+            checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+            produto = Produto.objects.get(id=request.POST['produtos'])
+            expedicao.quantidade = request.POST['qtde_produto']
+            expedicao.produto = produto
+            expedicao.checkin = checkin
+            checkin.save()
+            expedicao.save()
 
-    return render(request, 'checkin.html',
-                  {
-                      'marca': checkin.marca,
-                      'checkin': checkin,
-                      'miniloja_list': miniloja_list,
-                      'canal_list': canal_list,
-                      'produto_list': produto_list,
-                      'expedicao_list': expedicao_list,
-                      'cubagem_contratada': cubagem_contratada,
-                      'saldo_cubagem_estoque': saldo_cubagem_estoque,
-                      'saldo_cubagem': saldo_cubagem,
-                      'unidade_list': unidade_list,
-                      'unidade_retorno': unidade_retorno,
-                      'contrato': contrato,
-                  }
-    )
+        elif "remover_produto" in request.POST:
 
-@login_required #rfh
+            produto = Produto.objects.get(id=request.POST['produtos'])
+            expedicao_remove = Expedicao.objects.filter(checkin=checkin, produto=produto)
+            if expedicao_remove: #ajeitar urgente esse expedicao_remove. Faço FILTER para testar para null, se for not null, faço um get.. :/
+                expedicao_remove = Expedicao.objects.get(checkin=checkin, produto=produto)
+                if expedicao_remove.quantidade > int(request.POST['qtde_produto']):
+                    expedicao_remove.quantidade -= int(request.POST['qtde_produto'])
+                    expedicao_remove.save()
+                    checkin.save()
+                elif expedicao_remove.quantidade == int(request.POST['qtde_produto']):
+                    expedicao_remove.delete()
+                    checkin.save()
+
+        elif "finalizar" in request.POST:
+            if expedicao_list == None:
+                messages.error(request, 'Não existe nenhum produto inserido')
+            else:
+                checkin.status = checkin.status_enviado()
+                checkin.save()
+
+        saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
+
+        return render(request, 'checkin.html',
+                      {
+                          'marca': checkin.marca,
+                          'checkin': checkin,
+                          'miniloja_list': miniloja_list,
+                          'canal_list': canal_list,
+                          'produto_list': produto_list,
+                          'expedicao_list': expedicao_list,
+                          'cubagem_contratada': cubagem_contratada,
+                          'saldo_cubagem_estoque': saldo_cubagem_estoque,
+                          'saldo_cubagem': saldo_cubagem,
+                          'unidade_list': unidade_list,
+                          'unidade_retorno': unidade_retorno,
+                          'contrato': contrato,
+                      }
+        )
+    else:
+        return render(request, 'acesso-negado.html')
+
+
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def dashboard_marca(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -609,6 +619,7 @@ def edita_checkin_operacional(request, id):
                   }
     )
 
+
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_checkout(request):
@@ -772,7 +783,7 @@ def recomendar_marca(request):
     return render(request, 'recomendar_marca.html', {'form': form, 'error': False})
 
 
-@login_required #rfh
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def acompanhar_venda(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -915,7 +926,10 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
         itemvenda.checkout = lcheckout
         itemvenda.produto = lestoque_retorno.produto
         itemvenda.preco_venda = lestoque_retorno.produto.preco_venda
-        itemvenda.quantidade = int(lrequest.POST['quantidade'])
+        if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
+            itemvenda.quantidade = int(lrequest.POST['quantidade'])
+        else:
+            itemvenda.quantidade = 0
         itemvenda.save()
 
     lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
@@ -931,17 +945,19 @@ def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
     if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
         lcheckout.formapagamento = lrequest.POST['formapagamento']
+    if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
+        quantidade = int(lrequest.POST['quantidade'])
     lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
     lcheckout.save()
     itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
     if itemvenda_list:
         for itemvenda in itemvenda_list:
-            if itemvenda.quantidade == int(lrequest.POST['quantidade']):
+            if itemvenda.quantidade == quantidade:
                 itemvenda.delete()
-            if itemvenda.quantidade > int(lrequest.POST['quantidade']):
-                itemvenda.quantidade -= int(lrequest.POST['quantidade'])
+            if itemvenda.quantidade > quantidade:
+                itemvenda.quantidade -= quantidade
                 itemvenda.save()
-            if itemvenda.quantidade < int(lrequest.POST['quantidade']):
+            if itemvenda.quantidade < quantidade:
                 error = 'Não é possível excluir quantidade maior à do checkout.'
     else:
         error = 'Produto já não faz parte deste checkout.'
@@ -956,32 +972,31 @@ def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
 #atualizar estoque
 @transaction.atomic
 def realizar_venda_atualizar_estoque(lcheckout):
-        # begin tran
-        try:
-            with transaction.atomic():
-                itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, gravou_estoque=0)
-                for itemvenda in itemvenda_list:
-                    estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
-                    if estoque_list:
-                        for estoque in estoque_list:
-                            if estoque.quantidade >= itemvenda.quantidade:
-                                estoque.quantidade -= itemvenda.quantidade
-                                estoque.save()
-                                itemvenda.gravou_estoque = 1
-                                itemvenda.save()
-                            elif estoque.quantidade == itemvenda.quantidade:
-                                estoque.quantidade.delete()
-                                itemvenda.gravou_estoque = 1
-                                itemvenda.save()
-                            else:
-                                erro = 'Quantidade de venda do produto ' + str(itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
-                                    estoque.quantidade) + '.'
-                                raise Exception(erro)
-                    else:
-                        erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(lcheckout.unidade.nome) + '.'
-                        raise Exception(erro)
-        except Exception as e:
-            return e
+    try:
+        with transaction.atomic():
+            itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, gravou_estoque=0)
+            for itemvenda in itemvenda_list:
+                estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
+                if estoque_list:
+                    for estoque in estoque_list:
+                        if estoque.quantidade >= itemvenda.quantidade:
+                            estoque.quantidade -= itemvenda.quantidade
+                            estoque.save()
+                            itemvenda.gravou_estoque = 1
+                            itemvenda.save()
+                        elif estoque.quantidade == itemvenda.quantidade:
+                            estoque.quantidade.delete()
+                            itemvenda.gravou_estoque = 1
+                            itemvenda.save()
+                        else:
+                            erro = 'Quantidade de venda do produto ' + str(itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
+                                estoque.quantidade) + '.'
+                            raise Exception(erro)
+                else:
+                    erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(lcheckout.unidade.nome) + '.'
+                    raise Exception(erro)
+    except Exception as e:
+        return e
 
 
 @login_required
@@ -1006,17 +1021,19 @@ def inicia_realizar_venda(request):
     unidade_list = Unidade.objects.all().distinct()
 
     if request.method=='POST':
-        checkout.observacao = request.POST['observacao']
-        if request.POST['unidade']:
+        if "observacao" in request.POST and request.POST['observacao'] != '':
+            checkout.observacao = request.POST['observacao']
+        if "unidade" in request.POST and request.POST['unidade'] != '':
             checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
-        if request.POST['dtrealizado']:
+        if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
-        if request.POST['canal']:
+        if "canal" in request.POST and request.POST['canal'] != '':
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
-        if request.POST['estoque']:
+        if "estoque" in request.POST and request.POST['estoque'] != '':
             estoque_list = Estoque.objects.get(produto_id=request.POST['estoque'])
-        if request.POST['telefone']:
+        if "telefone" in request.POST and request.POST['telefone'] != '':
             cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+
 
             for cliente in cliente_list:
                 cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
@@ -1029,7 +1046,7 @@ def inicia_realizar_venda(request):
                     cliente_unidade.save()
                     checkout.cliente_unidade = cliente_unidade
 
-        if request.POST['observacao']:
+        if "observacao" in request.POST and request.POST['observacao'] != '':
             checkout.observacao = request.POST['observacao']
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             checkout.formapagamento = request.POST['formapagamento']
@@ -1132,12 +1149,18 @@ def edita_realizar_venda(request, id):
     estoque_list = Estoque.objects.filter(unidade=checkout.unidade)
 
     if request.method=='POST':
-        checkout.observacao = request.POST['observacao']
-        checkout.formapagamento = request.POST['formapagamento']
-        checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
-        checkout.canal = Canal.objects.get(id=request.POST['canal'])
-        cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
-        checkout.observacao = request.POST['observacao']
+        if "observacao" in request.POST and request.POST['observacao'] != '':
+            checkout.observacao = request.POST['observacao']
+        if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
+            checkout.formapagamento = request.POST['formapagamento']
+        if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
+            checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+        if "canal" in request.POST and request.POST['canal'] != '':
+            checkout.canal = Canal.objects.get(id=request.POST['canal'])
+        if "telefone" in request.POST and request.POST['telefone'] != '':
+            cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
+        if "observacao" in request.POST and request.POST['observacao'] != '':
+            checkout.observacao = request.POST['observacao']
 
         for cliente in cliente_list:
             cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
