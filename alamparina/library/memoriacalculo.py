@@ -66,6 +66,19 @@ def PrecoReceber(checkout, contrato):
             preco_receber = float(checkout.preco_venda or 0)*(100 - float(checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - float(checkout.canal.custo_embalagem or 0) - float(checkout.canal.custo_entrega or 0) - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0)
     return preco_receber
 
+def PrecoReceber(itemvenda, contrato):
+    if itemvenda.checkout.canal.tipo == 'unidade':
+        preco_receber = (float(itemvenda.preco_venda or 0)*(100 - float(contrato.percentual_deflacao or 0))/100 - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0))
+    else:
+        if itemvenda.checkout.canal.acumulativo == 0:
+            preco_receber = (float(itemvenda.preco_venda or 0)*(100 - float(itemvenda.checkout.canal.percentual_deflacao or 0))/100 - float(itemvenda.checkout.canal.custo_embalagem or 0) - float(itemvenda.checkout.canal.custo_entrega or 0))
+        else:
+            preco_receber = float(itemvenda.preco_venda or 0)*(100 - float(itemvenda.checkout.canal.percentual_deflacao or 0) - float(contrato.percentual_deflacao or 0))/100 - float(itemvenda.checkout.canal.custo_embalagem or 0) - float(itemvenda.checkout.canal.custo_entrega or 0) - float(contrato.custo_embalagem or 0) - float(contrato.custo_entrega or 0)
+    return preco_receber
+
+
+
+
 def CalculoPrecoVendaCheckout(checkout):
     itemvenda_list = ItemVenda.objects.filter(checkout=checkout)
     precocalculado = 0.0

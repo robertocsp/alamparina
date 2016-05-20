@@ -308,7 +308,7 @@ def edita_checkin(request, id):
                   }
     )
 
-@login_required
+@login_required #rfh
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def dashboard_marca(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -319,19 +319,20 @@ def dashboard_marca(request):
     periodo_atual = None
     venda_grafico = [[]]
 
-    for venda in venda_list:
-        total_venda += 1
+    itemvenda_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca)
+    for itemvenda in itemvenda_list:
+        total_venda += itemvenda.quantidade
 
     data_hoje = time.strftime("%Y-%m-%d")
     periodo_list = Periodo.objects.filter(ate__gte=data_hoje, de__lte=data_hoje) #é invertido mesmo.
     for periodo in periodo_list:
         periodo_atual = periodo
-        vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
-                                                    dtrealizado__range=[periodo.de, periodo.ate])
+        vendaperiodo_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca,
+                                                    checkout__dtrealizado__range=[periodo.de, periodo.ate])
         for vendaperiodo in vendaperiodo_list:
-            total_venda_periodo += 1
+            total_venda_periodo += vendaperiodo.quantidade
             #preciso obter o contrato da venda (row do queryset Checkout)
-            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=vendaperiodo.unidade)
+            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=vendaperiodo.checkout.unidade)
             if contrato_list.count() != 0:
                 contrato = contrato_list[0]
                 total_a_receber_periodo += float(memoriacalculo.PrecoReceber(vendaperiodo, contrato) or 0)*(float(vendaperiodo.quantidade) or 0)
@@ -348,11 +349,10 @@ def dashboard_marca(request):
     j = 5;
     for periodo in periodo_list:
         venda_valor_grafico[j][0] = 'De ' + periodo.de.strftime("%d-%m-%y") + ' Até ' + periodo.ate.strftime("%d-%m-%y")
-        vendaperiodo_list = Checkout.objects.filter(motivo='venda', marca=marca,
-                                                    dtrealizado__range=[periodo.de, periodo.ate])
+        vendaperiodo_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca, checkout__dtrealizado__range=[periodo.de, periodo.ate])
         preco_venda_periodo = 0
         for vendaperiodo in vendaperiodo_list:
-           preco_venda_periodo += vendaperiodo.preco_venda
+           preco_venda_periodo += float(vendaperiodo.preco_venda or 0)*float(vendaperiodo.quantidade or 0)
         venda_valor_grafico[j][1] = preco_venda_periodo
         if j == 0:
             break
@@ -369,17 +369,17 @@ def dashboard_marca(request):
         saldo_cubagem_estoque += memoriacalculo.SaldoCubagemEstoqueUnidade(marca, unidade)
 
     saldo_cubagem_contratada_periodo = cubagem_contratada_periodo - saldo_cubagem_estoque
-
-    ultimasvendas_list = Checkout.objects.filter(motivo='venda', marca=marca).order_by('-dtrealizado')
+    ultimasvendas_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca).order_by('-checkout__dtrealizado')
+    # ultimasvendas_list = Checkout.objects.filter(motivo='venda', marca=marca).order_by('-dtrealizado')
     venda = [[0 for i in xrange(5)] for i in xrange(6)]
     j = 0
     for ultimasvendas in ultimasvendas_list:
         venda[0][j] = ultimasvendas.produto.nome
-        venda[1][j] = ultimasvendas.dtrealizado
+        venda[1][j] = ultimasvendas.checkout.dtrealizado
         venda[2][j] = "%.2f" % round(ultimasvendas.preco_venda, 2)
         venda[3][j] = ultimasvendas.quantidade
         # todo o lance do contrato ta confuso.
-        contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=ultimasvendas.unidade)
+        contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=ultimasvendas.checkout.unidade)
         if contrato_list.count() != 0:
             contrato = contrato_list[0]
             desconto_unidade = ultimasvendas.preco_venda - memoriacalculo.PrecoReceber(ultimasvendas, contrato)
@@ -772,7 +772,7 @@ def recomendar_marca(request):
     return render(request, 'recomendar_marca.html', {'form': form, 'error': False})
 
 
-@login_required
+@login_required #rfh
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def acompanhar_venda(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -800,25 +800,27 @@ def acompanhar_venda(request):
             pagamento_ate = periodo_retorno.pagamento_ate
         # periodo
         periodo_list = Periodo.objects.all()
-        # venda (groupby produto, sum(qtd))
         if periodo_retorno != None:
             contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=unidade_retorno)
             if contrato_list.count() != 0:
                 contrato = contrato_list[0]
             else:
                 contrato = None
-            venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+
+            venda_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
             if venda_list.count() != 0:
                 data_ultima_venda = datetime.date(2000,01,01)
                 for venda in venda_list:
-                    if venda.dtrealizado > data_ultima_venda:
-                        data_ultima_venda = venda.dtrealizado
+                    if venda.checkout.dtrealizado > data_ultima_venda:
+                        data_ultima_venda = venda.checkout.dtrealizado
                     total_pecas_vendidas += venda.quantidade
                     total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
                     total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
+
             #vendaPorProduto
             codigo = ''
-            vendaproduto_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            vendaproduto_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            # vendaproduto_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
             #vou precisar limpar
             venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
             j = 0
@@ -851,7 +853,7 @@ def acompanhar_venda(request):
             j = 0
             inicio = periodo_retorno.de
             while inicio <= periodo_retorno.ate:
-                vendadiaria_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado=inicio)
+                vendadiaria_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
                 venda_grafico_dia[j] = inicio
                 k = 1
@@ -1107,7 +1109,7 @@ def inicia_realizar_venda(request):
 
 
 
-@login_required #rfh
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def edita_realizar_venda(request, id):
     checkout = get_object_or_404(Checkout, id=id)
