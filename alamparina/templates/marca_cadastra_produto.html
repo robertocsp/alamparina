@@ -30,9 +30,32 @@
         <li><label for="{{ form.profundidade.id_profundidade }}">Profundidade*</label>
             {{ form.profundidade }} cm
         </li>
+        <li><label for="{{ form.peso.id_peso }}">Peso</label>
+            {{ form.peso }} Kg
+        </li>
+        <li>
+            <label for="{{ form.estoque_minimo.id_estoque_minimo }}">Estoque Minimo</label>
+            {{ form.estoque_minimo }}
+        </li>
+        <li><label for="{{ form.garantia.id_garantia }}">Garantia</label>
+            {{ form.garantia }} dias
+        </li>
         <li>
             <label for="{{ form.preco_venda.id_preco_venda }}">Preço venda* </label>
             R$ {{ form.preco_venda }}
+        </li>
+
+        <li><label for="{{ form.unidade_venda.id_unidade_venda }}">Unidade de Venda</label>
+            {{ form.unidade_venda }}
+        </li>
+        <li><label for="{{ form.ncm.id_ncm }}">NCM</label>
+            {{ form.ncm }}
+        </li>
+        <li><label for="{{ form.palavras_chaves.id_palavras_chaves }}">Palavras chave</label>
+            {{ form.palavras_chaves }}
+        </li>
+        <li><label for="{{ form.itens_inclusos.id_itens_inclusos }}">Itens inclusos</label>
+            {{ form.itens_inclusos }}
         </li>
          <li>(*) Campos com preenchimento Obrigat&oacute;rio</li>
         {% csrf_token %}
