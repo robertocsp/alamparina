@@ -23,7 +23,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-PRODUCAO = False
+PRODUCAO = True
 
 ADMINS = (
     ("Roberto", "80.pereira@gmail.com") #envia email caso ocorra erro 500 e debug=false
@@ -79,7 +79,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'alamparina06maio',                      # Or path to database file if using sqlite3.
+            'NAME': 'alamparina20maio',                      # Or path to database file if using sqlite3.
             'USER': 'Alamparina2016',                      # Not used with sqlite3.
             'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
             'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
