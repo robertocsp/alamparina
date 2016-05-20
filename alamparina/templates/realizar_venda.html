@@ -175,24 +175,24 @@
             <label><i class="glyphicon glyphicon-map-marker"></i> Informa&ccedil;&otildees do Cliente</label><br><br>
             {% if cliente_retorno != None %}
                 {% if cliente_retorno.nome != 'nome em processamento'%}
-                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}">
+                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}" onchange="form.submit()">
                 {% else %}
-                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
+                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()">
                 {% endif %}
             {% else %}
-                <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
+                <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="" onchange="form.submit()">
             {% endif %}
 
             {% if cliente_retorno != None %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}">
+                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}" onchange="form.submit()">
             {% else %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="">
+                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="" onchange="form.submit()">
             {% endif %}
 
             {% if cliente_retorno != None %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}">
+                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}" onchange="form.submit()">
             {% else %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="">
+                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="" onchange="form.submit()">
             {% endif %}
         </div>
 
