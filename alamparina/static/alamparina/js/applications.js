@@ -23,6 +23,17 @@ $("#id_dia_agendamento, #id_dtrealizado, #id_clientes_aniversario").datepicker({
     dateFormat: "dd/mm/yy"
 });
 
+$("#id_clientes_aniversario").datepicker({
+    changeMonth: true,
+    changeYear: true,
+    showButtonPanel: true,
+    dateFormat: 'dd MM'
+});
+
+
+$(".link-cliente").click(function(){
+    $(".info-cliente").slideToggle();
+});
 
 $(window).load(function() {
   $(".resumo-vendas").toggle("slow");

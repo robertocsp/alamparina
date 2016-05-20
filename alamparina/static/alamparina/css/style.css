@@ -613,3 +613,8 @@ ul.box-produtos-checkin li ul{
 .info-cliente input:last-child{
     margin-right: 15px;
 }
+
+.link-cliente:hover{
+    cursor: pointer;
+    color: red;
+}

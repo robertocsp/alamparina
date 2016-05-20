@@ -62,7 +62,32 @@
                {% endif %}
             {% endif %}
         </div>
-        <br><hr><br>
+        <br><hr><br><label class="link-cliente"><i class="glyphicon glyphicon-user"></i> Incluir/Editar as Informa&ccedil;&otildees do Cliente</label>
+
+        <div class="info-cliente" style="display: none;">
+            <br><br>
+            {% if cliente_retorno != None %}
+                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}">
+            {% else %}
+                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="">
+            {% endif %}
+
+            {% if cliente_retorno != None %}
+                {% if cliente_retorno.nome != 'nome em processamento'%}
+                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}">
+                {% else %}
+                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
+                {% endif %}
+            {% else %}
+                <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
+            {% endif %}
+
+            {% if cliente_retorno != None %}
+                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}">
+            {% else %}
+                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="">
+            {% endif %}<br><br><br><hr>
+        </div><br><br>
         <div class="info-produto">
             <label><i class="fa fa-dropbox"></i> Incluir / Excluir Produtos: </label><br><br>
             <select id="id_estoque" name="estoque">
@@ -171,30 +196,6 @@
             {% endif %}
             <br><br>
         </div><hr>
-        <div class="info-cliente"><br>
-            <label><i class="glyphicon glyphicon-map-marker"></i> Informa&ccedil;&otildees do Cliente</label><br><br>
-            {% if cliente_retorno != None %}
-                {% if cliente_retorno.nome != 'nome em processamento'%}
-                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="{{cliente_retorno.nome}}">
-                {% else %}
-                    <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
-                {% endif %}
-            {% else %}
-                <input type="text" class="col-md-6" id="id_clientes_nome" placeholder="Nome..." name="clientenome" value="">
-            {% endif %}
-
-            {% if cliente_retorno != None %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="{{cliente_retorno.telefone}}">
-            {% else %}
-                <input type="text" class="col-md-3" id="id_clientes_telefone" placeholder="Telefone..." name="telefone" value="">
-            {% endif %}
-
-            {% if cliente_retorno != None %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="{{cliente_retorno.aniversario|date:'d/m/Y'}}">
-            {% else %}
-                <input type="text" class="data col-md-2" id="id_clientes_aniversario" placeholder="Anivers&aacute;rio..." name="clienteaniversario" value="">
-            {% endif %}
-        </div>
 
         <div class="obs"><br><br><hr><br>
             <label><i class="glyphicon glyphicon-map-marker"></i> Observa&ccedil;&atilde;o </label><br><br>
