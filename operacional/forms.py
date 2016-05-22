@@ -20,6 +20,9 @@ class ProdutoForm(forms.ModelForm):
         self.fields['altura'].widget.attrs['class'] = 'numero'
         self.fields['profundidade'].widget.attrs['class'] = 'numero'
         self.fields['preco_venda'].widget.attrs['class'] = 'numero'
+        self.fields['peso'].widget.attrs['class'] = 'numero'
+        self.fields['estoque_minimo'].widget.attrs['class'] = 'numero'
+        self.fields['garantia'].widget.attrs['class'] = 'numero'
 
 class CheckinForm(forms.Form):
     dia_agendamento = forms.DateField(label='Dia agendamento')
