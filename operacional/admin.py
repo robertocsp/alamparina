@@ -4,7 +4,7 @@ from operacional.models import *
 # Register your models here.
 
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome','marca','cubagem','quantidade','preco_venda','marca', 'miniloja')
+    list_display = ( 'codigo', 'nome','marca','cubagem','quantidade','preco_venda','marca', 'miniloja')
     list_filter = ('marca', 'miniloja',)
     search_fields = ('marca',)
 
