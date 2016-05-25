@@ -19,11 +19,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('ALAMPARINA_DEBUG', True)
 
 ALLOWED_HOSTS = ['*']
-
-PRODUCAO = True
 
 ADMINS = (
     ("Roberto", "80.pereira@gmail.com") #envia email caso ocorra erro 500 e debug=false
@@ -63,6 +61,8 @@ WSGI_APPLICATION = 'alamparina.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+PRODUCAO = os.environ.get('ALAMPARINA_PRODUCAO', False)
+
 if not PRODUCAO:
     DATABASES = {
         'default': {
@@ -82,7 +82,7 @@ else:
             'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
             'USER': 'Alamparina2016',                      # Not used with sqlite3.
             'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
-            'HOST': 'alamparina.ctfwsqmagsr2.sa-east-1.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+            'HOST': 'alamparina.c6x8cdwuqdju.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '3306',
         }
     }
