@@ -88,7 +88,7 @@ def lista_produtos_operacional(request):
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def cadastra_produto(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-
+    error = ''
     if request.method == 'POST':
         form = ProdutoForm(request.POST)
         if form.is_valid():
@@ -96,7 +96,7 @@ def cadastra_produto(request):
             produto.marca = marca
             #jogar pra dentro do models
             #mas vou precisar salvar marca
-            produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
+            produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
             produto.save()
             marca.sequencial_atual = int(marca.sequencial_atual) + 1
             marca.save()
@@ -105,29 +105,30 @@ def cadastra_produto(request):
 
     else:
         form = ProdutoForm()
-    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
+    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca,'error':error})
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_produto(request,id):
     produto = get_object_or_404(Produto, id=id)
-    erro = acesso.ValidaAcesso(request, produto.marca)
-    if not erro:
+    erro_acesso = acesso.ValidaAcesso(request, produto.marca)
+    error = ''
+    if not erro_acesso:
         marca = Marca.objects.get(id=request.session['marca_id'])
         if request.method == 'POST':
             form = ProdutoForm(request.     POST, instance=produto)
             if form.is_valid():
                 #jogar pra dentro do models
                 #mas vou precisar salvar marca
-                produto.codigo= marca.codigo.strip() + str(marca.sequencial_atual).zfill(4)
+                # produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
                 produto.save()
-                marca.sequencial_atual = int(marca.sequencial_atual) + 1
                 marca.save()
-                return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True})
+
+                return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True, 'error':error})
 
         else:
             form = ProdutoForm(instance=produto)
-        return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca})
+        return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca,'error':error})
     else:
         return render(request, 'acesso-negado.html')
 

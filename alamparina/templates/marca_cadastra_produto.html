@@ -12,6 +12,12 @@
 
     <!--<div>Teste edicao de produto:{{produto_v.nome}}</div>-->
     <form class="formulario-padrao produto" action="." method="post">
+        {% if error %}
+            <br>
+            <div class="alert alert-danger">
+                <strong><i class="glyphicon glyphicon-info-sign"></i> {{error}}</strong>
+            </div>
+        {% endif %}
         <li><label for="{{ form.nome.id_nome }}">Nome*</label>
             {{ form.nome }}
         </li>
@@ -56,6 +62,9 @@
         </li>
         <li><label for="{{ form.itens_inclusos.id_itens_inclusos }}">Itens inclusos</label>
             {{ form.itens_inclusos }}
+        </li>
+        <li><label for="{{ form.codigo_marca.id_codigo_marca }}">Cód. ID da marca</label>
+            {{ form.codigo_marca}}
         </li>
          <li>(*) Campos com preenchimento Obrigat&oacute;rio</li>
         {% csrf_token %}

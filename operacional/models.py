@@ -19,12 +19,12 @@ class Produto(models.Model):
     miniloja = models.ForeignKey(Miniloja, blank=True, null=True)
     unidade = models.ManyToManyField(Unidade, through='Estoque')
     estoque_minimo = models.IntegerField('Estoque Mínimo', default=0)
-    ncm = models.CharField('NCM', max_length=100, null=True)
+    ncm = models.CharField('NCM', max_length=100, blank=True, null=True)
     peso = models.FloatField('peso', blank=True, null=True)
-    itens_inclusos = models.CharField('Itens inclusos', max_length=200, null=True)
+    itens_inclusos = models.CharField('Itens inclusos', max_length=200, blank=True, null=True)
     garantia = models.IntegerField('Garantia', default=0)
-    palavras_chaves = models.CharField('Palavras chaves', max_length=200, null=True)
-
+    palavras_chaves = models.CharField('Palavras chaves', max_length=200, null=True, blank=True)
+    codigo_marca = models.CharField('Descricao', max_length=20, null=True, blank=True)
     UNIDADE_VENDA = (
         ("unidade", "UND (Unidade)"),
         ("pacote", "PCT (Pacote)"),

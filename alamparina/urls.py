@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'alamparina.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     # ...
+    url(r'^$', login_geral, name='login_geral'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^usuariomarca/$', usuario_marca),
     url(r'^login/$', login_geral, name='login_geral'),
