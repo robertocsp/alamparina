@@ -914,28 +914,32 @@ def acompanhar_venda(request):
 # adicionar produto
 def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
-    lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
-        lcheckout.formapagamento = lrequest.POST['formapagamento']
-    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    lcheckout.save()
-    itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
-    for _ in itemvenda_list:
-        error = 'Produto já existe neste checkout. Você deve excluí-lo antes de alterar a quantidade.'
-    if error == '':
-        itemvenda = ItemVenda()
-        itemvenda.checkout = lcheckout
-        itemvenda.produto = lestoque_retorno.produto
-        itemvenda.preco_venda = lestoque_retorno.produto.preco_venda
-        if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
-            itemvenda.quantidade = int(lrequest.POST['quantidade'])
-        else:
-            itemvenda.quantidade = 0
-        itemvenda.save()
+    if "quantidade" in lrequest.POST and int(lrequest.POST['quantidade'] or 0) <= 0:
+        error = "Não se pode incluir quantidade menor ou igual a zero."
 
-    lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
-    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    lcheckout.save()
+    if not error:
+        lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
+            lcheckout.formapagamento = lrequest.POST['formapagamento']
+        lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        lcheckout.save()
+        itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
+        for _ in itemvenda_list:
+            error = 'Produto já existe neste checkout. Você deve excluí-lo antes de alterar a quantidade.'
+        if error == '':
+            itemvenda = ItemVenda()
+            itemvenda.checkout = lcheckout
+            itemvenda.produto = lestoque_retorno.produto
+            itemvenda.preco_venda = lestoque_retorno.produto.preco_venda
+            if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
+                itemvenda.quantidade = int(lrequest.POST['quantidade'])
+            else:
+                itemvenda.quantidade = 0
+            itemvenda.save()
+
+        lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
+        lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        lcheckout.save()
 
     return error
 
@@ -943,29 +947,34 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
 # remover produto
 def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
-    lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
-        lcheckout.formapagamento = lrequest.POST['formapagamento']
-    if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
-        quantidade = int(lrequest.POST['quantidade'])
-    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    lcheckout.save()
-    itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
-    if itemvenda_list:
-        for itemvenda in itemvenda_list:
-            if itemvenda.quantidade == quantidade:
-                itemvenda.delete()
-            if itemvenda.quantidade > quantidade:
-                itemvenda.quantidade -= quantidade
-                itemvenda.save()
-            if itemvenda.quantidade < quantidade:
-                error = 'Não é possível excluir quantidade maior à do checkout.'
-    else:
-        error = 'Produto já não faz parte deste checkout.'
 
-    lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
-    lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
-    lcheckout.save()
+    if "quantidade" in lrequest.POST and int(lrequest.POST['quantidade'] or 0) <= 0:
+        error = "Não se pode excluir quantidade menor ou igual a zero."
+
+    if not error:
+        lcheckout.quantidade = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        if "formapagamento" in lrequest.POST and lrequest.POST['formapagamento'] != '':
+            lcheckout.formapagamento = lrequest.POST['formapagamento']
+        if "quantidade" in lrequest.POST and lrequest.POST['quantidade'] != '':
+            quantidade = int(lrequest.POST['quantidade'])
+        lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        lcheckout.save()
+        itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, produto=lestoque_retorno.produto)
+        if itemvenda_list:
+            for itemvenda in itemvenda_list:
+                if itemvenda.quantidade == quantidade:
+                    itemvenda.delete()
+                if itemvenda.quantidade > quantidade:
+                    itemvenda.quantidade -= quantidade
+                    itemvenda.save()
+                if itemvenda.quantidade < quantidade:
+                    error = 'Não é possível excluir quantidade maior à do checkout.'
+        else:
+            error = 'Produto já não faz parte deste checkout.'
+
+        lcheckout.quantidade = memoriacalculo.CalculoQuantidadeCheckout(lcheckout)
+        lcheckout.preco_venda = memoriacalculo.CalculoPrecoVendaCheckout(lcheckout)
+        lcheckout.save()
     return error
 
 
@@ -1226,9 +1235,24 @@ def edita_realizar_venda(request, id):
     if "finalizar" in request.POST:
         error = realizar_venda_atualizar_estoque(checkout)
         if not error:
-            checkout.status = 'confirmado'
-            checkout.save()
-            return HttpResponseRedirect('/operacional/realizar-venda/')
+            if request.POST.get('formapagamento') == None:
+                error = "A forma de pagamento deve ser informada."
+            if "unidade" in request.POST and request.POST['unidade'] == '':
+                error = "A unidade de venda deve ser informada."
+            if "dtrealizado" in request.POST and request.POST['dtrealizado'] == '':
+                error = "A data de venda deve ser informada."
+            if "canal" in request.POST and request.POST['canal'] == '':
+                error = "O canal deve ser informado."
+            if "telefone" in request.POST and request.POST['telefone'] == '':
+                error = "O número do telefone do cliente deve ser informado."
+            if "clientenome" in request.POST and request.POST['clientenome'] == '':
+                error = "O nome do cliente deve ser informado."
+            if not itemvenda_list:
+                error = "Favor inserir produtos."
+            if not error:
+                checkout.status = 'confirmado'
+                checkout.save()
+                return HttpResponseRedirect('/operacional/realizar-venda/')
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
     return render(request,'realizar_venda.html',

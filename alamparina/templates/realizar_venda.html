@@ -17,7 +17,7 @@
             {% endif %}
 
         <div class="origem-produto"><br>
-            <label><i class="glyphicon glyphicon-map-marker"></i> Informa&ccedil;&otilde;es local/data:</label><br><br>
+            <label><i class="glyphicon glyphicon-map-marker"></i> Informa&ccedil;&otilde;es local/data:*</label><br><br>
             {% if checkout.unidade and itemvenda_list.count > 0 or checkout.status == 'confirmado' %}
                 <select id="id_unidades" name="unidade" onchange="form.submit()" disabled>
                 <!--<select id="id_unidades" name="unidade" onchange="form.submit()">-->
@@ -63,7 +63,7 @@
             {% endif %}<br><br><hr>
 
         </div><br>
-        <label class="link-cliente"><i class="glyphicon glyphicon-user"></i> Adicionar / Editar Informa&ccedil;&otildees do Cliente</label>
+        <label class="link-cliente"><i class="glyphicon glyphicon-user"></i> Adicionar / Editar Informa&ccedil;&otildees do Cliente*</label>
         <div class="info-cliente" style="display: none;"><br>
             {% if checkout.status == 'confirmado' %}
                 {% if cliente_retorno != None %}
@@ -115,7 +115,7 @@
         </div>
         <br>
         <div class="info-produto"><br>
-            <label><i class="fa fa-dropbox"></i> Incluir / Excluir Produtos: </label><br><br>
+            <label><i class="fa fa-dropbox"></i> Incluir / Excluir Produtos:*</label><br><br>
             {% if checkout.status == 'confirmado' %}
                 <select id="id_estoque" name="estoque" disabled>
             {% else %}
@@ -198,7 +198,7 @@
             <!--</li>-->
         </div>
         <div class="Forma-pagamento"><br>
-            <label><i class="fa fa-dollar"></i> Forma de Pagamento</label><br><br>
+            <label><i class="fa fa-dollar"></i> Forma de Pagamento*</label><br><br>
             {% if checkout.status == 'confirmado' %}
                 {% if checkout.formapagamento == 'credito' %}
                     <label>
@@ -302,6 +302,8 @@
                 <span class="glyphicon glyphicon-ok"></span> Finalizar Venda
             </button>
         {% endif %}
+        <li>(*) Campos com preenchimento Obrigat&oacute;rio</li>
+
     </form><br>
     <a href="javascript:history.back();"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar</a>
 </div>
