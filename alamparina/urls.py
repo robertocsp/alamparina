@@ -5,7 +5,6 @@ from django.contrib import admin
 from alamparina.views import usuario_marca
 from operacional.views import *
 from operacional import views
-#from alamparina.views import login_marca
 
 admin.autodiscover()
 
@@ -16,7 +15,7 @@ urlpatterns = patterns('',
     # ...
     url(r'^$', login_geral, name='login_geral'),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^usuariomarca/$', usuario_marca),
+    url(r'^change-password/', 'django.contrib.auth.views.password_change', {'post_change_redirect': '/password-changed/'}),
     url(r'^login/$', login_geral, name='login_geral'),
     url(r'^logout/$', views.Logout),
     url(r'^marca/acompanhar-venda/$', acompanhar_venda, name='acompanhar_venda'),
@@ -38,7 +37,9 @@ urlpatterns = patterns('',
     url(r'^operacional/lista-checkout/$', lista_checkout, name='lista_checkout'),
     url(r'^operacional/lista-produtos/$', lista_produtos_operacional, name='lista_produtos_operacional'),
     url(r'^operacional/realizar-venda/$', inicia_realizar_venda, name='inicia_realizar_venda'),
-    url(r'^operacional/realizar-venda/(?P<id>\d+)/$', edita_realizar_venda, name='edita_realizar_venda')
+    url(r'^operacional/realizar-venda/(?P<id>\d+)/$', edita_realizar_venda, name='edita_realizar_venda'),
+    url(r'^password-changed/', 'django.contrib.auth.views.password_change_done'),
+    url(r'^usuariomarca/$', usuario_marca)
     #url(r'^marca/listaprodutos2/$', ProdutoList.as_view(template_name="lista_produtos-old.html")),
     # ...
 )

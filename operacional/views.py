@@ -13,6 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, render_to_response
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import views
 from django.db import transaction
 from django.template.context_processors import request
 from django.utils import *
@@ -58,6 +59,11 @@ def login_geral(request):
     else:
         form = LoginForm()
         return render(request, 'login_marca.html', {'form': form, 'error': False})
+
+# def change_password(request):
+#     template_response = views.password_change(request)
+#     # Do something with `template_response`
+#     return template_response
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
