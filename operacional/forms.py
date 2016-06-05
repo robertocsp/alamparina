@@ -44,3 +44,12 @@ class RecomendacaoForm(forms.ModelForm):
         widgets = {
             'comentario' : forms.Textarea
         }
+
+class ImportacaoForm(forms.ModelForm):
+    class Meta:
+        model = Importacao
+        # fields = ['arquivo']
+        exclude = ['marca', 'status']
+        # widgets = {
+        #     'comentario' : forms.Textarea
+        # }

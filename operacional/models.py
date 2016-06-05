@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from administrativo.models import *
+from time import time
 import datetime
 
 # Create your models here.
+
 
 class Produto(models.Model):
     nome = models.CharField('nome', max_length=100)
     codigo = models.CharField('codigo', blank=True, max_length=20)
     descricao = models.CharField('Descricao', max_length=300)
-    largura = models.IntegerField('largura')
-    altura = models.IntegerField('altura')
-    profundidade = models.IntegerField('profundidade')
+    largura = models.FloatField('largura')
+    altura = models.FloatField('altura')
+    profundidade = models.FloatField('profundidade')
     marca = models.ForeignKey(Marca) #related_name='produtos' => Esta gerando erro no migrations
     quantidade = models.IntegerField('quantidade', default=0)
     preco_base = models.FloatField('preço base', blank=True, null=True)
@@ -204,3 +206,19 @@ class ItemVenda(models.Model):
 
     class Meta:
        unique_together = ('checkout', 'produto')
+
+def get_upload_file_name( instance, filename):
+    return "uploaded_files/%s_%s" % (str(time()).replace('.','_'), filename)
+
+class Importacao(models.Model):
+    dia = models.DateField(auto_now_add=True)
+    hora = models.TimeField(auto_now_add=True)
+    marca = models.ForeignKey(Marca)
+    arquivo = models.CharField(max_length=40, blank=True, null=True)
+
+    STATUS = (
+        ("recebido", "Recebido"),
+        ("erronoarquivo", "ErroNoArquivo"),
+        ("importadocomsucesso", "ImportadoComSucesso"),
+    )
+    status = models.CharField(max_length=20, choices=STATUS, null=True, blank=True)

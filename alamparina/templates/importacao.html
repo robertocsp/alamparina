@@ -1,0 +1,18 @@
+{% extends "includes/layout_principal_marca.html" %}
+{% block tituloPagina %} <i class="fa fa-fw fa-link"></i> Importar Produtos{{marca.nome}}{% endblock %}
+
+{% block Importar %}active{% endblock %}
+
+{% block conteudo %}
+
+    <form class="formulario-padrao" action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <ul>
+            {{form.as_ul}}
+        </ul>
+        <button type="submit" value="Salvar" class="btn btn-primary">
+            <span class="glyphicon glyphicon-ok"></span> Enviar
+        </button>
+    </form>
+
+{% endblock %}
