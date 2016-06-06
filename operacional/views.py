@@ -23,6 +23,7 @@ from models import Canal
 from models import Produto
 from models import Recomendacao
 from operacional.forms import *
+from django.core.files import File
 
 # Create your views here.
 from alamparina.library import memoriacalculo
@@ -1277,8 +1278,8 @@ def edita_realizar_venda(request, id):
                   }
     )
 
-# @login_required
-# @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 @transaction.atomic
 def importacao(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
@@ -1287,8 +1288,11 @@ def importacao(request):
     if request.method == 'POST':
         form = ImportacaoForm(request.POST, request.FILES)
         if form.is_valid():
-            print('forma')
-            #gravo na tabela Importacao
+            importacao = Importacao()
+            importacao.dia = datetime.datetime.now().strftime('%Y-%m-%d')
+            importacao.hora = datetime.datetime.now().strftime('%H:%M:%S')
+            importacao.marca = marca
+            importacao.status = 'recebido'
     else:
         form = ImportacaoForm()
         return render(request, 'importacao.html', {'form': form})
@@ -1298,6 +1302,7 @@ def importacao(request):
             for filename, file in request.FILES.iteritems():
                 xl_workbook = xlrd.open_workbook(file_contents=file.read())
                 sheet_names = xl_workbook.sheet_names()
+                importacao.arquivo.save(file.name, File(file))
                 xl_sheet = xl_workbook.sheet_by_name(sheet_names[0])
                 xl_sheet = xl_workbook.sheet_by_index(0)
                 row = xl_sheet.row(0)  # 1st row
@@ -1340,8 +1345,14 @@ def importacao(request):
                     marca.sequencial_atual = int(marca.sequencial_atual) + 1
                     marca.save()
     except Exception as e:
+        importacao.status = 'erronoarquivo'
+        importacao.save()
         return HttpResponse('Importação não realizada. Linha:' + str(row_idx + 2) + str(e))
+
+    importacao.status = 'importadocomsucesso'
+    importacao.save()
     return HttpResponse('Importação realizada com sucesso!')
+
 
 
 

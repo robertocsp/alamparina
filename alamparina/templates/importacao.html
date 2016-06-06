@@ -1,4 +1,5 @@
 {% extends "includes/layout_principal_marca.html" %}
+{% load staticfiles %}
 {% block tituloPagina %} <i class="fa fa-fw fa-link"></i> Importar Produtos{{marca.nome}}{% endblock %}
 
 {% block Importar %}active{% endblock %}
@@ -6,6 +7,11 @@
 {% block conteudo %}
 
     <form class="formulario-padrao" action="." method="post" enctype="multipart/form-data">
+        Seu arquivo deve obedecer algumas regrinhas para conseguirmos importá-lo. Baixe o arquivo-guia <a href="{% static 'alamparina/planilha/modelo.xls'%}">clicando aqui!</a>.
+        <br><br>
+        Se você j&aacute; baixou e está pronto para nos enviar seu arquivo, prossiga abaixo:
+        <br><br>
+        <br>
         {% csrf_token %}
         <ul>
             {{form.as_ul}}
