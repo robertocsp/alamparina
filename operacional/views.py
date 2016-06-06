@@ -1282,13 +1282,19 @@ def edita_realizar_venda(request, id):
 @transaction.atomic
 def importacao(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-
-    # try:
-    #     with transaction.atomic():
+    erro = ''
 
     if request.method == 'POST':
         form = ImportacaoForm(request.POST, request.FILES)
         if form.is_valid():
+            print('forma')
+            #gravo na tabela Importacao
+    else:
+        form = ImportacaoForm()
+        return render(request, 'importacao.html', {'form': form})
+
+    try:
+        with transaction.atomic():
             for filename, file in request.FILES.iteritems():
                 xl_workbook = xlrd.open_workbook(file_contents=file.read())
                 sheet_names = xl_workbook.sheet_names()
@@ -1299,48 +1305,45 @@ def importacao(request):
                 for idx, cell_obj in enumerate(row):
                     cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
                 num_cols = xl_sheet.ncols  # Number of columns
-                for row_idx in range(0, xl_sheet.nrows-1):  # Iterate through rows
+                for row_idx in range(0, xl_sheet.nrows - 1):  # Iterate through rows
                     print ('-' * 40)
-                    print ('Row: %s' % str(row_idx+1))  # Print row number
-                    try:
-                        produto = Produto()
-                        produto.codigo = marca.codigo.strip() + str(int(marca.sequencial_atual or 0) + 1).zfill(4)
-                        produto.marca = marca
-                        produto.codigo_marca = xl_sheet.cell(row_idx+1, 0).value
-                        produto.nome = xl_sheet.cell(row_idx+1, 1).value
-                        produto.descricao = xl_sheet.cell(row_idx+1, 2).value
-                        produto.unidade_venda = xl_sheet.cell(row_idx+1, 3).value.lower()
-                        produto.preco_venda = float(xl_sheet.cell(row_idx+1, 4).value or 0)
-                        produto.estoque_minimo = int(xl_sheet.cell(row_idx+1, 5).value or 0)
-                        produto.ncm = str(xl_sheet.cell(row_idx+1, 6).value or '')
-                        produto.altura = float(xl_sheet.cell(row_idx+1, 7).value or 0)
-                        produto.largura = float(xl_sheet.cell(row_idx+1, 8).value or 0)
-                        produto.profundidade = float(xl_sheet.cell(row_idx+1, 9).value or 0)
-                        produto.peso = float(xl_sheet.cell(row_idx+1, 10).value or 0)
-                        produto.itens_inclusos = str(xl_sheet.cell(row_idx+1, 11).value or '')
-                        produto.garantia = int(xl_sheet.cell(row_idx+1, 12).value or 0)
-                        produto.palavras_chaves = str(xl_sheet.cell(row_idx+1, 13).value or '')
-                        emestoque = xl_sheet.cell(row_idx+1, 14).value
-                        if emestoque.encode('utf-8').lower() == 'sim':
-                            produto.em_estoque = 'sim'
-                        elif emestoque.encode('utf-8').lower() == 'nao':
-                            produto.em_estoque = 'nao'
-                        elif emestoque.encode('utf-8').lower() == 'não':
-                            produto.em_estoque = 'nao'
-                        else:
-                            raise Exception('. Posição em-estoque não informada.')
-                        produto.save()
-                        marca.sequencial_atual = int(marca.sequencial_atual) + 1
-                        marca.save()
+                    print ('Row: %s' % str(row_idx + 1))  # Print row number
+                    # try:
+                    produto = Produto()
+                    produto.codigo = marca.codigo.strip() + str(int(marca.sequencial_atual or 0) + 1).zfill(
+                        4)
+                    produto.marca = marca
+                    produto.codigo_marca = xl_sheet.cell(row_idx + 1, 0).value
+                    produto.nome = xl_sheet.cell(row_idx + 1, 1).value
+                    produto.descricao = xl_sheet.cell(row_idx + 1, 2).value
+                    produto.unidade_venda = xl_sheet.cell(row_idx + 1, 3).value.lower()
+                    produto.preco_venda = float(xl_sheet.cell(row_idx + 1, 4).value or 0)
+                    produto.estoque_minimo = int(xl_sheet.cell(row_idx + 1, 5).value or 0)
+                    produto.ncm = str(xl_sheet.cell(row_idx + 1, 6).value or '')
+                    produto.altura = float(xl_sheet.cell(row_idx + 1, 7).value or 0)
+                    produto.largura = float(xl_sheet.cell(row_idx + 1, 8).value or 0)
+                    produto.profundidade = float(xl_sheet.cell(row_idx + 1, 9).value or 0)
+                    produto.peso = float(xl_sheet.cell(row_idx + 1, 10).value or 0)
+                    produto.itens_inclusos = str(xl_sheet.cell(row_idx + 1, 11).value or '')
+                    produto.garantia = int(xl_sheet.cell(row_idx + 1, 12).value or 0)
+                    produto.palavras_chaves = str(xl_sheet.cell(row_idx + 1, 13).value or '')
+                    emestoque = xl_sheet.cell(row_idx + 1, 14).value
+                    if emestoque.encode('utf-8').lower() == 'sim':
+                        produto.em_estoque = 'sim'
+                    elif emestoque.encode('utf-8').lower() == 'nao':
+                        produto.em_estoque = 'nao'
+                    elif emestoque.encode('utf-8').lower() == 'não':
+                        produto.em_estoque = 'nao'
+                    else:
+                        raise Exception('. Posição em-estoque não informada.')
+                    produto.save()
+                    marca.sequencial_atual = int(marca.sequencial_atual) + 1
+                    marca.save()
+    except Exception as e:
+        return HttpResponse('Importação não realizada. Linha:' + str(row_idx + 2) + str(e))
+    return HttpResponse('Importação realizada com sucesso!')
 
-                    except Exception as e:
 
-                        return HttpResponse('Importação não realizada. Linha:' + str(row_idx+2)+ str(e))
-
-            return HttpResponse('Importação realizada com sucesso!')
-    else:
-        form = ImportacaoForm()
-    return render(request, 'importacao.html', {'form': form})
 
 # @transaction.atomic
 # def realizar_venda_atualizar_estoque(lcheckout):
