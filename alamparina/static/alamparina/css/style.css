@@ -253,6 +253,14 @@ select{
     width: 200px;
 }
 
+.checkin-produtos select#id_produtos{
+    width: 425px;
+}
+
+.checkin-produtos input#id_qtde_produto{
+    width: 85px;
+}
+
 .box-formulario .formulario-padrao li input[type="text"], .box-formulario .formulario-padrao li input[type="number"]{
     width: 300px;
 }
