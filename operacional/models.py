@@ -33,6 +33,11 @@ class Produto(models.Model):
         ("kit", "Kit (Kit de presentes)"),
     )
     unidade_venda = models.CharField(max_length=15, choices=UNIDADE_VENDA, default="unidade")
+    STATUS = (
+        ("ativo", "Ativo"),
+        ("inativo", "Inativo"),
+    )
+    status = models.CharField(max_length=20, choices=STATUS, default="inativo")
 
     EM_ESTOQUE = (
         ("sim", "Sim"),

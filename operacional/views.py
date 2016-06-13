@@ -31,6 +31,7 @@ from alamparina.library import acesso
 import datetime
 import time
 import xlrd
+import codecs
 
 def Logout(request):
     logout(request)
@@ -192,14 +193,17 @@ def inicia_checkin(request):
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
     elif "adicionar_produto" in request.POST:
-        checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-        produto = Produto.objects.get(id=request.POST['produtos'])
-        expedicao.quantidade = request.POST['qtde_produto']
-        checkin.save()
-        expedicao.produto = produto
-        expedicao.checkin = checkin
-        expedicao.save()
-        return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+        if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST['qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
+            checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+            produto = Produto.objects.get(id=request.POST['produtos'])
+            expedicao.quantidade = request.POST['qtde_produto']
+            expedicao.produto = produto
+            expedicao.checkin = checkin
+            checkin.save()
+            expedicao.save()
+            return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+        else:
+            messages.error(request, 'Não existe nenhum produto inserido')
 
     elif "remover_produto" in request.POST:
         checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
@@ -271,13 +275,16 @@ def edita_checkin(request, id):
             checkin.save()
 
         elif "adicionar_produto" in request.POST:
-            checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
-            produto = Produto.objects.get(id=request.POST['produtos'])
-            expedicao.quantidade = request.POST['qtde_produto']
-            expedicao.produto = produto
-            expedicao.checkin = checkin
-            checkin.save()
-            expedicao.save()
+            if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST['qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
+                checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
+                produto = Produto.objects.get(id=request.POST['produtos'])
+                expedicao.quantidade = request.POST['qtde_produto']
+                expedicao.produto = produto
+                expedicao.checkin = checkin
+                checkin.save()
+                expedicao.save()
+            else:
+                messages.error(request, 'Não existe nenhum produto inserido')
 
         elif "remover_produto" in request.POST:
 
@@ -1318,21 +1325,21 @@ def importacao(request):
                     produto.codigo = marca.codigo.strip() + str(int(marca.sequencial_atual or 0) + 1).zfill(
                         4)
                     produto.marca = marca
-                    produto.codigo_marca = xl_sheet.cell(row_idx + 1, 0).value
-                    produto.nome = xl_sheet.cell(row_idx + 1, 1).value
-                    produto.descricao = xl_sheet.cell(row_idx + 1, 2).value
-                    produto.unidade_venda = xl_sheet.cell(row_idx + 1, 3).value.lower()
-                    produto.preco_venda = float(xl_sheet.cell(row_idx + 1, 4).value or 0)
-                    produto.estoque_minimo = int(xl_sheet.cell(row_idx + 1, 5).value or 0)
-                    produto.ncm = str(xl_sheet.cell(row_idx + 1, 6).value or '')
-                    produto.altura = float(xl_sheet.cell(row_idx + 1, 7).value or 0)
-                    produto.largura = float(xl_sheet.cell(row_idx + 1, 8).value or 0)
-                    produto.profundidade = float(xl_sheet.cell(row_idx + 1, 9).value or 0)
-                    produto.peso = float(xl_sheet.cell(row_idx + 1, 10).value or 0)
-                    produto.itens_inclusos = str(xl_sheet.cell(row_idx + 1, 11).value or '')
-                    produto.garantia = int(xl_sheet.cell(row_idx + 1, 12).value or 0)
-                    produto.palavras_chaves = str(xl_sheet.cell(row_idx + 1, 13).value or '')
-                    emestoque = xl_sheet.cell(row_idx + 1, 14).value
+                    produto.codigo_marca = xl_sheet.cell(row_idx + 1, 0).value.encode('utf8')
+                    produto.nome = xl_sheet.cell(row_idx + 1, 1).value.encode('utf8')
+                    produto.descricao = xl_sheet.cell(row_idx + 1, 2).value.encode('utf8')
+                    produto.unidade_venda = xl_sheet.cell(row_idx + 1, 3).value.lower().encode('utf8')
+                    produto.preco_venda = float(xl_sheet.cell(row_idx + 1, 4).value.encode('utf8') or 0)
+                    produto.estoque_minimo = int(xl_sheet.cell(row_idx + 1, 5).value.encode('utf8') or 0)
+                    produto.ncm = str(xl_sheet.cell(row_idx + 1, 6).value.encode('utf8') or '')
+                    produto.altura = float(xl_sheet.cell(row_idx + 1, 7).value.encode('utf8') or 0)
+                    produto.largura = float(xl_sheet.cell(row_idx + 1, 8).value.encode('utf8') or 0)
+                    produto.profundidade = float(xl_sheet.cell(row_idx + 1, 9).value.encode('utf8') or 0)
+                    produto.peso = float(xl_sheet.cell(row_idx + 1, 10).value.encode('utf8') or 0)
+                    produto.itens_inclusos = str(xl_sheet.cell(row_idx + 1, 11).value.encode('utf8') or '')
+                    produto.garantia = int(xl_sheet.cell(row_idx + 1, 12).value.encode('utf8') or 0)
+                    produto.palavras_chaves = str(xl_sheet.cell(row_idx + 1, 13).value.encode('utf8') or '')
+                    emestoque = xl_sheet.cell(row_idx + 1, 14).value.encode('utf8')
                     if emestoque.encode('utf-8').lower() == 'sim':
                         produto.em_estoque = 'sim'
                     elif emestoque.encode('utf-8').lower() == 'nao':
@@ -1341,6 +1348,7 @@ def importacao(request):
                         produto.em_estoque = 'nao'
                     else:
                         raise Exception('. Posição em-estoque não informada.')
+                    produto.status = str(xl_sheet.cell(row_idx + 1, 15).value.encode('utf8') or '')
                     produto.save()
                     marca.sequencial_atual = int(marca.sequencial_atual) + 1
                     marca.save()
