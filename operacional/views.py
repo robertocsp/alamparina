@@ -537,6 +537,8 @@ def dashboard_marca(request):
                 j = j + 1
                 inicio += datetime.timedelta(days=1)
 
+    saldo_cubagem_estoque = "%.2f" % round(saldo_cubagem_estoque, 2)
+    saldo_cubagem_contratada_periodo = "%.2f" % round(saldo_cubagem_contratada_periodo, 2)
     return render(request, 'dashboard_marca.html',
                   {
                       'marca': marca,
