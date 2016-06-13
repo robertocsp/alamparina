@@ -101,6 +101,7 @@ def cadastra_produto(request):
             #jogar pra dentro do models
             #mas vou precisar salvar marca
             produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
+            produto.status = 'ativo'
             produto.save()
             marca.sequencial_atual = int(marca.sequencial_atual) + 1
             marca.save()
@@ -125,6 +126,7 @@ def edita_produto(request,id):
                 #jogar pra dentro do models
                 #mas vou precisar salvar marca
                 # produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
+                produto.status = 'ativo'
                 produto.save()
                 marca.save()
 
@@ -159,7 +161,9 @@ def inicia_checkin(request):
     checkin.marca = Marca.objects.get(id=request.session['marca_id'])
     checkin.status = 'emprocessamento'
     cubagem_contratada = 0
+    cubagem_empenhada = 0
     saldo_cubagem_estoque = 0
+    saldo_cubagem = 0
     expedicao_list = None
     contrato_list = None
     contrato = None
@@ -175,7 +179,9 @@ def inicia_checkin(request):
         miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=request.POST['unidade']).distinct()
         canal_list = Canal.objects.all()
         cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+        cubagem_empenhada = memoriacalculo.CubagemEmpenhada(checkin.marca, unidade_retorno)
         saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
+        saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque - cubagem_empenhada
         expedicao = Expedicao()
         produto_list = checkin.marca.produto_set.all()
         contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
@@ -199,9 +205,13 @@ def inicia_checkin(request):
             expedicao.quantidade = request.POST['qtde_produto']
             expedicao.produto = produto
             expedicao.checkin = checkin
-            checkin.save()
-            expedicao.save()
-            return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+            volume_produto = float(expedicao.quantidade or 0)*float(produto.profundidade or 0)*float(produto.largura or 0)*float(produto.altura or 0)
+            if volume_produto <= saldo_cubagem:
+                checkin.save()
+                expedicao.save()
+                return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
+            else:
+                messages.error(request, 'Volume informado excede saldo contratado disponível')
         else:
             messages.error(request, 'Não existe nenhum produto inserido')
 
@@ -218,8 +228,6 @@ def inicia_checkin(request):
     elif "finalizar" in request.POST:
         messages.error(request, 'Não existe nenhum produto inserido')
 
-    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
-
     return render(request,'checkin.html',
                   {
                       'marca': checkin.marca,
@@ -229,6 +237,7 @@ def inicia_checkin(request):
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
                       'cubagem_contratada': cubagem_contratada,
+                      'cubagem_empenhada': cubagem_empenhada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
                       'unidade_list': unidade_list,
@@ -237,7 +246,7 @@ def inicia_checkin(request):
                   }
     )
 
-@login_required #rfh
+@login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def edita_checkin(request, id):
     checkin = get_object_or_404(Checkin, id=id)
@@ -261,9 +270,6 @@ def edita_checkin(request, id):
         else:
           contrato = None
 
-        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
-        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
-
         miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=checkin.unidade_id).distinct()
         produto_list = checkin.marca.produto_set.all()
 
@@ -281,10 +287,19 @@ def edita_checkin(request, id):
                 expedicao.quantidade = request.POST['qtde_produto']
                 expedicao.produto = produto
                 expedicao.checkin = checkin
-                checkin.save()
-                expedicao.save()
+                volume_produto = float(expedicao.quantidade or 0) * float(produto.profundidade or 0) * float(produto.largura or 0) * float(produto.altura or 0)
+                cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+                saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
+                cubagem_empenhada = memoriacalculo.CubagemEmpenhada(checkin.marca, unidade_retorno)
+                saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque - cubagem_empenhada
+                if volume_produto <= saldo_cubagem:
+                    checkin.save()
+                    expedicao.save()
+                else:
+                    messages.error(request, '*** Volume informado excede saldo contratado disponível.')
+
             else:
-                messages.error(request, 'Não existe nenhum produto inserido')
+                messages.error(request, '*** Não existe nenhum produto inserido')
 
         elif "remover_produto" in request.POST:
 
@@ -302,12 +317,15 @@ def edita_checkin(request, id):
 
         elif "finalizar" in request.POST:
             if expedicao_list == None:
-                messages.error(request, 'Não existe nenhum produto inserido')
+                messages.error(request, '*** Não existe nenhum produto inserido')
             else:
                 checkin.status = checkin.status_enviado()
                 checkin.save()
 
-        saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
+        cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
+        saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
+        cubagem_empenhada = memoriacalculo.CubagemEmpenhada(checkin.marca, unidade_retorno)
+        saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque - cubagem_empenhada
 
         return render(request, 'checkin.html',
                       {
@@ -318,6 +336,7 @@ def edita_checkin(request, id):
                           'produto_list': produto_list,
                           'expedicao_list': expedicao_list,
                           'cubagem_contratada': cubagem_contratada,
+                          'cubagem_empenhada': cubagem_empenhada,
                           'saldo_cubagem_estoque': saldo_cubagem_estoque,
                           'saldo_cubagem': saldo_cubagem,
                           'unidade_list': unidade_list,
@@ -425,11 +444,6 @@ def dashboard_marca(request):
             quantidade_produtos_checkin += expedicao.quantidade
             if expedicao.status == 'avariado' or expedicao.status == 'ausente':
                 quantidade_produtos_devolvidos += expedicao.quantidade
-
-
-
-
-
     # anterior
     unidade_retorno = None
     periodo_list = None
@@ -708,15 +722,17 @@ def estoque(request):
     unidade_retorno = None
     estoque_list = None
     cubagem_contratada = 0
+    cubagem_empenhada = 0
     saldo_cubagem_estoque = 0
 
     if request.method == 'GET' and "unidade" in request.GET and request.GET['unidade'] != '':
         estoque_list = Estoque.objects.filter(unidade_id=request.GET['unidade'], produto__marca=marca)
         unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
         cubagem_contratada = memoriacalculo.CubagemContratada(marca, unidade_retorno)
+        cubagem_empenhada = memoriacalculo.CubagemEmpenhada(marca, unidade_retorno)
         saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(marca, unidade_retorno)
 
-    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque
+    saldo_cubagem = cubagem_contratada - saldo_cubagem_estoque - cubagem_empenhada
 
     return render(request, 'estoque.html',
                   {
@@ -725,6 +741,7 @@ def estoque(request):
                       'estoque_list': estoque_list,
                       'unidade_retorno': unidade_retorno,
                       'cubagem_contratada': cubagem_contratada,
+                      'cubagem_empenhada': cubagem_empenhada,
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
                   }

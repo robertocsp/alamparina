@@ -1,5 +1,6 @@
-from operacional.models import Estoque, Produto, ItemVenda
+from operacional.models import Estoque, Produto, ItemVenda, Expedicao, Checkin
 from administrativo.models import TipoMiniloja, Miniloja
+from django.db.models import Q
 
 # todo tenho duvidas, precisa ser revisto.
 # Saldo da Cubagem:
@@ -45,6 +46,19 @@ def SaldoCubagemEstoqueUnidade(marca, unidade):
                 for estoque in estoque_list:
                     saldo_cubagem_estoque_unidade += estoque.quantidade * produto.largura * produto.altura * produto.profundidade
     return saldo_cubagem_estoque_unidade
+
+#Empenho
+def CubagemEmpenhada(marca, unidade):
+    cubagem_empenhada = 0
+    checkin_list = Checkin.objects.filter(marca=marca, unidade=unidade)
+    for checkin in checkin_list:
+        expedicao_list = Expedicao.objects.filter(checkin=checkin)
+        for expedicao in expedicao_list:
+            if expedicao.status != 'ok' or checkin.status != 'enviado':
+                produto = Produto.objects.get(id=expedicao.produto_id)
+                cubagem_empenhada += float(expedicao.quantidade or 0)*float(produto.largura or 0)*float(produto.altura or 0)*float(produto.profundidade or 0)
+    return cubagem_empenhada
+
 
 def PrecoEstimado(produto, canal, contrato):
     if canal.tipo == 'unidade':

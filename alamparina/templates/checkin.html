@@ -26,6 +26,7 @@
         {% endfor %}
             <li><label> Total de Volume Alocado para a Unidade:</label> {{ cubagem_contratada }} cm<sup>3</sup></li>
             <li><label> Total de Volume Utilizado na Unidade:</label> {{ saldo_cubagem_estoque }} cm<sup>3</sup></li>
+            <li><label> Total de Volume Empenhado:</label> {{ cubagem_empenhada }} cm<sup>3</sup></li>
             <li><label> Saldo para esta Unidade: </label> {{ saldo_cubagem }} cm<sup>3</sup></li>
 
         </ul>
@@ -145,7 +146,7 @@
                 </div><hr>
          {% endif %}
         </form>
-        <a href="/marca/lista-checkin/"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar para lista de Ckeckins</a>
+        <a href="/marca/lista-checkin/"><span class="seta-voltar" aria-hidden="true">&larr;</span> Voltar para lista de Checkins</a>
 <br><br><br>
     </div>
 
