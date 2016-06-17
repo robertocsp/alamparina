@@ -139,6 +139,8 @@ class Checkout(models.Model):
         ("consignacao", "Consignacao"),
         ("avaria", "Avaria"),
         ("venda", "Venda"),
+        ("devolucao", "Devolucao"),
+        ("erro", "Erro"),
     )
     motivo = models.CharField(max_length=20, choices=MOTIVO)
 
@@ -169,6 +171,7 @@ class Checkout(models.Model):
     dtrealizado = models.DateField(blank=True, null=True)
     quantidade = models.IntegerField()
     preco_venda = models.FloatField('preço venda', blank=True, null=True)
+
     def __unicode__(self):
         return '%s %s' % (self.motivo, self.dia)
 
@@ -183,6 +186,12 @@ class Checkout(models.Model):
 
     def motivo_venda(self):
         return 'venda'
+
+    def motivo_devolucao(self):
+        return 'devolucao'
+
+    def motivo_erro(self):
+        return 'erro'
 
 
 class Recomendacao(models.Model):

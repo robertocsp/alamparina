@@ -676,6 +676,7 @@ def checkout(request):
         estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
 
+
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
             unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
@@ -1272,10 +1273,10 @@ def edita_realizar_venda(request, id):
                 error = "A data de venda deve ser informada."
             if "canal" in request.POST and request.POST['canal'] == '':
                 error = "O canal deve ser informado."
-            if "telefone" in request.POST and request.POST['telefone'] == '':
-                error = "O número do telefone do cliente deve ser informado."
-            if "clientenome" in request.POST and request.POST['clientenome'] == '':
-                error = "O nome do cliente deve ser informado."
+            # if "telefone" in request.POST and request.POST['telefone'] == '':
+            #     error = "O número do telefone do cliente deve ser informado."
+            # if "clientenome" in request.POST and request.POST['clientenome'] == '':
+            #     error = "O nome do cliente deve ser informado."
             if not itemvenda_list:
                 error = "Favor inserir produtos."
             if not error:
@@ -1379,34 +1380,3 @@ def importacao(request):
     importacao.status = 'importadocomsucesso'
     importacao.save()
     return HttpResponse('Importação realizada com sucesso!')
-
-
-
-
-# @transaction.atomic
-# def realizar_venda_atualizar_estoque(lcheckout):
-#     try:
-#         with transaction.atomic():
-#             itemvenda_list = ItemVenda.objects.filter(checkout=lcheckout, gravou_estoque=0)
-#             for itemvenda in itemvenda_list:
-#                 estoque_list = Estoque.objects.filter(produto=itemvenda.produto, unidade=lcheckout.unidade)
-#                 if estoque_list:
-#                     for estoque in estoque_list:
-#                         if estoque.quantidade >= itemvenda.quantidade:
-#                             estoque.quantidade -= itemvenda.quantidade
-#                             estoque.save()
-#                             itemvenda.gravou_estoque = 1
-#                             itemvenda.save()
-#                         elif estoque.quantidade == itemvenda.quantidade:
-#                             estoque.quantidade.delete()
-#                             itemvenda.gravou_estoque = 1
-#                             itemvenda.save()
-#                         else:
-#                             erro = 'Quantidade de venda do produto ' + str(itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
-#                                 estoque.quantidade) + '.'
-#                             raise Exception(erro)
-#                 else:
-#                     erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(lcheckout.unidade.nome) + '.'
-#                     raise Exception(erro)
-#     except Exception as e:
-#         return e
