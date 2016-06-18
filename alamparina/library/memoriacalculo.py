@@ -54,7 +54,7 @@ def CubagemEmpenhada(marca, unidade):
     for checkin in checkin_list:
         expedicao_list = Expedicao.objects.filter(checkin=checkin)
         for expedicao in expedicao_list:
-            if expedicao.status != 'ok' or checkin.status != 'enviado':
+            if expedicao.status != 'ok' or checkin.status != 'confirmado':
                 produto = Produto.objects.get(id=expedicao.produto_id)
                 cubagem_empenhada += float(expedicao.quantidade or 0)*float(produto.largura or 0)*float(produto.altura or 0)*float(produto.profundidade or 0)
     return cubagem_empenhada
