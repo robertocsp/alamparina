@@ -776,7 +776,7 @@ def estoque_operacional(request):
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def acompanhar_vendas_operacional(request):
     unidade = Unidade.objects.all().order_by('nome')
-    venda_list = Checkout.objects.filter(motivo='venda', unidade=unidade).order_by('-dtrealizado','-id')
+    venda_list = Checkout.objects.filter(motivo='venda').order_by('-dtrealizado','-id')
     unidade_retorno = None
 
     if request.method == 'POST':
