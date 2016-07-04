@@ -228,7 +228,7 @@ class Importacao(models.Model):
     dia = models.DateField(auto_now_add=True)
     hora = models.TimeField(auto_now_add=True)
     marca = models.ForeignKey(Marca)
-    arquivo = models.FileField(max_length=40, blank=True, null=True)
+    arquivo = models.FileField(max_length=255, blank=True, null=True)
 
     STATUS = (
         ("recebido", "Recebido"),
