@@ -34,8 +34,8 @@ class EstoqueAdmin(admin.ModelAdmin):
         return obj.produto.marca
 
 class CheckoutAdmin(admin.ModelAdmin):
-    list_display = ('dia', 'motivo', 'unidade')
-    list_filter = ('motivo', 'unidade')
+    list_display = ('dia', 'periodo', 'motivo', 'unidade', 'preco_venda', 'marca')
+    list_filter = ('motivo', 'unidade', 'periodo', 'marca')
     date_hierarchy = 'dia'
     ordering = ('dia',)
 
