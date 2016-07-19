@@ -663,6 +663,7 @@ def checkout(request):
     marca_retorno = None
     unidade_retorno = None
     produto_retorno = None
+    dtrealizado_retorno = None
     checkout.motivo = request.GET.get('motivo')
     error = False
     estoque = None
@@ -673,10 +674,14 @@ def checkout(request):
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
         checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
         checkout.produto = Produto.objects.get(id=request.POST['produto'])
+        if request.POST['dtrealizado'] != '':
+            checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+            periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado,
+                                                 de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
+            for periodo in periodo_list:
+                checkout.periodo = periodo
         estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
-
-
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
             unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
@@ -700,7 +705,8 @@ def checkout(request):
             produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
         if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
-
+        if "marca" in request.GET and request.GET['marca'] != '' and "dtrealizado" in request.GET and request.GET['dtrealizado'] != '':
+            dtrealizado_retorno = datetime.datetime.strptime(request.GET['dtrealizado'], '%d/%m/%Y')
 
     return render(request,'checkout.html',
                  {
@@ -710,6 +716,7 @@ def checkout(request):
                      'marca_retorno':marca_retorno,
                      'unidade_retorno':unidade_retorno,
                      'produto_retorno':produto_retorno,
+                     'dtrealizado_retorno':dtrealizado_retorno,
                      'checkout':checkout,
                      'error': error,
                      'estoque': estoque,
@@ -1067,6 +1074,9 @@ def inicia_realizar_venda(request):
             checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
         if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+            periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado, de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
+            for periodo in periodo_list:
+                checkout.periodo = periodo
         if "canal" in request.POST and request.POST['canal'] != '':
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
         if "estoque" in request.POST and request.POST['estoque'] != '':
@@ -1196,6 +1206,10 @@ def edita_realizar_venda(request, id):
             checkout.formapagamento = request.POST['formapagamento']
         if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
+            periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado,
+                                                  de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
+            for periodo in periodo_list:
+                checkout.periodo = periodo
         if "canal" in request.POST and request.POST['canal'] != '':
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
         if "telefone" in request.POST and request.POST['telefone'] != '':

@@ -10,8 +10,9 @@
           <thead>
             <tr>
                 <th>Marca</th>
-                <th>Dia</th>
-                <th>Hora</th>
+                <th>Dia do registro</th>
+                <th>Hora do registro</th>
+                <th>Data do checkout</th>
                 <th>Motivo</th>
             </tr>
           </thead>
@@ -21,6 +22,7 @@
                     <th>{{ checkout.marca.nome}}</th>
                     <td>{{ checkout.dia }}</td>
                     <td>{{ checkout.hora }}</td>
+                    <td>{{ checkout.dtrealizado }}</td>
                     <td>{{ checkout.motivo}}</td>
                 </tr>
              {% endfor %}

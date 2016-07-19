@@ -9,6 +9,14 @@
     <form class="formulario-padrao checkout" id="form_checkout">{% csrf_token %}
         <ul>
         <li>
+            <label for="id_dtrealizado">Dia checkout: </label>
+            {% if dtrealizado_retorno != None %}
+                <input class="data" placeholder="Dia da venda..." id="id_dtrealizado" type="text" name="dtrealizado" value="{{dtrealizado_retorno|date:'d/m/Y'}}" required>
+            {% else %}
+                <input type="text" class="data" id="id_dtrealizado" placeholder="Dia da Venda.." name="dtrealizado" value="" required>
+            {% endif %}
+        </li>
+        <li>
             <label for="id_marcas">Marcas: </label>
             <select id="id_marcas" name="marca" onchange="form.submit()">
                 <option value="">Selecione uma marca</option>
