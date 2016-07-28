@@ -1365,7 +1365,7 @@ def importacao(request):
                     produto.unidade_venda = xl_sheet.cell(row_idx + 1, 3).value.lower().encode('utf8')
                     produto.preco_venda = float(xl_sheet.cell(row_idx + 1, 4).value or 0)
                     produto.estoque_minimo = int(xl_sheet.cell(row_idx + 1, 5).value or 0)
-                    produto.ncm = str(xl_sheet.cell(row_idx + 1, 6).value.encode('utf8') or '')
+                    produto.ncm = str(str(xl_sheet.cell(row_idx + 1, 6).value).encode('utf8') or '')
                     produto.altura = float(xl_sheet.cell(row_idx + 1, 7).value or 0)
                     produto.largura = float(xl_sheet.cell(row_idx + 1, 8).value or 0)
                     produto.profundidade = float(xl_sheet.cell(row_idx + 1, 9).value or 0)
