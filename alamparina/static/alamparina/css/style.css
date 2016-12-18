@@ -627,7 +627,6 @@ ul.box-produtos-checkin li ul{
     color: red;
 }
 
-
 .ui-autocomplete-loading {
-    background: white url("images/loading.gif") right center no-repeat;
+    background: white url("https://s3-us-west-2.amazonaws.com/alamparina/alamparina/css/images/loading.gif") right center no-repeat;
 }
