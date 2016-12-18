@@ -626,3 +626,7 @@ ul.box-produtos-checkin li ul{
     cursor: pointer;
     color: red;
 }
+
+.ui-autocomplete-loading {
+    background: white url("images/loading.gif") right center no-repeat;
+}
