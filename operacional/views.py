@@ -32,19 +32,39 @@ import datetime
 import time
 import xlrd
 import codecs
+import json
+
+#view ajax
+def get_prod(request):
+    q = request.GET.get('term', '')
+    u = request.GET.get('unidade', '')
+    if u.endswith('/'):
+        u = u[:-1]
+    estoque_list = Estoque.objects.filter(unidade_id=u)
+    results = []
+    for estoque in estoque_list:
+        prods = Produto.objects.filter(id=estoque.produto_id, nome__icontains=q)
+        for prod in prods:
+            prod_json = {}
+            prod_json = prod.nome
+            results.append(prod_json)
+    data = json.dumps(results)
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
 
 def Logout(request):
     logout(request)
     return HttpResponseRedirect('/login/')
 
-#a ideia e fazer um login unico verificando se e marca ou operacao
+
+# a ideia e fazer um login unico verificando se e marca ou operacao
 def login_geral(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = request.POST['username']
-            #No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
-            #username = request.POST.get('username','')
+            # No caso abaixo se o username nao existir ele atribui valor vazio, este caso e mais valido para metodo GET
+            # username = request.POST.get('username','')
             senha = request.POST['senha']
             user = authenticate(username=username, password=senha)
             if user != None:
@@ -63,11 +83,12 @@ def login_geral(request):
         form = LoginForm()
         return render(request, 'login_marca.html', {'form': form, 'error': False})
 
+
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def lista_produtos(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    #produto_list = Produto.objects.filter(marca__id=marca.id)
+    # produto_list = Produto.objects.filter(marca__id=marca.id)
     produto_list = marca.produto_set.all()
     return render(request, 'lista_produtos.html', {'produto_list': produto_list, 'marca': marca})
 
@@ -98,43 +119,44 @@ def cadastra_produto(request):
         if form.is_valid():
             produto = form.save(commit=False)
             produto.marca = marca
-            #jogar pra dentro do models
-            #mas vou precisar salvar marca
-            produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
+            # jogar pra dentro do models
+            # mas vou precisar salvar marca
+            produto.codigo = marca.codigo.strip() + str(int(marca.sequencial_atual or 0) + 1).zfill(4)
             produto.status = 'ativo'
             produto.save()
             marca.sequencial_atual = int(marca.sequencial_atual) + 1
             marca.save()
             produto_cadastrado = True
-            return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado':produto_cadastrado})
+            return HttpResponseRedirect(reverse('marca_cadastra_produto'), {'produto_cadastrado': produto_cadastrado})
 
     else:
         form = ProdutoForm()
-    return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca,'error':error})
+    return render(request, 'marca_cadastra_produto.html', {'form': form, 'marca': marca, 'error': error})
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
-def edita_produto(request,id):
+def edita_produto(request, id):
     produto = get_object_or_404(Produto, id=id)
     erro_acesso = acesso.ValidaAcesso(request, produto.marca)
     error = ''
     if not erro_acesso:
         marca = Marca.objects.get(id=request.session['marca_id'])
         if request.method == 'POST':
-            form = ProdutoForm(request.     POST, instance=produto)
+            form = ProdutoForm(request.POST, instance=produto)
             if form.is_valid():
-                #jogar pra dentro do models
-                #mas vou precisar salvar marca
+                # jogar pra dentro do models
+                # mas vou precisar salvar marca
                 # produto.codigo= marca.codigo.strip() + str(int(marca.sequencial_atual or 0)+1).zfill(4)
                 produto.status = 'ativo'
                 produto.save()
                 marca.save()
 
-                return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca, 'produto_cadastrado':True, 'error':error})
+                return render(request, 'marca_cadastra_produto.html',
+                              {'form': form, 'marca': marca, 'produto_cadastrado': True, 'error': error})
 
         else:
             form = ProdutoForm(instance=produto)
-        return render(request,'marca_cadastra_produto.html',{'form':form,'marca':marca,'error':error})
+        return render(request, 'marca_cadastra_produto.html', {'form': form, 'marca': marca, 'error': error})
     else:
         return render(request, 'acesso-negado.html')
 
@@ -147,11 +169,12 @@ def lista_checkin(request):
     return render(request, 'lista_checkin.html', {'checkin_list': checkin_list, 'marca': marca})
 
 
-#funções inicia_checkin e edita_checkin
+# funções inicia_checkin e edita_checkin
 def adicionar_canal(lcheckin, lrequest):
     lcheckin.dia_agendamento = datetime.datetime.strptime(lrequest.POST['dia_agendamento'], '%d/%m/%Y')
     lcheckin.save()
     lcheckin.canal.add(Canal.objects.get(id=lrequest.POST['canais']))
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
@@ -176,7 +199,8 @@ def inicia_checkin(request):
     else:
         unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
         checkin.unidade_id = request.POST['unidade']
-        miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=request.POST['unidade']).distinct()
+        miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca,
+                                                unidade_id=request.POST['unidade']).distinct()
         canal_list = Canal.objects.all()
         cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
         cubagem_empenhada = memoriacalculo.CubagemEmpenhada(checkin.marca, unidade_retorno)
@@ -199,13 +223,15 @@ def inicia_checkin(request):
         return HttpResponseRedirect('/marca/checkin/' + str(checkin.id))
 
     elif "adicionar_produto" in request.POST:
-        if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST['qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
+        if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST[
+            'qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
             checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
             produto = Produto.objects.get(id=request.POST['produtos'])
             expedicao.quantidade = request.POST['qtde_produto']
             expedicao.produto = produto
             expedicao.checkin = checkin
-            volume_produto = float(expedicao.quantidade or 0)*float(produto.profundidade or 0)*float(produto.largura or 0)*float(produto.altura or 0)
+            volume_produto = float(expedicao.quantidade or 0) * float(produto.profundidade or 0) * float(
+                produto.largura or 0) * float(produto.altura or 0)
             if volume_produto <= saldo_cubagem:
                 checkin.save()
                 expedicao.save()
@@ -228,11 +254,11 @@ def inicia_checkin(request):
     elif "finalizar" in request.POST:
         messages.error(request, 'Não existe nenhum produto inserido')
 
-    return render(request,'checkin.html',
+    return render(request, 'checkin.html',
                   {
                       'marca': checkin.marca,
-                      'checkin':checkin,
-                      'miniloja_list':miniloja_list,
+                      'checkin': checkin,
+                      'miniloja_list': miniloja_list,
                       'canal_list': canal_list,
                       'produto_list': produto_list,
                       'expedicao_list': expedicao_list,
@@ -244,7 +270,8 @@ def inicia_checkin(request):
                       'unidade_retorno': unidade_retorno,
                       'contrato': contrato,
                   }
-    )
+                  )
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
@@ -266,9 +293,9 @@ def edita_checkin(request, id):
         canal_list = Canal.objects.all()
         contrato_list = Contrato.objects.filter(marca=checkin.marca, miniloja__unidade=unidade_retorno)
         if contrato_list.count() != 0:
-          contrato = contrato_list[0]
+            contrato = contrato_list[0]
         else:
-          contrato = None
+            contrato = None
 
         miniloja_list = Miniloja.objects.filter(contrato__marca=checkin.marca, unidade_id=checkin.unidade_id).distinct()
         produto_list = checkin.marca.produto_set.all()
@@ -281,13 +308,15 @@ def edita_checkin(request, id):
             checkin.save()
 
         elif "adicionar_produto" in request.POST:
-            if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST['qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
+            if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST[
+                'qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
                 checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
                 produto = Produto.objects.get(id=request.POST['produtos'])
                 expedicao.quantidade = request.POST['qtde_produto']
                 expedicao.produto = produto
                 expedicao.checkin = checkin
-                volume_produto = float(expedicao.quantidade or 0) * float(produto.profundidade or 0) * float(produto.largura or 0) * float(produto.altura or 0)
+                volume_produto = float(expedicao.quantidade or 0) * float(produto.profundidade or 0) * float(
+                    produto.largura or 0) * float(produto.altura or 0)
                 cubagem_contratada = memoriacalculo.CubagemContratada(checkin.marca, unidade_retorno)
                 saldo_cubagem_estoque = memoriacalculo.SaldoCubagemEstoqueUnidade(checkin.marca, unidade_retorno)
                 cubagem_empenhada = memoriacalculo.CubagemEmpenhada(checkin.marca, unidade_retorno)
@@ -305,7 +334,7 @@ def edita_checkin(request, id):
 
             produto = Produto.objects.get(id=request.POST['produtos'])
             expedicao_remove = Expedicao.objects.filter(checkin=checkin, produto=produto)
-            if expedicao_remove: #ajeitar urgente esse expedicao_remove. Faço FILTER para testar para null, se for not null, faço um get.. :/
+            if expedicao_remove:  # ajeitar urgente esse expedicao_remove. Faço FILTER para testar para null, se for not null, faço um get.. :/
                 expedicao_remove = Expedicao.objects.get(checkin=checkin, produto=produto)
                 if expedicao_remove.quantidade > int(request.POST['qtde_produto']):
                     expedicao_remove.quantidade -= int(request.POST['qtde_produto'])
@@ -343,7 +372,7 @@ def edita_checkin(request, id):
                           'unidade_retorno': unidade_retorno,
                           'contrato': contrato,
                       }
-        )
+                      )
     else:
         return render(request, 'acesso-negado.html')
 
@@ -364,18 +393,19 @@ def dashboard_marca(request):
         total_venda += itemvenda.quantidade
 
     data_hoje = time.strftime("%Y-%m-%d")
-    periodo_list = Periodo.objects.filter(ate__gte=data_hoje, de__lte=data_hoje) #é invertido mesmo.
+    periodo_list = Periodo.objects.filter(ate__gte=data_hoje, de__lte=data_hoje)  # é invertido mesmo.
     for periodo in periodo_list:
         periodo_atual = periodo
         vendaperiodo_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca,
-                                                    checkout__dtrealizado__range=[periodo.de, periodo.ate])
+                                                     checkout__dtrealizado__range=[periodo.de, periodo.ate])
         for vendaperiodo in vendaperiodo_list:
             total_venda_periodo += vendaperiodo.quantidade
-            #preciso obter o contrato da venda (row do queryset Checkout)
+            # preciso obter o contrato da venda (row do queryset Checkout)
             contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=vendaperiodo.checkout.unidade)
             if contrato_list.count() != 0:
                 contrato = contrato_list[0]
-                total_a_receber_periodo += float(memoriacalculo.PrecoReceber(vendaperiodo, contrato) or 0)*(float(vendaperiodo.quantidade) or 0)
+                total_a_receber_periodo += float(memoriacalculo.PrecoReceber(vendaperiodo, contrato) or 0) * (
+                float(vendaperiodo.quantidade) or 0)
             else:
                 contrato = None
 
@@ -389,10 +419,11 @@ def dashboard_marca(request):
     j = 5;
     for periodo in periodo_list:
         venda_valor_grafico[j][0] = 'De ' + periodo.de.strftime("%d-%m-%y") + ' Até ' + periodo.ate.strftime("%d-%m-%y")
-        vendaperiodo_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca, checkout__dtrealizado__range=[periodo.de, periodo.ate])
+        vendaperiodo_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca,
+                                                     checkout__dtrealizado__range=[periodo.de, periodo.ate])
         preco_venda_periodo = 0
         for vendaperiodo in vendaperiodo_list:
-           preco_venda_periodo += float(vendaperiodo.preco_venda or 0)*float(vendaperiodo.quantidade or 0)
+            preco_venda_periodo += float(vendaperiodo.preco_venda or 0) * float(vendaperiodo.quantidade or 0)
         venda_valor_grafico[j][1] = preco_venda_periodo
         if j == 0:
             break
@@ -409,7 +440,8 @@ def dashboard_marca(request):
         saldo_cubagem_estoque += memoriacalculo.SaldoCubagemEstoqueUnidade(marca, unidade)
 
     saldo_cubagem_contratada_periodo = cubagem_contratada_periodo - saldo_cubagem_estoque
-    ultimasvendas_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca).order_by('-checkout__dtrealizado')
+    ultimasvendas_list = ItemVenda.objects.filter(checkout__status='confirmado', produto__marca=marca).order_by(
+        '-checkout__dtrealizado')
     # ultimasvendas_list = Checkout.objects.filter(motivo='venda', marca=marca).order_by('-dtrealizado')
     venda = [[0 for i in xrange(5)] for i in xrange(6)]
     j = 0
@@ -553,7 +585,6 @@ def dashboard_marca(request):
                       'quantidade_produtos_checkin': quantidade_produtos_checkin,
                       'quantidade_produtos_devolvidos': quantidade_produtos_devolvidos,
 
-
                       'unidade_list': unidade_list,
                       'unidade_retorno': unidade_retorno,
                       'periodo_list': periodo_list,
@@ -571,16 +602,19 @@ def dashboard_marca(request):
                   }
                   )
 
+
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def dashboard_operacional(request):
-    return render (request, 'dashboard_operacional.html')
+    return render(request, 'dashboard_operacional.html')
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_checkin_operacional(request):
     checkin_list = Checkin.objects.all().exclude(status='emprocessamento')
     return render(request, 'lista_checkin_operacional.html', {'checkin_list': checkin_list})
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
@@ -603,12 +637,12 @@ def edita_checkin_operacional(request, id):
         # por enquanto, ta gravando ate o option=status... no bd em vez de dar um alerta.
         checkin.status = request.POST['statuscheckin']
         for expedicao in expedicao_list:
-            expedicao.status = request.POST['status_produto_'+str(expedicao.produto.id)]
+            expedicao.status = request.POST['status_produto_' + str(expedicao.produto.id)]
 
             if checkin.status == 'confirmado' and expedicao.status == 'ok':
                 produto = Produto.objects.get(id=expedicao.produto.id)
                 try:
-                    estoque = Estoque.objects.get(produto=produto,unidade=checkin.unidade)
+                    estoque = Estoque.objects.get(produto=produto, unidade=checkin.unidade)
                     estoque.quantidade = estoque.quantidade + expedicao.quantidade
                     estoque.save()
                 except Estoque.DoesNotExist:
@@ -644,7 +678,7 @@ def edita_checkin_operacional(request, id):
                       'expedicao_list': expedicao_list,
                       'contrato': contrato,
                   }
-    )
+                  )
 
 
 @login_required
@@ -652,6 +686,7 @@ def edita_checkin_operacional(request, id):
 def lista_checkout(request):
     checkout_list = Checkout.objects.all().exclude(motivo='venda')
     return render(request, 'lista_checkout.html', {'checkout_list': checkout_list})
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
@@ -668,7 +703,7 @@ def checkout(request):
     error = False
     estoque = None
 
-    if request.method=='POST':
+    if request.method == 'POST':
         checkout.motivo = request.POST['motivo']
         checkout.observacao = request.POST['observacao']
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
@@ -677,10 +712,10 @@ def checkout(request):
         if request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
             periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado,
-                                                 de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
+                                                  de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
             for periodo in periodo_list:
                 checkout.periodo = periodo
-        estoque = Estoque.objects.get(unidade=checkout.unidade,produto=checkout.produto)
+        estoque = Estoque.objects.get(unidade=checkout.unidade, produto=checkout.produto)
         checkout.quantidade = int(request.POST['quantidade'])
         if estoque.quantidade < checkout.quantidade:
             marca_retorno = checkout.marca
@@ -700,28 +735,32 @@ def checkout(request):
         if "marca" in request.GET and request.GET['marca'] != '':
             marca_retorno = Marca.objects.get(id=request.GET['marca'])
             unidade_list = Unidade.objects.filter(miniloja__contrato__marca=marca_retorno).distinct()
-        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' :
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET[
+            'unidade'] != '':
             unidade_retorno = Unidade.objects.get(id=request.GET['unidade'])
             produto_list = marca_retorno.produto_set.filter(unidade=unidade_retorno)
-        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET['unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
+        if "marca" in request.GET and request.GET['marca'] != '' and "unidade" in request.GET and request.GET[
+            'unidade'] != '' and "produto" in request.GET and request.GET['produto'] != '':
             produto_retorno = Produto.objects.get(id=request.GET['produto'])
-        if "marca" in request.GET and request.GET['marca'] != '' and "dtrealizado" in request.GET and request.GET['dtrealizado'] != '':
+        if "marca" in request.GET and request.GET['marca'] != '' and "dtrealizado" in request.GET and request.GET[
+            'dtrealizado'] != '':
             dtrealizado_retorno = datetime.datetime.strptime(request.GET['dtrealizado'], '%d/%m/%Y')
 
-    return render(request,'checkout.html',
-                 {
-                     'marca_list':marca_list,
-                     'unidade_list':unidade_list,
-                     'produto_list':produto_list,
-                     'marca_retorno':marca_retorno,
-                     'unidade_retorno':unidade_retorno,
-                     'produto_retorno':produto_retorno,
-                     'dtrealizado_retorno':dtrealizado_retorno,
-                     'checkout':checkout,
-                     'error': error,
-                     'estoque': estoque,
+    return render(request, 'checkout.html',
+                  {
+                      'marca_list': marca_list,
+                      'unidade_list': unidade_list,
+                      'produto_list': produto_list,
+                      'marca_retorno': marca_retorno,
+                      'unidade_retorno': unidade_retorno,
+                      'produto_retorno': produto_retorno,
+                      'dtrealizado_retorno': dtrealizado_retorno,
+                      'checkout': checkout,
+                      'error': error,
+                      'estoque': estoque,
                   }
-    )
+                  )
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
@@ -755,7 +794,8 @@ def estoque(request):
                       'saldo_cubagem_estoque': saldo_cubagem_estoque,
                       'saldo_cubagem': saldo_cubagem,
                   }
-    )
+                  )
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
@@ -777,13 +817,14 @@ def estoque_operacional(request):
                       'estoque_list': estoque_list,
                       'unidade_retorno': unidade_retorno,
                   }
-    )
+                  )
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def acompanhar_vendas_operacional(request):
     unidade = Unidade.objects.all().order_by('nome')
-    venda_list = Checkout.objects.filter(motivo='venda').order_by('-dtrealizado','-id')
+    venda_list = Checkout.objects.filter(motivo='venda').order_by('-dtrealizado', '-id')
     unidade_retorno = None
 
     if request.method == 'POST':
@@ -798,11 +839,9 @@ def acompanhar_vendas_operacional(request):
     })
 
 
-
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def recomendar_marca(request):
-
     if request.method == 'POST':
         form = RecomendacaoForm(request.POST)
         if form.is_valid():
@@ -831,16 +870,16 @@ def acompanhar_venda(request):
     periodo_retorno = None
     venda_list = None
     contrato = None
-    data_ultima_venda = datetime.date(2000,01,01)
+    data_ultima_venda = datetime.date(2000, 01, 01)
     total_pecas_vendidas = 0
     total_vendas = 0.0
     total_a_receber = 0.0
     venda_grafico = [[]]
     venda_produto = [[]]
-    venda_grafico_dia =[]
-    venda_grafico_valor =[]
-    pagamento_de = datetime.date(2000,01,01)
-    pagamento_ate = datetime.date(2000,01,01)
+    venda_grafico_dia = []
+    venda_grafico_valor = []
+    pagamento_de = datetime.date(2000, 01, 01)
+    pagamento_ate = datetime.date(2000, 01, 01)
     if len(request.POST) != 0:
         unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
         if "periodo" in request.POST and request.POST['periodo'] != '':
@@ -856,45 +895,55 @@ def acompanhar_venda(request):
             else:
                 contrato = None
 
-            venda_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate])
+            venda_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno,
+                                                  produto__marca=marca,
+                                                  checkout__dtrealizado__range=[periodo_retorno.de,
+                                                                                periodo_retorno.ate])
             if venda_list.count() != 0:
-                data_ultima_venda = datetime.date(2000,01,01)
+                data_ultima_venda = datetime.date(2000, 01, 01)
                 for venda in venda_list:
                     if venda.checkout.dtrealizado > data_ultima_venda:
                         data_ultima_venda = venda.checkout.dtrealizado
                     total_pecas_vendidas += venda.quantidade
-                    total_vendas += float(venda.quantidade or 0)*float(venda.preco_venda or 0)
-                    total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0)*float(venda.quantidade or 0)
+                    total_vendas += float(venda.quantidade or 0) * float(venda.preco_venda or 0)
+                    total_a_receber += float(memoriacalculo.PrecoReceber(venda, contrato) or 0) * float(
+                        venda.quantidade or 0)
 
-            #vendaPorProduto
+            # vendaPorProduto
             codigo = ''
-            vendaproduto_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
+            vendaproduto_list = ItemVenda.objects.filter(checkout__status='confirmado',
+                                                         checkout__unidade=unidade_retorno, produto__marca=marca,
+                                                         checkout__dtrealizado__range=[periodo_retorno.de,
+                                                                                       periodo_retorno.ate]).order_by(
+                'produto__codigo')
             # vendaproduto_list = Checkout.objects.filter(motivo='venda', unidade=unidade_retorno, marca=marca, dtrealizado__range=[periodo_retorno.de, periodo_retorno.ate]).order_by('produto__codigo')
-            #vou precisar limpar
+            # vou precisar limpar
             venda_produto = [[0 for i in xrange(5)] for i in xrange(vendaproduto_list.count())]
             j = 0
             for vendaproduto in vendaproduto_list:
                 if codigo != vendaproduto.produto.codigo:
-                    #zero as variaveis
+                    # zero as variaveis
                     venda_produto[j][0] = vendaproduto.produto.codigo
                     venda_produto[j][1] = vendaproduto.produto.nome
-                    venda_produto[j][2] = float(vendaproduto.preco_venda or 0)*float(vendaproduto.quantidade or 0)
-                    venda_produto[j][3] = float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0)*float(vendaproduto.quantidade or 0)
+                    venda_produto[j][2] = float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[j][3] = float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(
+                        vendaproduto.quantidade or 0)
                     venda_produto[j][4] = int(vendaproduto.quantidade or 0)
                     j = j + 1
                     k = j - 1
                     codigo = vendaproduto.produto.codigo
                 else:
-                    #vou somando
+                    # vou somando
                     venda_produto[k][2] += float(vendaproduto.preco_venda or 0) * float(vendaproduto.quantidade or 0)
-                    venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(vendaproduto.quantidade or 0)
+                    venda_produto[k][3] += float(memoriacalculo.PrecoReceber(vendaproduto, contrato) or 0) * float(
+                        vendaproduto.quantidade or 0)
                     venda_produto[k][4] += vendaproduto.quantidade
 
             for vp in reversed(venda_produto):
                 if vp[0] == 0:
                     venda_produto.remove(vp)
 
-            #vendadiaria
+            # vendadiaria
             dt = periodo_retorno.ate - periodo_retorno.de
             venda_grafico = [[0 for i in xrange(4)] for i in xrange(dt.days + 1)]
             venda_grafico_dia = [0 for i in xrange(dt.days + 1)]
@@ -902,26 +951,27 @@ def acompanhar_venda(request):
             j = 0
             inicio = periodo_retorno.de
             while inicio <= periodo_retorno.ate:
-                vendadiaria_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno, produto__marca=marca, checkout__dtrealizado=inicio)
+                vendadiaria_list = ItemVenda.objects.filter(checkout__status='confirmado',
+                                                            checkout__unidade=unidade_retorno, produto__marca=marca,
+                                                            checkout__dtrealizado=inicio)
                 venda_grafico[j][0] = inicio
                 venda_grafico_dia[j] = inicio
                 k = 1
                 for vendadiaria in vendadiaria_list:
-                    venda_grafico_valor[j] += float(vendadiaria.preco_venda or 0)*float(vendadiaria.quantidade or 0)
-                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0)*float(vendadiaria.quantidade or 0)
+                    venda_grafico_valor[j] += float(vendadiaria.preco_venda or 0) * float(vendadiaria.quantidade or 0)
+                    venda_grafico[j][1] += float(vendadiaria.preco_venda or 0) * float(vendadiaria.quantidade or 0)
                     venda_grafico[j][2] = k
                     venda_grafico[j][3] += float(vendadiaria.quantidade or 0)
                     k = k + 1
                 j = j + 1
                 inicio += datetime.timedelta(days=1)
 
-    #consequencia da falta de null date
+    # consequencia da falta de null date
     # todo nulldate
-    if pagamento_de == datetime.date(2000,01,01):
+    if pagamento_de == datetime.date(2000, 01, 01):
         pagamento_de = ''
-    if pagamento_ate == datetime.date(2000,01,01):
+    if pagamento_ate == datetime.date(2000, 01, 01):
         pagamento_ate = ''
-
 
     return render(request, 'marca_acompanhar_venda.html',
                   {
@@ -943,11 +993,10 @@ def acompanhar_venda(request):
                       'pagamento_de': pagamento_de,
                       'pagamento_ate': pagamento_ate,
                   }
-    )
+                  )
 
 
-
-#funções inicia_realizar_venda, edita_realizar_venda e estoque
+# funções inicia_realizar_venda, edita_realizar_venda e estoque
 # adicionar produto
 def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
@@ -980,7 +1029,8 @@ def realizar_venda_adicionar_produto(lcheckout, lrequest, lestoque_retorno):
 
     return error
 
-#funções inicia_realizar_venda e edita_realizar_venda e estoque
+
+# funções inicia_realizar_venda e edita_realizar_venda e estoque
 # remover produto
 def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     error = ''
@@ -1015,8 +1065,8 @@ def realizar_venda_remover_produto(lcheckout, lrequest, lestoque_retorno):
     return error
 
 
-#funções inicia_realizar_venda e edita_realizar_venda e estoque
-#atualizar estoque
+# funções inicia_realizar_venda e edita_realizar_venda e estoque
+# atualizar estoque
 @transaction.atomic
 def realizar_venda_atualizar_estoque(lcheckout):
     try:
@@ -1036,11 +1086,13 @@ def realizar_venda_atualizar_estoque(lcheckout):
                             itemvenda.gravou_estoque = 1
                             itemvenda.save()
                         else:
-                            erro = 'Quantidade de venda do produto ' + str(itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
+                            erro = 'Quantidade de venda do produto ' + str(
+                                itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
                                 estoque.quantidade) + '.'
                             raise Exception(erro)
                 else:
-                    erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(lcheckout.unidade.nome) + '.'
+                    erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(
+                        lcheckout.unidade.nome) + '.'
                     raise Exception(erro)
     except Exception as e:
         return e
@@ -1067,23 +1119,24 @@ def inicia_realizar_venda(request):
     observacao_retorno = None
     unidade_list = Unidade.objects.all().distinct()
 
-    if request.method=='POST':
+    if request.method == 'POST':
         if "observacao" in request.POST and request.POST['observacao'] != '':
             checkout.observacao = request.POST['observacao']
         if "unidade" in request.POST and request.POST['unidade'] != '':
             checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
         if "dtrealizado" in request.POST and request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
-            periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado, de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
+            periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado,
+                                                  de__lte=checkout.dtrealizado)  # é invertido mesmo. Poderia ser um get, mas se houver dois, não quero erro.
             for periodo in periodo_list:
                 checkout.periodo = periodo
         if "canal" in request.POST and request.POST['canal'] != '':
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
         if "estoque" in request.POST and request.POST['estoque'] != '':
-            estoque_list = Estoque.objects.get(produto_id=request.POST['estoque'])
+            produtonome = Produto.objects.get(nome=request.POST['estoque'])
+            estoque_list = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
         if "telefone" in request.POST and request.POST['telefone'] != '':
             cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
-
 
             for cliente in cliente_list:
                 cliente_unidade_list = Cliente_Unidade.objects.filter(cliente=cliente, unidade=checkout.unidade)
@@ -1108,7 +1161,8 @@ def inicia_realizar_venda(request):
                 if "clientenome" in request.POST and request.POST['clientenome'] != '':
                     cliente_retorno.nome = request.POST['clientenome']
                 if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
-                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'], '%d/%m/%Y')
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'],
+                                                                             '%d/%m/%Y')
 
             if not cliente_retorno_list:
                 cliente_retorno = Cliente()
@@ -1118,7 +1172,8 @@ def inicia_realizar_venda(request):
                 else:
                     cliente_retorno.nome = 'nome em processamento'
                 if "clienteaniversario" in request.POST and request.POST['clienteaniversario'] != '':
-                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'], '%d/%m/%Y')
+                    cliente_retorno.aniversario = datetime.datetime.strptime(request.POST['clienteaniversario'],
+                                                                             '%d/%m/%Y')
             cliente_retorno.save()
 
         if "canal" in request.POST and request.POST['canal'] != '':
@@ -1130,11 +1185,13 @@ def inicia_realizar_venda(request):
         if "unidade" in request.POST and request.POST['unidade'] != '':
             unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
             estoque_list = Estoque.objects.filter(unidade=unidade_retorno)
-        if "unidade" in request.POST and request.POST['unidade'] != '' and "produto" in request.POST and request.POST['produto'] != '':
+        if "unidade" in request.POST and request.POST['unidade'] != '' and "produto" in request.POST and request.POST[
+            'produto'] != '':
             estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
             preco_venda = estoque_retorno.produto.preco_venda
         if "estoque" in request.POST and request.POST['estoque'] != '':
-            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            produtonome = Produto.objects.get(nome=request.POST['estoque'])
+            estoque_retorno = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
             preco_venda = estoque_retorno.produto.preco_venda
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             formapagamento_retorno = request.POST['formapagamento']
@@ -1154,26 +1211,25 @@ def inicia_realizar_venda(request):
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
 
-    return render(request,'realizar_venda.html',
-                 {
-                     'unidade_list':unidade_list,
-                     'estoque_list':estoque_list,
-                     'itemvenda_list':itemvenda_list,
-                     'unidade_retorno':unidade_retorno,
-                     'estoque_retorno':estoque_retorno,
-                     'dtrealizado_retorno':dtrealizado_retorno,
-                     'checkout': checkout,
-                     'error': error,
-                     'canal_list': canal_list,
-                     'canal_retorno': canal_retorno,
-                     'preco_venda': preco_venda,
-                     'preco_calculado': preco_calculado,
-                     'cliente_retorno': cliente_retorno,
-                     'observacao_retorno': observacao_retorno,
-                     'formapagamento_retorno': formapagamento_retorno,
-                 }
-    )
-
+    return render(request, 'realizar_venda.html',
+                  {
+                      'unidade_list': unidade_list,
+                      'estoque_list': estoque_list,
+                      'itemvenda_list': itemvenda_list,
+                      'unidade_retorno': unidade_retorno,
+                      'estoque_retorno': estoque_retorno,
+                      'dtrealizado_retorno': dtrealizado_retorno,
+                      'checkout': checkout,
+                      'error': error,
+                      'canal_list': canal_list,
+                      'canal_retorno': canal_retorno,
+                      'preco_venda': preco_venda,
+                      'preco_calculado': preco_calculado,
+                      'cliente_retorno': cliente_retorno,
+                      'observacao_retorno': observacao_retorno,
+                      'formapagamento_retorno': formapagamento_retorno,
+                  }
+                  )
 
 
 @login_required
@@ -1199,7 +1255,7 @@ def edita_realizar_venda(request, id):
     itemvenda_list = ItemVenda.objects.filter(checkout=checkout)
     estoque_list = Estoque.objects.filter(unidade=checkout.unidade)
 
-    if request.method=='POST':
+    if request.method == 'POST':
         if "observacao" in request.POST and request.POST['observacao'] != '':
             checkout.observacao = request.POST['observacao']
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
@@ -1265,7 +1321,8 @@ def edita_realizar_venda(request, id):
             estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
             preco_venda = estoque_retorno.produto.preco_venda
         if "estoque" in request.POST and request.POST['estoque'] != '':
-            estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
+            produtonome = Produto.objects.get(nome=request.POST['estoque'])
+            estoque_retorno = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
             preco_venda = estoque_retorno.produto.preco_venda
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             formapagamento_retorno = request.POST['formapagamento']
@@ -1299,25 +1356,26 @@ def edita_realizar_venda(request, id):
                 return HttpResponseRedirect('/operacional/realizar-venda/')
 
     preco_calculado = memoriacalculo.CalculoPrecoVendaCheckout(checkout)
-    return render(request,'realizar_venda.html',
-                 {
-                     'unidade_list':unidade_list,
-                     'estoque_list':estoque_list,
-                     'itemvenda_list':itemvenda_list,
-                     'unidade_retorno':unidade_retorno,
-                     'estoque_retorno':estoque_retorno,
-                     'dtrealizado_retorno':dtrealizado_retorno,
-                     'checkout': checkout,
-                     'error': error,
-                     'canal_list': canal_list,
-                     'canal_retorno': canal_retorno,
-                     'preco_venda': preco_venda,
-                     'preco_calculado': preco_calculado,
-                     'cliente_retorno': cliente_retorno,
-                     'observacao_retorno': observacao_retorno,
-                     'formapagamento_retorno': formapagamento_retorno,
+    return render(request, 'realizar_venda.html',
+                  {
+                      'unidade_list': unidade_list,
+                      'estoque_list': estoque_list,
+                      'itemvenda_list': itemvenda_list,
+                      'unidade_retorno': unidade_retorno,
+                      'estoque_retorno': estoque_retorno,
+                      'dtrealizado_retorno': dtrealizado_retorno,
+                      'checkout': checkout,
+                      'error': error,
+                      'canal_list': canal_list,
+                      'canal_retorno': canal_retorno,
+                      'preco_venda': preco_venda,
+                      'preco_calculado': preco_calculado,
+                      'cliente_retorno': cliente_retorno,
+                      'observacao_retorno': observacao_retorno,
+                      'formapagamento_retorno': formapagamento_retorno,
                   }
-    )
+                  )
+
 
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
