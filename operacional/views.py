@@ -1087,12 +1087,12 @@ def realizar_venda_atualizar_estoque(lcheckout):
                             itemvenda.save()
                         else:
                             erro = 'Quantidade de venda do produto ' + str(
-                                itemvenda.produto.nome) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
+                                itemvenda.produto.nome.encode('utf8')) + ' superior à quantidade presente no estoque. Quantidade em estoque: ' + str(
                                 estoque.quantidade) + '.'
                             raise Exception(erro)
                 else:
-                    erro = 'Não há mais o produto ' + str(itemvenda.produto.nome) + ' no estoque para a unidade ' + str(
-                        lcheckout.unidade.nome) + '.'
+                    erro = 'Não há mais o produto ' + str(itemvenda.produto.nome.encode('utf8')) + ' no estoque para a unidade ' + str(
+                        lcheckout.unidade.nome.encode('utf8')) + '.'
                     raise Exception(erro)
     except Exception as e:
         return e
