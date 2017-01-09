@@ -61,7 +61,7 @@ WSGI_APPLICATION = 'alamparina.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-PRODUCAO = os.environ.get('ALAMPARINA_PRODUCAO', True)
+PRODUCAO = os.environ.get('ALAMPARINA_PRODUCAO', False)
 
 if not PRODUCAO:
     DATABASES = {
@@ -79,10 +79,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'loja01',                      # Or path to database file if using sqlite3.
-            'USER': 'loja01',                      # Not used with sqlite3.
+            'NAME': 'alamparina',                      # Or path to database file if using sqlite3.
+            'USER': 'Alamparina2016',                      # Not used with sqlite3.
             'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
-            'HOST': 'loja01.cm7acdezyw54.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+            'HOST': 'alamparina.c6x8cdwuqdju.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '3306',
         }
     }
@@ -115,10 +115,10 @@ if PRODUCAO:
         }
 
 
-    ALAMPARINA_S3_ACCESS_KEY_DEV = 'AKIAJCHUSC7YSLEFH3NA'
-    ALAMPARINA_S3_SECRET_ACCESS_KEY = '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'
+    ALAMPARINA_S3_ACCESS_KEY_DEV = 'AKIAISC7E346KMSITNLQ'
+    ALAMPARINA_S3_SECRET_ACCESS_KEY = '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'
 
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_ALAMPARINA_STORAGE', 'loja01')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_ALAMPARINA_STORAGE', 'alamparina')
     AWS_ACCESS_KEY_ID = os.environ.get('ALAMPARINA_AWS_ACCESS_KEY', ALAMPARINA_S3_ACCESS_KEY_DEV)
     AWS_SECRET_ACCESS_KEY = os.environ.get('ALAMPARINA_AWS_SECRET_ACCESS_KEY', ALAMPARINA_S3_SECRET_ACCESS_KEY)
 
@@ -127,6 +127,7 @@ if PRODUCAO:
     # This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
     # We also use it in the next setting.
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    #AWS_S3_CUSTOM_DOMAIN = 'weikedev.s3-website-sa-east-1.amazonaws.com'
 
     # This is used by the `static` template tag from `static`, if you're using that. Or if anything else
     # refers directly to STATIC_URL. So it's safest to always set it.
