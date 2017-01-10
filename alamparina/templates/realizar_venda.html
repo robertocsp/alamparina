@@ -331,21 +331,34 @@ function submete_form(){
     form.submit()
 }
 </script>
+<style>
+  .ui-autocomplete-loading {
+    background: white url(https://s3-us-west-2.amazonaws.com/alamparina/alamparina/css/images/loading.gif) right center no-repeat;
+  }
+</style>
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.3/themes/base/jquery-ui.css" type="text/css" media="all"/>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript">
-</script> <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js" type="text/javascript"></script>
-
+<link href="{% static 'alamparina/css/jquery-ui.css'%}" rel="stylesheet" type="text/css" media="all">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
 var unidade = document.getElementById("id_unidades").value;
 var lsource = "/api/get_prod?unidade=";
 var result_source = lsource.concat(unidade);
 $(function() {
+    function log( message ) {
+      $( "<div>" ).text( message ).prependTo( "#log" );
+      $( "#log" ).scrollTop( 0 );
+    }
+
     $("#id_estoque").autocomplete({
         minLength: 2,
-        source: result_source
+        source: result_source,
+        select: function( event, ui ) {
+            log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+            }
     });
 });
+
 </script>
 
 
