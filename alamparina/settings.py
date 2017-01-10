@@ -16,7 +16,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+#'%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('ALAMPARINA_DEBUG', True)
@@ -79,9 +80,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'loja01',                      # Or path to database file if using sqlite3.
-            'USER': 'loja01',                      # Not used with sqlite3.
-            'PASSWORD': 'virus.exe',                  # Not used with sqlite3.
+            'NAME': os.environ.get('ALAMPARINA_DB_NAME'),                      # Or path to database file if using sqlite3.
+            'USER': os.environ.get('ALAMPARINA_DB_USER'),                      # Not used with sqlite3.
+            'PASSWORD': os.environ.get('ALAMPARINA_DB_PASSWORD'),                  # Not used with sqlite3.
             'HOST': 'loja01.cm7acdezyw54.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '3306',
         }
@@ -115,8 +116,8 @@ if PRODUCAO:
         }
 
 
-    ALAMPARINA_S3_ACCESS_KEY_DEV = 'AKIAJCHUSC7YSLEFH3NA'
-    ALAMPARINA_S3_SECRET_ACCESS_KEY = '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'
+    ALAMPARINA_S3_ACCESS_KEY_DEV = os.environ.get('ALAMPARINA_AWS_ID')
+    ALAMPARINA_S3_SECRET_ACCESS_KEY = os.environ.get('ALAMPARINA_AWS_ID_ID')
 
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_ALAMPARINA_STORAGE', 'loja01')
     AWS_ACCESS_KEY_ID = os.environ.get('ALAMPARINA_AWS_ACCESS_KEY', ALAMPARINA_S3_ACCESS_KEY_DEV)
