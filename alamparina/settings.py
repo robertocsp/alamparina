@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
-#'%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
+#'aa%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('ALAMPARINA_DEBUG', True)
@@ -83,7 +83,7 @@ else:
             'NAME': os.environ.get('ALAMPARINA_DB_NAME'),                      # Or path to database file if using sqlite3.
             'USER': os.environ.get('ALAMPARINA_DB_USER'),                      # Not used with sqlite3.
             'PASSWORD': os.environ.get('ALAMPARINA_DB_PASSWORD'),                  # Not used with sqlite3.
-            'HOST': 'loja01.cm7acdezyw54.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
+            'HOST': os.environ.get('ALAMPARINA_DB_URL'),                      # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '3306',
         }
     }
