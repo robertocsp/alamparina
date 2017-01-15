@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
     # ...
     url(r'^api/get_prod/$', views.get_prod),
+    url(r'^api/get_prod_marca/$', views.get_prod_marca),
     url(r'^$', login_geral, name='login_geral'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^change-password/', 'django.contrib.auth.views.password_change', {'post_change_redirect': '/password-changed/'}),

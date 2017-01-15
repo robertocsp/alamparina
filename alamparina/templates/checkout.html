@@ -4,6 +4,7 @@
 {% block Checkout %}active{% endblock %}
 
 {% block conteudo %}
+{% load static %}
 <div class="box-formulario">
     <p><i class="glyphicon glyphicon-info-sign"></i> Preencha corretamente os campos abaixo e clique em Efetuar Checkout para efetuar o checkout.</p>
     <form class="formulario-padrao checkout" id="form_checkout">{% csrf_token %}
@@ -49,7 +50,10 @@
         </li>
         <li>
             <label for="id_produtos">Produtos: </label>
-            <select id="id_produtos" name="produto">
+            <input type="text" name="produto" id="id_produtos">
+            <input hidden type="text" name="produtox" id="id_produtox">
+
+<!--            <select id="id_produtos" name="produto">
                 <option value="">Selecione um produto</option>
                 {% for produto in produto_list %}
                 {% if produto_retorno != None and produto_retorno.id == produto.id  %}
@@ -59,6 +63,7 @@
                 {% endif %}
                 {% endfor %}
             </select>
+-->
         </li>
         <li>
             <label for="id_qtd">Quantidade: </label>
@@ -94,4 +99,33 @@ function submete_form(){
     form.submit()
 }
 </script>
+
+<link href="{% static 'alamparina/css/jquery-ui.css'%}" rel="stylesheet" type="text/css" media="all">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+var unidade = document.getElementById("id_unidades").value;
+var marca = document.getElementById("id_marcas").value;
+var lsource = "/api/get_prod_marca?unidade=";
+var lunidade = lsource.concat(unidade);
+var lmarca = lunidade.concat("&marca=");
+var result_source = lmarca.concat(marca);
+$(function() {
+    function log( message ) {
+      $( "<div>" ).text( message ).prependTo( "#log" );
+      $( "#log" ).scrollTop( 0 );
+    }
+
+    $("#id_produtos").autocomplete({
+        minLength: 2,
+        source: result_source,
+        select: function( event, ui ) {
+            $("#id_produtos").val(ui.item.label);
+            $("#id_produtox").val(ui.item.value);
+            return false
+            }
+    });
+});
+</script>
+
 {% endblock %}
