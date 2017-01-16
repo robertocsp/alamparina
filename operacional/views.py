@@ -45,9 +45,34 @@ def get_prod(request):
     for estoque in estoque_list:
         prods = Produto.objects.filter(id=estoque.produto_id, nome__icontains=q)
         for prod in prods:
-            prod_json = {}
-            prod_json = prod.nome
-            results.append(prod_json)
+            prods_data = {}
+            prods_data["label"] = prod.nome + " - " + prod.marca.nome
+            prods_data["value"] = prod.id
+            results.append(prods_data)
+
+    data = json.dumps(results)
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+def get_prod_marca(request):
+    q = request.GET.get('term', '')
+    u = request.GET.get('unidade', '')
+    m = request.GET.get('marca', '')
+    if u.endswith('/'):
+        u = u[:-1]
+    if m.endswith('/'):
+        m = m[:-1]
+
+    estoque_list = Estoque.objects.filter(unidade_id=u)
+    results = []
+    for estoque in estoque_list:
+        prods = Produto.objects.filter(id=estoque.produto_id, marca=m, nome__icontains=q)
+        for prod in prods:
+            prods_data = {}
+            prods_data["label"] = prod.nome + " - " + prod.marca.nome
+            prods_data["value"] = prod.id
+            results.append(prods_data)
+
     data = json.dumps(results)
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
@@ -708,7 +733,8 @@ def checkout(request):
         checkout.observacao = request.POST['observacao']
         checkout.marca = Marca.objects.get(id=request.POST['marca'])
         checkout.unidade = Unidade.objects.get(id=request.POST['unidade'])
-        checkout.produto = Produto.objects.get(id=request.POST['produto'])
+        checkout.produto = Produto.objects.get(id=request.POST['produtox'])
+
         if request.POST['dtrealizado'] != '':
             checkout.dtrealizado = datetime.datetime.strptime(request.POST['dtrealizado'], '%d/%m/%Y')
             periodo_list = Periodo.objects.filter(ate__gte=checkout.dtrealizado,
@@ -1133,8 +1159,8 @@ def inicia_realizar_venda(request):
         if "canal" in request.POST and request.POST['canal'] != '':
             checkout.canal = Canal.objects.get(id=request.POST['canal'])
         if "estoque" in request.POST and request.POST['estoque'] != '':
-            produtonome = Produto.objects.get(nome=request.POST['estoque'])
-            estoque_list = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
+            produto = Produto.objects.get(id=request.POST['produtox'])
+            estoque_list = Estoque.objects.get(produto_id=produto.id, unidade_id=checkout.unidade)
         if "telefone" in request.POST and request.POST['telefone'] != '':
             cliente_list = Cliente.objects.filter(telefone=request.POST['telefone'])
 
@@ -1190,8 +1216,8 @@ def inicia_realizar_venda(request):
             estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
             preco_venda = estoque_retorno.produto.preco_venda
         if "estoque" in request.POST and request.POST['estoque'] != '':
-            produtonome = Produto.objects.get(nome=request.POST['estoque'])
-            estoque_retorno = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
+            produto = Produto.objects.get(id=request.POST['produtox'])
+            estoque_retorno = Estoque.objects.get(produto_id=produto.id, unidade_id=checkout.unidade)
             preco_venda = estoque_retorno.produto.preco_venda
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             formapagamento_retorno = request.POST['formapagamento']
