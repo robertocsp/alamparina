@@ -127,7 +127,8 @@ if PRODUCAO:
     # it simple - just use this domain plus the path. (If this isn't set, things get complicated).
     # This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
     # We also use it in the next setting.
-    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    #AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3-website-us-west-2.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
     # This is used by the `static` template tag from `static`, if you're using that. Or if anything else
     # refers directly to STATIC_URL. So it's safest to always set it.
