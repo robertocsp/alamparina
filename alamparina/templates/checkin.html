@@ -32,10 +32,10 @@
         </ul>
     </div>
     <label for="id_unidades"><i class="glyphicon glyphicon-map-marker"></i></label>
-    {% if checkin.status == checkin.status_enviado %}
+    {% if checkin.status == checkin.status_enviado or checkin.status == checkin.status_confirmado %}
         <select id="id_unidades" name="unidade" onchange="seleciona()" disabled>
     {% else %}
-        <select id="id_unidades" name="unidade" onchange="seleciona()">
+        <select id="id_unidades" name="unidade" onchange="seleciona()" required>
     {% endif %}
         <option value="">Selecione uma unidade</option>
         {% for unidade in unidade_list %}
@@ -48,14 +48,24 @@
     </select><br><br>
      {% if checkin.status == checkin.status_emprocessamento %}
         <label for="id_dia_agendamento"><i class="glyphicon glyphicon-calendar"></i></label>
-        <input class="data" placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" >
+        <input class="data" placeholder="Dia agendamento..." id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" required>
          <br><br>
         <label for="id_canal"><i class="glyphicon glyphicon-ok-sign"></i></label>
-        <select id="id_canal" name="canais">
-            <option>Canais...</option>
+        <select id="id_canal" name="canal" required>
+            <option value="">Canais...</option>
             {% for canal in canal_list %}
+                {% if canal_retorno != None and canal_retorno.id == canal.id  %}
+                    <option value="{{canal.id}}" selected >{{canal.nome}}</option>
+                {% else %}
+                    <option value="{{canal.id}}">{{canal.nome}}</option>
+                {% endif %}
+            {% endfor %}
+
+<!--            {% for canal in canal_list %}
             <option value="{{canal.id}}">{{canal.nome}}</option>
             {% endfor %}
+            -->
+
         </select>
         <button type="submit" value="Adicionar" name="adicionar_canal" class="btn btn-success">
             <span class="glyphicon glyphicon-plus-sign"></span>
@@ -78,7 +88,7 @@
         </ul><hr>
     {% else %}
        <div class="alert alert-warning">
-            <strong>Não existem canais adicionados a este checkin</strong>
+            <strong>Não existem canais adicionados a este checkin.</strong>
         </div><hr>
     {% endif %}
 
@@ -93,13 +103,22 @@
             {% endfor %}
         </select>
         <label for="id_qtde_produto"></label>
-        <input placeholder="Quantidade..." id="id_qtde_produto" type="text" name="qtde_produto" >
-        <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success">
+        <input placeholder="Quantidade..." id="id_qtde_produto" type="number" name="qtde_produto" >
+        {% if inicia == True %}
+          <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success" disabled>
             <span class="glyphicon glyphicon-plus-sign"></span>
-        </button>
-        <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger">
+           </button>
+           <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger" disabled>
             <span class="glyphicon glyphicon-minus-sign"></span>
-        </button>
+           </button>
+        {% else %}
+          <button type="submit" value="Adicionar" name="adicionar_produto" class="btn btn-success" >
+            <span class="glyphicon glyphicon-plus-sign"></span>
+           </button>
+           <button type="submit" value="Remover" name="remover_produto" class="btn btn-danger" >
+            <span class="glyphicon glyphicon-minus-sign"></span>
+           </button>
+        {% endif %}
     </div><br><br>
 {%endif%}
          {% if expedicao_list %}
@@ -137,9 +156,15 @@
               </table>
             </div>
             <hr>
-            <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
-                <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
-            </button>
+                {% if checkin.status == checkin.status_enviado or checkin.status == checkin.status_confirmado %}
+<!--                    <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary" disabled>
+                        <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+                    </button> -->
+                {% else %}
+                    <button type="submit" name="finalizar" value="Finalizar Checkin" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-ok"></span> Finalizar checkin
+                    </button>
+                {% endif %}
             {% else %}
                 <div class="alert alert-warning">
                     <strong>Não existem produtos adicionados a este checkin</strong>

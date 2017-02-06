@@ -165,7 +165,7 @@ def edita_produto(request, id):
 @user_passes_test(lambda u: u.groups.filter(name='marca').count() != 0, login_url='/login')
 def lista_checkin(request):
     marca = Marca.objects.get(id=request.session['marca_id'])
-    checkin_list = Checkin.objects.filter(marca__id=marca.id)
+    checkin_list = Checkin.objects.filter(marca__id=marca.id).order_by('-dia_agendamento')
     return render(request, 'lista_checkin.html', {'checkin_list': checkin_list, 'marca': marca})
 
 
@@ -173,7 +173,7 @@ def lista_checkin(request):
 def adicionar_canal(lcheckin, lrequest):
     lcheckin.dia_agendamento = datetime.datetime.strptime(lrequest.POST['dia_agendamento'], '%d/%m/%Y')
     lcheckin.save()
-    lcheckin.canal.add(Canal.objects.get(id=lrequest.POST['canais']))
+    lcheckin.canal.add(Canal.objects.get(id=lrequest.POST['canal']))
 
 
 @login_required
@@ -196,6 +196,7 @@ def inicia_checkin(request):
         canal_list = None
         produto_list = None
         unidade_retorno = None
+        canal_retorno = None
     else:
         unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
         checkin.unidade_id = request.POST['unidade']
@@ -269,6 +270,7 @@ def inicia_checkin(request):
                       'unidade_list': unidade_list,
                       'unidade_retorno': unidade_retorno,
                       'contrato': contrato,
+                      'inicia': True,
                   }
                   )
 
@@ -283,9 +285,15 @@ def edita_checkin(request, id):
 
         if len(request.POST) != 0:
             unidade_retorno = Unidade.objects.get(id=request.POST['unidade'])
+            canal_retorno = Canal.objects.get(id=request.POST['canal'])
             checkin.unidade_id = request.POST['unidade']
         else:
             unidade_retorno = Unidade.objects.get(id=checkin.unidade_id)
+            canal_retorno_list = Canal.objects.filter(checkin=checkin)
+            if canal_retorno_list.count() != 0:
+                canal_retorno = canal_retorno_list[0]
+            else:
+                canal_retorno = None
 
         expedicao_list = Expedicao.objects.filter(checkin=checkin)
 
@@ -304,12 +312,13 @@ def edita_checkin(request, id):
             adicionar_canal(checkin, request)
 
         elif "remover_canal" in request.POST:
-            checkin.canal.remove(Canal.objects.get(id=request.POST['canais']))
+            checkin.canal.remove(Canal.objects.get(id=request.POST['canal']))
             checkin.save()
 
         elif "adicionar_produto" in request.POST:
             if "qtde_produto" in request.POST and request.POST['qtde_produto'] != '0' and request.POST[
                 'qtde_produto'] != '' and "produtos" in request.POST and request.POST['produtos'] != 'Produtos...':
+
                 checkin.dia_agendamento = datetime.datetime.strptime(request.POST['dia_agendamento'], '%d/%m/%Y')
                 produto = Produto.objects.get(id=request.POST['produtos'])
                 expedicao.quantidade = request.POST['qtde_produto']
@@ -362,6 +371,7 @@ def edita_checkin(request, id):
                           'checkin': checkin,
                           'miniloja_list': miniloja_list,
                           'canal_list': canal_list,
+                          'canal_retorno': canal_retorno,
                           'produto_list': produto_list,
                           'expedicao_list': expedicao_list,
                           'cubagem_contratada': cubagem_contratada,
@@ -371,6 +381,8 @@ def edita_checkin(request, id):
                           'unidade_list': unidade_list,
                           'unidade_retorno': unidade_retorno,
                           'contrato': contrato,
+                          'inicia': False,
+
                       }
                       )
     else:
@@ -612,7 +624,7 @@ def dashboard_operacional(request):
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name='operacional').count() != 0, login_url='/login')
 def lista_checkin_operacional(request):
-    checkin_list = Checkin.objects.all().exclude(status='emprocessamento')
+    checkin_list = Checkin.objects.all().exclude(status='emprocessamento').order_by('-dia_agendamento')
     return render(request, 'lista_checkin_operacional.html', {'checkin_list': checkin_list})
 
 
@@ -886,14 +898,17 @@ def acompanhar_venda(request):
             periodo_retorno = Periodo.objects.get(id=request.POST['periodo'])
             pagamento_de = periodo_retorno.pagamento_de
             pagamento_ate = periodo_retorno.pagamento_ate
-        # periodo
-        periodo_list = Periodo.objects.all()
+
+
+        contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=unidade_retorno)
+        # primeiro contrato da lista
+        if contrato_list.count() != 0:
+            contrato = contrato_list[0]
+            periodo_list = Periodo.objects.filter(contrato=contrato)
+        else:
+            contrato = None
+
         if periodo_retorno != None:
-            contrato_list = Contrato.objects.filter(marca=marca, miniloja__unidade=unidade_retorno)
-            if contrato_list.count() != 0:
-                contrato = contrato_list[0]
-            else:
-                contrato = None
 
             venda_list = ItemVenda.objects.filter(checkout__status='confirmado', checkout__unidade=unidade_retorno,
                                                   produto__marca=marca,
