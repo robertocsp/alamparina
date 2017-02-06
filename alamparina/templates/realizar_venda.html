@@ -132,7 +132,10 @@
             {% else %}
                 <input type="text" name="estoque" id="id_estoque">
             {% endif %}
-<!--
+
+            <input hidden type="text" name="produtox" id="id_produtox">
+
+            <!--
                 <option value="">Selecione um produto</option>
                 {% for estoque in estoque_list %}
                 {% if estoque_retorno != None and estoque_retorno.id == estoque.id  %}
@@ -338,7 +341,7 @@ function submete_form(){
 </style>
 
 <link href="{% static 'alamparina/css/jquery-ui.css'%}" rel="stylesheet" type="text/css" media="all">
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
 var unidade = document.getElementById("id_unidades").value;
@@ -354,13 +357,22 @@ $(function() {
         minLength: 2,
         source: result_source,
         select: function( event, ui ) {
-            log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+            $("#id_estoque").val(ui.item.label);
+            $("#id_produtox").val(ui.item.value);
+            return false
             }
     });
 });
-
 </script>
 
 
 
 {% endblock %}
+
+
+
+
+
+
+
+
