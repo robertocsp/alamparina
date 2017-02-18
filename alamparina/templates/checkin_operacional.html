@@ -9,13 +9,6 @@
 <form method="post">
 <ul method="post">{% csrf_token %}
 {% load custom_tags %}
-    <label class="h4" for="id_status_checkin">Status do checkin:</label>
-    <!--<select id="id_status_checkin" name="statuscheckin" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}> >-->
-    <select id="id_status_checkin" name="statuscheckin" onchange="form.submit()">
-        {% for key, value in checkin.STATUS%}
-        <option value="{{key}}" {%ifequal key checkin.status %} selected {%endifequal%}>{{value}}</option>
-        {% endfor %}
-    </select>
 
     {% if messages %}
     <ul>
@@ -24,7 +17,6 @@
     {% endfor %}
     </ul>
     {% endif %}
-    <hr>
     <div class="agendamento">
         <label class="h4" for="id_dia_agendamento"><i class="glyphicon glyphicon-calendar"></i> Dia agendamento: </label><input class="hora-checkin"  id="id_dia_agendamento" type="text" name="dia_agendamento" value="{% if checkin %}{{checkin.dia_agendamento|date:'d/m/Y'}}{% endif %}" disabled>
         <!--<label class="h4" for="id_hora_agendamento"><i class="glyphicon glyphicon-time"></i> Hora agendamento: </label><input id="id_hora_agendamento" type="text" name="hora_agendamento" value="{% if checkin %}{{checkin.hora_agendamento|time:'H:i'}}{% endif %}" disabled>-->
@@ -96,7 +88,7 @@
                             </td>
                             <td>
                                 <!--<select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>>-->
-                                <select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" onchange="form.submit()">
+                                <select id="id_status_produto" name="status_produto_{{expedicao.produto.id}}" onchange="form.submit()" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}>
                                         <option> Status...</option>
                                     {% for key, value in expedicao.STATUS%}
                                         <option value="{{key}}" {%ifequal key expedicao.status %} selected {%endifequal%}>{{value}}</option>
@@ -116,6 +108,15 @@
                 <hr>
         {% endif %}
     </div>
+    <hr>
+    <label class="h4" for="id_status_checkin">Status do checkin:</label>
+    <!--<select id="id_status_checkin" name="statuscheckin" {%ifequal checkin.status 'confirmado' %} disabled {%endifequal%}> >-->
+    <select id="id_status_checkin" name="statuscheckin" onchange="form.submit()">
+        {% for key, value in checkin.STATUS%}
+        <option value="{{key}}" {%ifequal key checkin.status %} selected {%endifequal%}>{{value}}</option>
+        {% endfor %}
+    </select>
+
     <div>
         <!--{%ifnotequal checkin.status 'confirmado' %}-->
             <button type="submit" name="atualizar" value="Atualizar" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Atualizar</button>

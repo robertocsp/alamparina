@@ -674,7 +674,8 @@ def edita_checkin_operacional(request, id):
         # por enquanto, ta gravando ate o option=status... no bd em vez de dar um alerta.
         checkin.status = request.POST['statuscheckin']
         for expedicao in expedicao_list:
-            expedicao.status = request.POST['status_produto_' + str(expedicao.produto.id)]
+            if 'status_produto_' + str(expedicao.produto.id) in request.POST:
+                expedicao.status = request.POST['status_produto_' + str(expedicao.produto.id)]
 
             if checkin.status == 'confirmado' and expedicao.status == 'ok':
                 produto = Produto.objects.get(id=expedicao.produto.id)

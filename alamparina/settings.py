@@ -16,11 +16,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'aa%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz')
 #'aa%1e*xipej7@2ir6d7d)$ra*-e67l)q-@c7-376g)(t$0tb20gz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('ALAMPARINA_DEBUG', True)
+DEBUG = os.environ.get('ALAMPARINA_DEBUG', False)
 
 ALLOWED_HOSTS = ['*']
 
@@ -62,7 +62,7 @@ WSGI_APPLICATION = 'alamparina.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-PRODUCAO = os.environ.get('ALAMPARINA_PRODUCAO', True)
+PRODUCAO = os.environ.get('ALAMPARINA_PRODUCAO', False)
 
 if not PRODUCAO:
     DATABASES = {
