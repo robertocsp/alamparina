@@ -1362,9 +1362,11 @@ def edita_realizar_venda(request, id):
             'produto'] != '':
             estoque_retorno = Estoque.objects.get(produto_id=request.POST['estoque'])
             preco_venda = estoque_retorno.produto.preco_venda
-        if "estoque" in request.POST and request.POST['estoque'] != '':
-            produtonome = Produto.objects.get(nome=request.POST['estoque'])
-            estoque_retorno = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
+        if "produtox" in request.POST and request.POST['produtox'] != '':
+            #produtonome = Produto.objects.get(nome=request.POST['estoque'])
+            #estoque_retorno = Estoque.objects.get(produto_id=produtonome.id, unidade_id=checkout.unidade)
+            produto = Produto.objects.get(id=request.POST['produtox'])
+            estoque_retorno = Estoque.objects.get(produto_id=produto.id, unidade_id=checkout.unidade)
             preco_venda = estoque_retorno.produto.preco_venda
         if "formapagamento" in request.POST and request.POST['formapagamento'] != '':
             formapagamento_retorno = request.POST['formapagamento']
