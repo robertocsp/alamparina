@@ -63,15 +63,15 @@ def get_prod_marca(request):
     if m.endswith('/'):
         m = m[:-1]
 
-    estoque_list = Estoque.objects.filter(unidade_id=u)
+    #estoque_list = Estoque.objects.filter(unidade_id=u)
     results = []
-    for estoque in estoque_list:
-        prods = Produto.objects.filter(id=estoque.produto_id, marca=m, nome__icontains=q)
-        for prod in prods:
-            prods_data = {}
-            prods_data["label"] = prod.nome + " - " + prod.marca.nome
-            prods_data["value"] = prod.id
-            results.append(prods_data)
+    #for estoque in estoque_list:
+    prods = Produto.objects.filter(marca=m, nome__icontains=q)
+    for prod in prods:
+        prods_data = {}
+        prods_data["label"] = prod.nome + " - " + prod.marca.nome
+        prods_data["value"] = prod.id
+        results.append(prods_data)
 
     data = json.dumps(results)
     mimetype = 'application/json'
