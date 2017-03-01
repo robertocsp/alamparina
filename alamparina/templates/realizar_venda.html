@@ -336,14 +336,23 @@ function submete_form(){
 }
 </script>
 <style>
-  .ui-autocomplete-loading {
-    background: white url(https://s3-us-west-2.amazonaws.com/alamparina/alamparina/css/images/loading.gif) right center no-repeat;
+input.ui-autocomplete-loading { background: url('https://s3-us-west-2.amazonaws.com/alamparina/alamparina/css/images/loading.gif') no-repeat right center }
+input.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 100px;
   }
 </style>
-
-<link href="{% static 'alamparina/css/jquery-ui.css'%}" rel="stylesheet" type="text/css" media="all">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
 <script type="text/javascript">
 var unidade = document.getElementById("id_unidades").value;
 var lsource = "/api/get_prod?unidade=";
@@ -361,7 +370,10 @@ $(function() {
             $("#id_estoque").val(ui.item.label);
             $("#id_produtox").val(ui.item.value);
             return false
-            }
+            },
+        close: function( event, ui ) {
+            $('.ui-autocomplete-loading').removeClass("ui-autocomplete-loading");
+             }
     });
 });
 </script>
