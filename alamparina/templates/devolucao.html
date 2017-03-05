@@ -1,6 +1,6 @@
 {% extends "includes/layout_principal_operacional.html" %}
 
-{% block tituloPagina %}<i class="fa fa-fw fa-bar-chart-o"></i> Efetuar Venda {% endblock %}
+{% block tituloPagina %}<i class="fa fa-fw fa-bar-chart-o"></i> Devolu&ccedil;&atildeo de Mercadoria{% endblock %}
 
 {% block Vendas %}active{% endblock %}
 
@@ -180,6 +180,7 @@
                             <th>Quantidade</th>
                             <th>Preço unitário</th>
                             <th>Preço venda</th>
+                            <th>Devolver</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -189,6 +190,7 @@
                                     <td>{{itemvenda.quantidade}}</td>
                                     <td>{{itemvenda.produto.preco_venda|floatformat:2}}</td>
                                     <td>{% Multiplicacao  itemvenda.quantidade itemvenda.produto.preco_venda %}R$ {{calculado|floatformat:2}}</td>
+                                    <td><font color="red"><i class="glyphicon glyphicon-remove"></i></font></td>
                             </tr>
                           {% endfor %}
                       </tbody>

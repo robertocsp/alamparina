@@ -5,9 +5,12 @@
 
 {% block conteudo %}
 <form id="form_lista_vendas_operacional" method="post">{% csrf_token %}
+{% load custom_tags %}
     <label for="id_unidade"><i class="glyphicon glyphicon-ok-sign"></i></label>
-    <select id="id_unidade" name="unidade" onchange="form.submit()">
-        <option>Selecione uma Unidade...</option>
+    <select id="id_unidade" name="unidade" onchange="form.submit()" required>
+        {% if unidade_retorno == None %}
+            <option>Selecione uma Unidade...</option>
+        {% endif %}
         {% for u in unidade %}
             {% if unidade_retorno != None and unidade_retorno.id == u.id %}
                 <option value="{{u.id}}" selected>{{u.nome}}</option>
@@ -16,6 +19,26 @@
             {% endif %}
         {% endfor %}
     </select>
+    <br><br>
+         <label><i class="fa fa-dropbox"></i> Selecione um produto:</label><br>
+         {% if unidade_retorno != None %}
+            {% if nome_produto != None %}
+                <input type="text" name="estoque" id="id_estoque" value="{{nome_produto}}">
+            {% else %}
+                <input type="text" name="estoque" id="id_estoque">
+            {% endif %}
+            <input hidden type="text" name="produtox" id="id_produtox">
+            <button type="submit" value="Pesquisar" name="pesquisar_produto" class="btn btn-info" >
+            <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+         {% else %}
+            <input type="text" name="estoque" id="id_estoque" disabled>
+            <input hidden type="text" name="produtox" id="id_produtox" disabled>
+            <button type="submit" value="Pesquisar" name="pesquisar_produto" class="btn btn-info" disabled>
+            <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+         {% endif %}
+
     <br><br>
     {% if venda_list %}
     <div class="panel panel-default">
@@ -39,8 +62,18 @@
                     <td>{{ venda.quantidade }}</td>
                     <td>{{ venda.preco_venda|floatformat:2 }}</td>
                     <td>{{ venda.dtrealizado }}</td>
-                    <td><a href="/operacional/realizar-venda/{{venda.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
-
+                    {% if venda.status == "confirmado" %}
+                        <td><a href="/operacional/realizar-venda/{{venda.id}}"><i class="glyphicon glyphicon-eye-open"></i> Visualizar</a></td>
+                        {% DiferencaData venda.dtrealizado %}
+                        {% if calculado %}
+                            <td><a href="/operacional/devolucao/{{venda.id}}"><font color="red"><i class="glyphicon glyphicon-remove"></i> Devolu&ccedil;&atildeo</a></td></font></td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    {% else %}
+                        <td><a href="/operacional/realizar-venda/{{venda.id}}"><i class="glyphicon glyphicon-pencil"></i> Editar</a></td>
+                        <td></td>
+                    {% endif %}
                 </tr>
              {% endfor %}
           </tbody>
@@ -59,4 +92,47 @@ function seleciona() {
     document.getElementById("form_lista_vendas_operacional").submit();
 }
 </script>
+<style>
+input.ui-autocomplete-loading { background: url('https://s3-us-west-2.amazonaws.com/alamparina/alamparina/css/images/loading.gif') no-repeat right center }
+input.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 100px;
+  }
+</style>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script type="text/javascript">
+var unidade = document.getElementById("id_unidade").value;
+var lsource = "/api/get_prod?unidade=";
+var result_source = lsource.concat(unidade);
+$(function() {
+    function log( message ) {
+      $( "<div>" ).text( message ).prependTo( "#log" );
+      $( "#log" ).scrollTop( 0 );
+    }
+
+    $("#id_estoque").autocomplete({
+        minLength: 2,
+        source: result_source,
+        select: function( event, ui ) {
+            $("#id_estoque").val(ui.item.label);
+            $("#id_produtox").val(ui.item.value);
+            return false
+            },
+        close: function( event, ui ) {
+            $('.ui-autocomplete-loading').removeClass("ui-autocomplete-loading");
+             }
+    });
+});
+</script>
+
 {% endblock %}
