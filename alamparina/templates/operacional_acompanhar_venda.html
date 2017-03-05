@@ -122,6 +122,7 @@ $(function() {
 
     $("#id_estoque").autocomplete({
         minLength: 2,
+        ajaxGetAll: {get: "all"},
         source: result_source,
         select: function( event, ui ) {
             $("#id_estoque").val(ui.item.label);
